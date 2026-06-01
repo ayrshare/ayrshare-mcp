@@ -1,0 +1,11 @@
+{
+	"mcpServers": {
+		"ayrshare": {
+			"type": "http",
+			"url": "https://api.ayrshare.com/mcp",
+			"headers": {
+				"Authorization": "Bearer ${AYRSHARE_API_KEY}"
+			}
+		}
+	}
+}
