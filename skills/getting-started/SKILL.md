@@ -60,10 +60,10 @@ Full, copy-paste instructions are in `references/install.md`. The essentials:
 
 **Claude Code plugin (recommended)** — installs commands, agents, and skills, then configures the key via setup:
 ```bash
-claude plugin install github:ayrshare/ayrshare-mcp        # default: global (all projects)
+claude plugin install github:ayrshare/ayrshare-social-media-api-claude-plugin        # default: global (all projects)
 # or scope it:
-claude plugin install github:ayrshare/ayrshare-mcp --scope local     # this project, not committed
-claude plugin install github:ayrshare/ayrshare-mcp --scope project   # this project, committed with team
+claude plugin install github:ayrshare/ayrshare-social-media-api-claude-plugin --scope local     # this project, not committed
+claude plugin install github:ayrshare/ayrshare-social-media-api-claude-plugin --scope project   # this project, committed with team
 ```
 Then inside Claude Code, configure your key and **restart**:
 ```
@@ -81,7 +81,7 @@ claude mcp add ayrshare --transport http \
 **Env var / CI:**
 ```bash
 export AYRSHARE_API_KEY=your_key_here
-claude plugin install github:ayrshare/ayrshare-mcp
+claude plugin install github:ayrshare/ayrshare-social-media-api-claude-plugin
 ```
 The plugin's `.mcp.json` substitutes `${AYRSHARE_API_KEY}` at startup — no `/ayrshare:setup` needed.
 

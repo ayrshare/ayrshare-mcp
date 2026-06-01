@@ -19,9 +19,9 @@ The plugin scope controls where commands, agents, and skills are available. Choo
 
 | Scope | Command | Where it's available |
 |---|---|---|
-| Global (default) | `claude plugin install github:ayrshare/ayrshare-mcp` | Every project on this machine |
-| This project only | `claude plugin install github:ayrshare/ayrshare-mcp --scope local` | Current project, not committed to git |
-| This project (shared) | `claude plugin install github:ayrshare/ayrshare-mcp --scope project` | Current project, committed to git with the team |
+| Global (default) | `claude plugin install github:ayrshare/ayrshare-social-media-api-claude-plugin` | Every project on this machine |
+| This project only | `claude plugin install github:ayrshare/ayrshare-social-media-api-claude-plugin --scope local` | Current project, not committed to git |
+| This project (shared) | `claude plugin install github:ayrshare/ayrshare-social-media-api-claude-plugin --scope project` | Current project, committed to git with the team |
 
 After installing, configure your API key:
 
@@ -39,7 +39,7 @@ After installing, configure your API key:
 
 ```bash
 # 1. Install the plugin globally (this is the default)
-claude plugin install github:ayrshare/ayrshare-mcp
+claude plugin install github:ayrshare/ayrshare-social-media-api-claude-plugin
 
 # 2. Configure your API key (stored in ~/.claude/)
 # Run inside Claude Code:
@@ -54,7 +54,7 @@ Commands, agents, and skills are available in every project. The key is stored i
 
 ```bash
 # 1. Install scoped to the current project (not committed to git)
-claude plugin install github:ayrshare/ayrshare-mcp --scope local
+claude plugin install github:ayrshare/ayrshare-social-media-api-claude-plugin --scope local
 
 # 2. Configure your API key (stored in .mcp.json in the project directory)
 # Run inside Claude Code:
@@ -69,7 +69,7 @@ Commands, agents, and skills only appear in this project. The key is written to 
 
 ```bash
 # 1. Install scoped to the project (committed to git)
-claude plugin install github:ayrshare/ayrshare-mcp --scope project
+claude plugin install github:ayrshare/ayrshare-social-media-api-claude-plugin --scope project
 
 # 2. Configure your API key (stored in .mcp.json in the project directory)
 # Run inside Claude Code:
@@ -100,7 +100,7 @@ For CI environments or users who manage env vars via shell profile:
 
 ```bash
 export AYRSHARE_API_KEY=your_key_here
-claude plugin install github:ayrshare/ayrshare-mcp
+claude plugin install github:ayrshare/ayrshare-social-media-api-claude-plugin
 ```
 
 The plugin's `.mcp.json` uses `${AYRSHARE_API_KEY}` — Claude Code substitutes it at startup. No setup command needed.
