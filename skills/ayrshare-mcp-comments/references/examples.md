@@ -1,6 +1,6 @@
 # Example payloads — Ayrshare MCP comments
 
-Inputs passed to the MCP tools. `id` is the post id returned by `mcp__ayrshare__create_post`. `commentId` is a comment id returned by `mcp__ayrshare__get_comments`.
+Inputs passed to the MCP tools. `id` is the post id returned by `mcp__ayrshare__create_post`. `commentId` is a comment id returned by `mcp__ayrshare__get_comments`. No tool takes a `profileKey` argument — profile scoping is the connection's `Profile-Key` header (see `../ayrshare-mcp-getting-started/SKILL.md`).
 
 ## Read the comments on a post
 
@@ -8,7 +8,19 @@ Inputs passed to the MCP tools. `id` is the post id returned by `mcp__ayrshare__
 { "id": "POST_ID_RETURNED_BY_CREATE_POST" }
 ```
 
-For a specific client profile, add `profileKey`. The response includes each comment's id (use it as `commentId` for replies/deletes) and text.
+The response includes each comment's id (use it as `commentId` for replies) and text.
+
+To read by a native Social Post/Comment ID instead of an Ayrshare id, set `searchPlatformId` and supply the single platform:
+
+```json
+{
+  "id": "NATIVE_SOCIAL_POST_ID",
+  "searchPlatformId": true,
+  "platform": "linkedin"
+}
+```
+
+Add `commentId: true` alongside `searchPlatformId` when the `id` is a native Social Comment ID rather than a post id.
 
 ## Add a NEW top-level comment to a post
 
@@ -20,35 +32,34 @@ For a specific client profile, add `profileKey`. The response includes each comm
 }
 ```
 
-This is `mcp__ayrshare__post_comment`. Use when you want a comment ON THE POST. `platforms` is optional and only relevant when the post spans multiple networks and you want to scope the comment.
+This is `mcp__ayrshare__add_comment`. Use when you want a comment ON THE POST. `platforms` is optional (a COMMENT_PLATFORMS subset) and only relevant when the post spans multiple networks and you want to scope the comment. To attach media, add `mediaUrls` with exactly one URL — supported only on Facebook, LinkedIn, and X (twitter).
 
 ## Reply to an EXISTING comment
 
 ```json
 {
   "commentId": "COMMENT_ID_FROM_GET_COMMENTS",
-  "comment": "Great question — yes, dark mode is available on all plans."
+  "comment": "Great question — yes, dark mode is available on all plans.",
+  "platforms": ["linkedin"]
 }
 ```
 
-This is `mcp__ayrshare__reply_comment`. Use when responding to a specific person/comment. Get the `commentId` from `mcp__ayrshare__get_comments` first — don't guess it.
+This is `mcp__ayrshare__reply_comment` (POST `/comments/reply`). Use when responding to a specific person/comment. Get the `commentId` from `mcp__ayrshare__get_comments` first — don't guess it.
 
-## Reply on behalf of a client profile
+## Reply to a TikTok comment by its native Social Comment ID
 
 ```json
 {
-  "commentId": "COMMENT_ID_FROM_GET_COMMENTS",
-  "comment": "Appreciate you reaching out! DMing you now.",
-  "profileKey": "PROFILE_KEY_FROM_CREATE_PROFILE"
+  "commentId": "NATIVE_SOCIAL_COMMENT_ID",
+  "comment": "Appreciate you reaching out!",
+  "platforms": ["tiktok"],
+  "searchPlatformId": true,
+  "videoId": "TIKTOK_VIDEO_ID"
 }
 ```
 
-`profileKey` here overrides any `AYRSHARE_PROFILE_KEY` env default.
+With `searchPlatformId`, `commentId` is a native Social Comment ID and exactly one platform must be supplied. TikTok Social-Comment-ID replies additionally require `videoId`.
 
-## Delete a comment
+## Acting as a specific client profile
 
-```json
-{ "commentId": "COMMENT_ID_FROM_GET_COMMENTS" }
-```
-
-Add `profileKey` to delete a comment under a specific client profile. Not every platform supports comment deletion; a 4xx here may mean the platform doesn't allow it or the comment is already gone — call `mcp__ayrshare__explain_error` and surface the explanation, don't retry.
+Profile scoping is NOT a payload field. To reply on behalf of a client profile, set the connection's `Profile-Key` header in the MCP client config (`.mcp.json`) — see `../ayrshare-mcp-getting-started/SKILL.md`. The tool payload itself stays unchanged; `passthrough` cannot carry a `profileKey`.

@@ -1,12 +1,12 @@
-# Media size/format limits and per-platform image dimensions
+# Per-platform media constraints to check before posting
 
-Values from Ayrshare's media guidelines. Platforms are network requirements that Ayrshare enforces — an out-of-spec asset is rejected at upload or at post time. Resize per platform with `mcp__ayrshare__resize_media`.
+Values from Ayrshare's media guidelines. These are network requirements that Ayrshare enforces — an out-of-spec asset is rejected at post time. There is **no resize or upload tool** in the Ayrshare MCP: the agent must supply media already hosted at a public URL and already sized for each target platform, then confirm the URL is reachable with `mcp__ayrshare__validate_media` before posting.
 
-## Upload limits (Ayrshare `/media/upload`)
+## Hosting (no upload tool)
 
-- **Max file size: 30 MB** through `mcp__ayrshare__upload_media`. For larger files, host externally (e.g. S3) and pass the URL in the post's `mediaUrls` instead of uploading.
-- **Retention: uploaded files are stored 90 days.** Already-published posts are unaffected, but a SCHEDULED post that references expired media will fail to publish. Don't schedule far-future posts against soon-to-expire uploads.
-- Externally hosted media (your own URL) skips the upload step entirely — often faster.
+- Media is referenced by **public URL** in a post's `mediaUrls` — the MCP does not store or upload media. Host it on your own CDN, S3, or any public host.
+- A SCHEDULED post will fail to publish if the media URL becomes unreachable before the scheduled time. Keep the URL live until the post sends.
+- Confirm the URL is reachable and the right content type with `mcp__ayrshare__validate_media` before posting.
 
 ## Per-platform image requirements (priority networks first)
 
@@ -26,9 +26,9 @@ Values from Ayrshare's media guidelines. Platforms are network requirements that
 | `snapchat` | varies | per Snapchat spec | Story-style 9:16. |
 | `youtube` | video-first | video formats | Thumbnails per YouTube spec. |
 
-## Why resize is per-platform
+## Why these constraints matter — and why there's no resize step
 
-The table above shows the conflict directly: Instagram wants width ≥ 1080 px with a 1.91:1–4:5 aspect, X recommends 1200 x 675 (16:9), Pinterest wants a 2:3 portrait, GBP wants landscape ~720x720. A single asset cannot satisfy all of them. When a post targets multiple networks, run `mcp__ayrshare__resize_media` once per platform and attach the right URL to each.
+The table shows the conflict directly: Instagram wants width ≥ 1080 px with a 1.91:1–4:5 aspect, X recommends 1200 x 675 (16:9), Pinterest wants a 2:3 portrait, GBP wants landscape ~720x720. A single asset cannot satisfy all of them. Because the MCP has **no resize tool**, the agent must supply a correctly-sized asset per platform: host the right variant at a public URL for each network, validate each URL with `mcp__ayrshare__validate_media`, and attach the matching URL to each platform's post.
 
 ## Notes
 
