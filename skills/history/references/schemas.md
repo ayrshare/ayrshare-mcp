@@ -29,22 +29,22 @@ Returns Ayrshare Post IDs for posts published or scheduled through Ayrshare. All
 
 Examples:
 
-```json
+```jsonc
 // Last 7 days on LinkedIn, up to 50 posts (profile chosen by the connection's Profile-Key header)
 { "lastDays": 7, "platforms": ["linkedin"], "limit": 50 }
 ```
 
-```json
+```jsonc
 // Default recent history, no filters (last 30 days, up to 25 posts)
 {}
 ```
 
-```json
+```jsonc
 // All time, only failed posts
 { "lastDays": 0, "status": "error" }
 ```
 
-```json
+```jsonc
 // Onboarding verification — confirm a freshly linked profile.
 // Scope comes from the connection's Profile-Key header, not this payload.
 {}
@@ -77,24 +77,24 @@ Returns **native** social posts for a single platform, **including posts not cre
 
 Examples:
 
-```json
+```jsonc
 // Native Facebook posts, last published window, lighter response
 { "platform": "facebook", "skipAnalytics": true, "since": "2026-05-01T00:00:00Z", "until": "2026-06-01T00:00:00Z" }
 ```
 
-```json
+```jsonc
 // Native Instagram stories
 { "platform": "instagram", "dataType": "stories" }
 ```
 
-```json
+```jsonc
 // Paginate to the next page of native Twitter/X posts
 { "platform": "twitter", "limit": 100, "next": "CURSOR_FROM_PRIOR_CALL" }
 ```
 
 The returned native Social Post `id` then feeds analytics-by-social-id:
 
-```json
+```jsonc
 // Analytics on a non-Ayrshare post, by native Social Post ID
 {
   "id": "104923907983682_108329000309742",

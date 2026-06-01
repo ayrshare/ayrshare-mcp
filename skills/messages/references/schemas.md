@@ -33,22 +33,22 @@ Reads conversations and/or messages for a single platform. Returns conversations
 
 Examples:
 
-```json
+```jsonc
 // All recent Instagram conversations + messages (profile chosen by the connection's Profile-Key header)
 { "platform": "instagram" }
 ```
 
-```json
+```jsonc
 // Lightweight list of Facebook conversations only (no message bodies)
 { "platform": "facebook", "conversationsOnly": true }
 ```
 
-```json
+```jsonc
 // Read the messages inside one Instagram conversation
 { "platform": "instagram", "conversationId": "aWdfZGFf...thread" }
 ```
 
-```json
+```jsonc
 // Paginate Twitter/X messages (limit + next are X-only)
 { "platform": "twitter", "limit": 50, "next": "CURSOR_FROM_PRIOR_CALL" }
 ```
@@ -79,12 +79,12 @@ Constraints, in plain terms:
 
 Examples:
 
-```json
+```jsonc
 // Instagram text reply — FB/IG require recipientId
 { "platform": "instagram", "recipientId": "17841400000000000", "message": "Thanks for reaching out! How can we help?" }
 ```
 
-```json
+```jsonc
 // Facebook reply with an image (recipientId required on FB)
 {
   "platform": "facebook",
@@ -94,12 +94,12 @@ Examples:
 }
 ```
 
-```json
+```jsonc
 // Twitter/X reply into an existing conversation (X accepts conversationId)
 { "platform": "twitter", "conversationId": "1234567890-9876543210", "message": "Sent you the details!" }
 ```
 
-```json
+```jsonc
 // Media-only DM (no text) — content requirement satisfied by mediaUrls
 { "platform": "twitter", "recipientId": "9876543210", "mediaUrls": ["https://img.ayrshare.com/dm/promo.png"] }
 ```
@@ -139,22 +139,22 @@ Updates the profile's DM auto-reply settings. **At least one** of the three sett
 
 Examples:
 
-```json
+```jsonc
 // Turn on auto-reply with a custom message and a 30s delay
 { "autoResponseActive": true, "autoResponseMessage": "Thanks for your message! We'll reply within a few hours.", "autoResponseWaitSeconds": 30 }
 ```
 
-```json
+```jsonc
 // Just turn it off (partial update — message + wait left as-is)
 { "autoResponseActive": false }
 ```
 
-```json
+```jsonc
 // Reset the message to the Ayrshare default (empty string = reset)
 { "autoResponseMessage": "" }
 ```
 
-```json
+```jsonc
 // Change only the wait time
 { "autoResponseWaitSeconds": 60 }
 ```
