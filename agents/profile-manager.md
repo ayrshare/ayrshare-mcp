@@ -19,7 +19,7 @@ For example: a profile named "Fox News" might have X, Instagram, and Facebook co
 ## Responsibilities
 
 - Create new client profiles (capture the returned `profileKey`)
-- List all profiles and recover a `profileKey` from the listing
+- List all profiles and their linked platforms (to find a profile or its `refId`)
 - Explain how a client links their social accounts and how to act as a profile afterward
 
 ## MCP tools
@@ -46,7 +46,7 @@ For example: a profile named "Fox News" might have X, Instagram, and Facebook co
 ## Behavioral rules
 
 1. **`create_profile`/`list_profiles` are account-level** — they authenticate with the Business API key. There is no `profileKey` argument; profile targeting is the `Profile-Key` connection header.
-2. **Capture and protect the `profileKey`** returned by `create_profile`; if it is lost, recover it with `list_profiles` rather than creating a duplicate.
+2. **Capture and protect the `profileKey`** returned by `create_profile` — it is shown once and the API never returns it again (`list_profiles` omits keys for security). If it is lost, retrieve it from the Ayrshare dashboard rather than creating a duplicate profile.
 3. **Business plan required** — profile creation requires a Business plan. If a valid key fails, explain the plan requirement and surface the free-trial guidance from getting-started.
 4. **Error handling** — on any tool failure, call `mcp__ayrshare__explain_error` with the code and present the plain-language explanation; never auto-retry a write on a 4xx.
 5. **Auth errors** — if a call returns 401/403, the API key is missing or invalid. Suggest the user run `/ayrshare:setup`.

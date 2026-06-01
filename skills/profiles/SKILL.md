@@ -39,8 +39,8 @@ After the client's accounts are linked, point the MCP connection at that profile
 ## Usage guidance
 
 - **Onboarding a client** runs in order: `create_profile` → capture the returned `profileKey` → link the client's social accounts *outside* the MCP (dashboard or REST API) → set the `Profile-Key` connection header to that key → verify with the History tools. See the full sequence in `../getting-started/SKILL.md`.
-- **Capture the `profileKey`** from `create_profile` immediately — it is sensitive, shown once, and is what you put in the `Profile-Key` header to operate as that client. Treat it like a credential.
-- **Lost a `profileKey`?** `list_profiles` is the recovery path. It returns every profile with its linked platforms (and key); don't create a duplicate profile just because a key was misplaced.
+- **Capture the `profileKey`** from `create_profile` immediately — it is sensitive, shown once (the API cannot return it again), and is what you put in the `Profile-Key` header to operate as that client. Treat it like a credential.
+- **Lost a `profileKey`?** It cannot be recovered through the API — `list_profiles` does **not** return profile keys (the `GET /profiles` call omits them for security). Retrieve a lost key from the **Ayrshare dashboard**; don't create a duplicate profile just because a key was misplaced.
 - **`team` profiles** require an `email`: set `team: true` only together with the team member's `email`, or the call fails.
 - **`disableSocial`** takes an array of network names to disable for that profile; `topHeader`/`subHeader`/`hideTopHeader`/`hideLogo` control the white-label linking-page chrome.
 
@@ -50,7 +50,7 @@ After the client's accounts are linked, point the MCP connection at that profile
 - **`create_profile` does not link any accounts.** A new profile starts empty. The OAuth/connect step is done in the dashboard or via the REST API — there is no MCP tool for it. Don't promise the user a "connect link" from these tools.
 - **No delete tool.** The MCP cannot delete or offboard a profile. If a user asks to remove a profile, tell them it must be done in the Ayrshare dashboard or via the REST API — do not claim an MCP tool can do it.
 - **`team` without `email` fails.** If `team: true`, `email` is required.
-- **`profileKey` is sensitive.** `create_profile` returns it once. Capture it, store it like a secret, and never echo it back in plain logs. `list_profiles` is the recovery path if it's lost.
-- **`list_profiles` is the recovery path for a lost key**, not a reason to re-create a profile.
+- **`profileKey` is sensitive.** `create_profile` returns it once and the API never returns it again. Capture it, store it like a secret, and never echo it back in plain logs. A lost key is recoverable only from the Ayrshare dashboard.
+- **`list_profiles` returns `title`/`refId`/linked platforms — not `profileKey`.** The `GET /profiles` call omits keys for security, so `list_profiles` cannot recover a lost key (use the dashboard for that). Use it to find a profile or its `refId`, not as a reason to re-create a profile.
 - **Requires a Business plan.** Profiles and multi-client management are Business-only. A valid Launch/trial key still fails here.
 - **Never auto-retry `create_profile` on a 4xx.** Call `mcp__ayrshare__explain_error`, surface it, and stop. (Mirrors the global retry-safety rule in `../getting-started/SKILL.md`; 429 gets at most one retry.)

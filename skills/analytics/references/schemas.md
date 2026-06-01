@@ -48,7 +48,7 @@ Returns per-network engagement metrics for that post (likes, comments, shares, v
 
 The same per-post metrics, but for a post identified by its **native Social Post ID** — for posts that did **not** originate via Ayrshare, or when you only have the native id. This is a separate tool from `get_post_analytics`; the difference is the id type and the required single `platform`.
 
-Find the native Social Post ID via `mcp__ayrshare__get_platform_history` (the `id` field) — see the History skill. Supported platforms (ANALYTICS_PLATFORMS): **bluesky, facebook, instagram, linkedin, pinterest, reddit, snapchat, threads, tiktok, twitter, youtube**.
+`mcp__ayrshare__get_platform_history` is one way to find the native Social Post ID (the `id` field), but only for the platforms it covers — it excludes **gmb, reddit, and telegram**, so for a network it doesn't cover (e.g. reddit, which *is* an ANALYTICS_PLATFORMS value) take the native id from the platform itself. See the History skill. Supported analytics platforms (ANALYTICS_PLATFORMS): **bluesky, facebook, instagram, linkedin, pinterest, reddit, snapchat, threads, tiktok, twitter, youtube**.
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|

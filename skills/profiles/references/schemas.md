@@ -40,10 +40,10 @@ Example call (team profile with white-label chrome):
 }
 ```
 
-The response contains the new profile's sensitive `profileKey` (and `refId`). **Capture the `profileKey`** — it is shown once and is what you place in the `Profile-Key` connection header to operate as this profile downstream (posting, analytics, history). Treat it like a credential.
+The response contains the new profile's sensitive `profileKey` (and `refId`). **Capture the `profileKey`** — it is shown once and the API cannot return it again (a lost key is recoverable only from the Ayrshare dashboard), and it is what you place in the `Profile-Key` connection header to operate as this profile downstream (posting, analytics, history). Treat it like a credential.
 
 ## `mcp__ayrshare__list_profiles`
 
 `GET /profiles`
 
-No inputs. Returns all profiles under the Business account — each with its `title`, `refId`, and the social platforms currently linked to it. This is the recovery path when a `profileKey` has been lost; do not create a duplicate profile to recover a key.
+No inputs. Returns all profiles under the Business account — each with its `title`, `refId`, and the social platforms currently linked to it. For security the `GET /profiles` call does **not** return `profileKey`, so `list_profiles` cannot recover a lost key — retrieve that from the Ayrshare dashboard. Use `list_profiles` to find a profile or its `refId`, not to work around a misplaced key.
