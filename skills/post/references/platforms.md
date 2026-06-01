@@ -24,4 +24,4 @@ The `platforms` array in `mcp__ayrshare__create_post` / `mcp__ayrshare__validate
 - A post targets every platform in the array in one call. One invalid value fails the whole request. Run `mcp__ayrshare__validate_post` first to catch this and other per-platform issues early.
 - For `twitter`, if you are bringing your own X app credentials, `X_API_KEY` / `X_API_SECRET` are supplied as connection headers (configured in the environment) — see `create-post-schema.md`.
 - In example payloads, prioritize `twitter`, `facebook`, `instagram`, `linkedin` — the most common targets.
-- Each network has its own content rules (character limits, media requirements). Image/video sizing differs per platform — see `../../ayrshare-mcp-media/SKILL.md` and its `references/` for per-platform dimensions and `mcp__ayrshare__resize_media`.
+- Each network has its own content rules (character limits, media requirements). Image/video sizing differs per platform — see `../../media/SKILL.md` and its `references/` for per-platform dimensions and `mcp__ayrshare__resize_media`.

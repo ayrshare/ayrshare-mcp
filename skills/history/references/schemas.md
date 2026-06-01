@@ -61,4 +61,4 @@ The returned `id` (a native Social Post ID) then feeds analytics method (b):
 }
 ```
 
-See the Analytics skill (`../ayrshare-mcp-analytics/SKILL.md`) for the full analytics-by-social-id workflow.
+See the Analytics skill (`../analytics/SKILL.md`) for the full analytics-by-social-id workflow.

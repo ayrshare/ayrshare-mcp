@@ -1,5 +1,7 @@
 ---
-name: ayrshare-mcp-getting-started
+name: getting-started
+model: claude-sonnet-4-6
+effort: high
 description: |
   Foundation skill for the Ayrshare MCP server — auth model, installation, client onboarding, and retry safety. Use this whenever someone is installing, configuring, or wiring up the Ayrshare MCP plugin/server in Claude Code; whenever an Ayrshare MCP tool call returns 401/403 or "unauthorized"; whenever there's confusion about WHICH key to pass ("which key do I use", "do I need a profileKey here", Business key vs profile key); when onboarding a new client/customer/profile or generating a JWT/connect URL; or when a user has no Ayrshare account, no API key, or an unset AYRSHARE_API_KEY. Trigger even if the user doesn't say "Ayrshare" by name — if they're calling tools named `mcp__ayrshare__*`, setting up an MCP server for social posting, or asking how to connect a client's social accounts through an AI assistant, this is the skill. Other Ayrshare MCP skills (post, comments, analytics, media, profiles, user) cross-link here for the shared auth and retry rules.
 ---

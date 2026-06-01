@@ -1,7 +1,9 @@
 ---
-name: ayrshare-mcp-comments
+name: comments
+model: claude-sonnet-4-6
+effort: high
 description: |
-  Use whenever someone wants to read, add, reply to, or remove comments on a social media post through the Ayrshare MCP server — the `mcp__ayrshare__get_comments`, `mcp__ayrshare__post_comment`, `mcp__ayrshare__reply_comment`, and `mcp__ayrshare__delete_comment` tools. Trigger on phrasings like "leave a comment on that post", "reply to that commenter", "respond to the top comment", "what are people saying on my LinkedIn post", "pull the comments", "delete that comment", or "answer the question someone left on Instagram" — even if the user never says "Ayrshare", "MCP", or names a tool. Also trigger when a user wants to engage with an audience under an existing post rather than create a new post. For installing/configuring the server and the auth model, this skill cross-links to `../ayrshare-mcp-getting-started/SKILL.md`. To create the post being commented on, see `../ayrshare-mcp-posts/SKILL.md`.
+  Use whenever someone wants to read, add, reply to, or remove comments on a social media post through the Ayrshare MCP server — the `mcp__ayrshare__get_comments`, `mcp__ayrshare__post_comment`, `mcp__ayrshare__reply_comment`, and `mcp__ayrshare__delete_comment` tools. Trigger on phrasings like "leave a comment on that post", "reply to that commenter", "respond to the top comment", "what are people saying on my LinkedIn post", "pull the comments", "delete that comment", or "answer the question someone left on Instagram" — even if the user never says "Ayrshare", "MCP", or names a tool. Also trigger when a user wants to engage with an audience under an existing post rather than create a new post. For installing/configuring the server and the auth model, this skill cross-links to `../getting-started/SKILL.md`. To create the post being commented on, see `../post/SKILL.md`.
 ---
 
 # Ayrshare MCP — Comments
@@ -9,7 +11,7 @@ description: |
 The engagement tools: read comments on a post, add a new top-level comment, reply to an existing comment, and delete a comment. All four are **profile-scoped** — they accept an optional `profileKey` to act on a specific client profile, or omit it to act under the Business account.
 
 - API base (REST endpoints the tools wrap): `https://api.ayrshare.com/api`
-- Comments are scoped to a post you already published; you need that post's `id` (returned by `mcp__ayrshare__create_post` — see `../ayrshare-mcp-posts/SKILL.md`).
+- Comments are scoped to a post you already published; you need that post's `id` (returned by `mcp__ayrshare__create_post` — see `../post/SKILL.md`).
 
 ## Function table
 
@@ -24,7 +26,7 @@ Field names beyond the core inputs and example payloads are in `references/examp
 
 ## Auth note
 
-All comment tools are profile-scoped. The Business API key is configured when the MCP server is installed — see `../ayrshare-mcp-getting-started/SKILL.md` for installation and the full auth model; don't re-derive it here. A profile key may come from the `AYRSHARE_PROFILE_KEY` environment default (applied to every call automatically) OR a per-call `profileKey` param that overrides it. **Omit `profileKey` on purpose** to operate under the Business account when no env default is set.
+All comment tools are profile-scoped. The Business API key is configured when the MCP server is installed — see `../getting-started/SKILL.md` for installation and the full auth model; don't re-derive it here. A profile key may come from the `AYRSHARE_PROFILE_KEY` environment default (applied to every call automatically) OR a per-call `profileKey` param that overrides it. **Omit `profileKey` on purpose** to operate under the Business account when no env default is set.
 
 ## Usage guidance
 

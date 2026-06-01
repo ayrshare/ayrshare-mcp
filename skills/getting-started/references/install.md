@@ -6,7 +6,7 @@ The Ayrshare MCP server is an **HTTP MCP server** at `https://api.ayrshare.com/m
 
 ## Option 1 — Claude Code plugin (recommended)
 
-Installs the MCP server plus the bundled commands (`/ayrshare:setup`, `/ayrshare:post`, …), the social-manager agent, and skills.
+Installs the MCP server plus the `/ayrshare:setup` command, two agents (social-manager, profile-manager), and skills (post, analytics, profiles, comments, history, media, link, user, getting-started).
 
 ### Choose an install scope
 

@@ -46,7 +46,7 @@ Note: `scheduleDate` is absolute ISO 8601 in UTC. "Friday at 10am PT" was conver
 }
 ```
 
-The `mediaUrls` entry should be a URL you've already confirmed reachable/valid via `mcp__ayrshare__verify_media` (see `../../ayrshare-mcp-media/SKILL.md`).
+The `mediaUrls` entry should be a URL you've already confirmed reachable/valid via `mcp__ayrshare__verify_media` (see `../../media/SKILL.md`).
 
 ## Fetch a post's status
 

@@ -1,7 +1,9 @@
 ---
-name: ayrshare-mcp-user
+name: user
+model: claude-sonnet-4-6
+effort: high
 description: |
-  Business account info for the Ayrshare MCP server — plan, quotas/limits, and connected platforms. Use whenever someone wants account details: "what plan am I on", "how much quota is left", "what's connected", "is my API key working", "am I authenticated", "what are my limits", or as a first sanity check before other Ayrshare calls. Also the canonical diagnostic when a tool returns 401/403 and you suspect a missing or invalid API key. Trigger when calling `mcp__ayrshare__get_user`, and even without the word "Ayrshare" — if the user wants to confirm their social API account/key is set up through an AI assistant, this is the skill. For the shared auth model and free-trial signup, see `../ayrshare-mcp-getting-started/SKILL.md`.
+  Business account info for the Ayrshare MCP server — plan, quotas/limits, and connected platforms. Use whenever someone wants account details: "what plan am I on", "how much quota is left", "what's connected", "is my API key working", "am I authenticated", "what are my limits", or as a first sanity check before other Ayrshare calls. Also the canonical diagnostic when a tool returns 401/403 and you suspect a missing or invalid API key. Trigger when calling `mcp__ayrshare__get_user`, and even without the word "Ayrshare" — if the user wants to confirm their social API account/key is set up through an AI assistant, this is the skill. For the shared auth model and free-trial signup, see `../getting-started/SKILL.md`.
 ---
 
 # Ayrshare MCP — User
@@ -16,7 +18,7 @@ One tool: `mcp__ayrshare__get_user` returns information about the **Business acc
 
 ## Auth
 
-`mcp__ayrshare__get_user` is **account-level**: it authenticates with the **Business API key** — the `Authorization: Bearer ${AYRSHARE_API_KEY}` header the MCP server sends, configured via `/ayrshare:setup`. No `profileKey` is involved. Full two-layer model: `../ayrshare-mcp-getting-started/SKILL.md`.
+`mcp__ayrshare__get_user` is **account-level**: it authenticates with the **Business API key** — the `Authorization: Bearer ${AYRSHARE_API_KEY}` header the MCP server sends, configured via `/ayrshare:setup`. No `profileKey` is involved. Full two-layer model: `../getting-started/SKILL.md`.
 
 ## Usage guidance
 
@@ -33,4 +35,4 @@ One tool: `mcp__ayrshare__get_user` returns information about the **Business acc
   ```
 
 - **Just set the key? Restart first.** A 403 immediately after `/ayrshare:setup` is expected — the HTTP Bearer token loads at session start. Restart Claude Code, then call `get_user` again.
-- **Don't loop on failure.** A 4xx (bad/missing key) won't fix itself on retry — call `mcp__ayrshare__explain_error`, surface it, and explain. 429 gets at most one retry. (Mirrors the global retry-safety rule in `../ayrshare-mcp-getting-started/SKILL.md`.)
+- **Don't loop on failure.** A 4xx (bad/missing key) won't fix itself on retry — call `mcp__ayrshare__explain_error`, surface it, and explain. 429 gets at most one retry. (Mirrors the global retry-safety rule in `../getting-started/SKILL.md`.)

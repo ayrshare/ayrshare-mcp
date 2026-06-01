@@ -41,7 +41,7 @@ This is `mcp__ayrshare__resize_media`. Resize is PER-PLATFORM. For a post going 
 
 ## Then attach the confirmed URL(s) to a post
 
-Feed the verified/resized URL into `mcp__ayrshare__create_post` (see `../../ayrshare-mcp-posts/SKILL.md` — and validate first):
+Feed the verified/resized URL into `mcp__ayrshare__create_post` (see `../../post/SKILL.md` — and validate first):
 
 ```json
 {

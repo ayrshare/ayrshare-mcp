@@ -7,7 +7,7 @@
 | `post` | string | Yes | The text content of the post. |
 | `platforms` | array of enum | Yes | Networks to publish to. Enum: `bluesky, facebook, gmb, instagram, linkedin, pinterest, reddit, snapchat, telegram, threads, tiktok, twitter, youtube`. Always an array. See `platforms.md`. |
 | `profileKey` | string | No | Profile to post on behalf of. May come from the `AYRSHARE_PROFILE_KEY` env default or this per-call param (per-call overrides the default). Omit (with no env default) to post under the Business account. |
-| `mediaUrls` | array of string | No | URLs of images/videos to attach. Must be reachable and a valid format — verify first (see `../../ayrshare-mcp-media/SKILL.md`). |
+| `mediaUrls` | array of string | No | URLs of images/videos to attach. Must be reachable and a valid format — verify first (see `../../media/SKILL.md`). |
 | `scheduleDate` | string (ISO 8601) | No | When to publish, e.g. `2026-06-05T14:30:00Z`. Omit to publish immediately. |
 | `shortenLinks` | boolean | No | (create_post only) Shorten URLs found in `post` text. |
 
