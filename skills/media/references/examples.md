@@ -8,7 +8,7 @@ Inputs passed to the MCP tool. There is only one media tool: `validate_media`. T
 { "mediaUrl": "https://cdn.example.com/launch-hero.png" }
 ```
 
-This is `mcp__ayrshare__validate_media` (POST `/media/urlExists`). It HEAD-checks that the URL is reachable and reports the content type. Run it BEFORE referencing the URL in a post — it catches unreachable URLs and wrong/unexpected content types early instead of failing at publish time. `mediaUrl` is a single URL string; the only optional input is `passthrough`.
+This is `mcp__ayrshare__validate_media` (POST `/media/urlExists`). It HEAD-checks that the URL is reachable and reports the content type. Run it BEFORE referencing the URL in a post — it catches unreachable URLs and wrong/unexpected content types early instead of failing at publish time. `mediaUrl` is a single URL string; it is the tool's only input.
 
 ## There is no upload / list / resize tool
 

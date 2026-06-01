@@ -17,12 +17,12 @@ Both are profile-scoped via the connection's `Profile-Key` header (see Auth) —
 
 | Tool | Purpose | Method + Endpoint | Required inputs | Optional inputs |
 |------|---------|-------------------|-----------------|-----------------|
-| `mcp__ayrshare__generate_post` | AI-draft post copy from a topic/prompt and/or media URLs; returns text only, does NOT publish | `POST /generate/post` | At least one of `text` (topic/brief/prompt string) **or** `mediaUrls` (array of public URLs to caption) | `hashtags` (bool, default `true`), `emojis` (bool), `twitter` (bool — constrain to X/Twitter length), `passthrough` |
-| `mcp__ayrshare__recommend_hashtags` | Recommend hashtags for a keyword (sourced from a linked TikTok account) | `GET /hashtags/recommend` | `keyword` (string) | `source` (free-form attribution tag), `passthrough` |
+| `mcp__ayrshare__generate_post` | AI-draft post copy from a topic/prompt and/or media URLs; returns text only, does NOT publish | `POST /generate/post` | At least one of `text` (topic/brief/prompt string) **or** `mediaUrls` (array of public URLs to caption) | `hashtags` (bool, default `true`), `emojis` (bool, default `false`), `twitter` (bool, default `false` — constrain to X/Twitter length) |
+| `mcp__ayrshare__recommend_hashtags` | Recommend hashtags for a keyword (sourced from a linked TikTok account) | `GET /hashtags/recommend` | `keyword` (string) | `source` (free-form attribution tag) |
 
 ## Auth
 
-Both tools are **profile-scoped via the connection's `Profile-Key` header**, not a per-call argument. The header is set in the MCP client config (`.mcp.json` headers): include `Profile-Key: <profileKey>` to act as one client profile; omit it to act on the account's primary/Business profile. To switch profiles you reconfigure the connection header — you do **not** pass a `profileKey` parameter, and `passthrough` cannot carry one (it is a blocked credential key). Full two-layer model: `../getting-started/SKILL.md`.
+Both tools are **profile-scoped via the connection's `Profile-Key` header**, not a per-call argument. The header is set in the MCP client config (`.mcp.json` headers): include `Profile-Key: <profileKey>` to act as one client profile; omit it to act on the account's primary/Business profile. To switch profiles you reconfigure the connection header — you do **not** pass a `profileKey` parameter. Full two-layer model: `../getting-started/SKILL.md`.
 
 ## Usage guidance
 

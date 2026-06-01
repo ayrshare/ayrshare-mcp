@@ -5,7 +5,7 @@ The MCP server reaches the Ayrshare API through two history tools:
 - `mcp__ayrshare__get_post_history` (`GET /history`) — posts sent via Ayrshare (Ayrshare Post IDs).
 - `mcp__ayrshare__get_platform_history` (`GET /history/:platform`) — native social posts, including posts not made via Ayrshare (native Social Post IDs).
 
-Both are **profile-scoped via the connection's `Profile-Key` header**, not a per-call argument. Include `Profile-Key: <profileKey>` in the MCP client config (`.mcp.json` headers) to act as one client profile; omit it to act on the account's primary/Business profile. There is no `profileKey` parameter on either tool, and `passthrough` cannot carry one (it is a blocked credential key).
+Both are **profile-scoped via the connection's `Profile-Key` header**, not a per-call argument. Include `Profile-Key: <profileKey>` in the MCP client config (`.mcp.json` headers) to act as one client profile; omit it to act on the account's primary/Business profile. There is no `profileKey` parameter on either tool.
 
 ## `mcp__ayrshare__get_post_history`
 
@@ -15,14 +15,14 @@ Returns Ayrshare Post IDs for posts published or scheduled through Ayrshare. All
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `limit` | integer | no | Max number of posts to return, 1-1000. Default 25. |
-| `platforms` | string[] (enum) | no | Filter to a subset of POST platforms. |
-| `startDate` | string (ISO 8601) | no | Start of an explicit date window. |
-| `endDate` | string (ISO 8601) | no | End of an explicit date window. |
-| `lastDays` | integer | no | Filter to posts from the last N days. Default 30; pass `0` for all time. |
-| `status` | string (enum) | no | Filter by lifecycle state. One of: `awaiting approval`, `deleted`, `error`, `paused`, `pending`, `success`. |
-| `type` | string | no | Filter by post type. |
-| `passthrough` | object | no | Advanced/undocumented API params, flattened onto the request. Credential keys (`profileKey`, `apiKey`, `uid`, etc.) are dropped. |
+| `limit` | integer | no | Max number of posts to return, 1-1000. Default 25. (Results are cached ~1 min when `limit` > 25.) |
+| `platforms` | string[] (enum) | no | Filter to a subset of POST platforms (OR logic). |
+| `startDate` | string (ISO 8601) | no | Start of an explicit date window (inclusive). |
+| `endDate` | string (ISO 8601) | no | End of an explicit date window (inclusive). Use with `startDate`. |
+| `lastDays` | integer | no | Filter to posts from the last N days. Default 30; pass `0` for all time. Ignored when both `startDate` and `endDate` are provided. |
+| `status` | string (enum) | no | Filter by lifecycle state. One of: `awaiting approval`, `deleted`, `error`, `paused`, `pending`, `processing`, `success`. (`deleted` posts are only returned when this is explicitly set to `deleted`; `processing` means the post is currently being sent.) |
+| `type` | string (enum) | no | Filter by post type: `immediate` (sent right away) or `scheduled` (used `scheduleDate`). |
+| `autoRepostId` | string | no | Filter by auto-repost series ID (assigned when creating an auto-repost). Pass `all` to retrieve all auto-repost series. |
 
 `platforms` enum (subset of the 13 POST platforms):
 `twitter, facebook, instagram, linkedin, tiktok, youtube, pinterest, reddit, telegram, gmb, bluesky, snapchat, threads`
@@ -61,16 +61,15 @@ Returns **native** social posts for a single platform, **including posts not cre
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | `platform` | string (enum) | **yes** | The single platform to read native history for. |
-| `limit` | integer | no | Max number of posts to return, 1-500. |
-| `skipAnalytics` | boolean | no | Skip the inline analytics payload for faster, lighter responses. |
-| `pagePublished` | boolean | no | Facebook only — restrict to posts published by the Page. |
-| `userId` | string | no | Twitter/X only — target user id. |
-| `userName` | string | no | Twitter/X only — target user handle. |
-| `next` | string | no | Pagination cursor returned by a prior call. |
-| `since` | string (ISO 8601) | no | Facebook only — start of date window. |
-| `until` | string (ISO 8601) | no | Facebook only — end of date window. |
-| `dataType` | string (enum) | no | `posts` or `stories`. |
-| `passthrough` | object | no | Advanced/undocumented API params, flattened onto the request. Credential keys (`profileKey`, `apiKey`, `uid`, etc.) are dropped. |
+| `limit` | integer | no | Max number of posts to return, 1-500 (default 10). Keep at or below 100 for best performance. |
+| `skipAnalytics` | boolean | no | Return only the Social Post ID without full analytics (faster; avoids errors when limit > 100). |
+| `pagePublished` | boolean | no | Facebook only — when true, return only posts published by the Page itself. |
+| `userId` | string | no | Twitter/X only — target user by numeric Twitter ID (use API key only, no Profile-Key). |
+| `userName` | string | no | Twitter/X only — target user by handle (use API key only, no Profile-Key). |
+| `next` | string | no | Pagination cursor returned by a prior call (`meta.pagination.next`). |
+| `since` | string | no | Facebook only — ISO date filtering posts on or after (e.g. `2026-03-17`). |
+| `until` | string | no | Facebook only — ISO date filtering posts on or before (e.g. `2026-03-20`). |
+| `dataType` | string (enum) | no | Facebook and Instagram only — `posts` or `stories`. Omit to return both. |
 
 `platform` enum (the 10 history platforms — note this excludes `gmb`, `reddit`, and `telegram`):
 `bluesky, facebook, instagram, linkedin, pinterest, snapchat, threads, tiktok, twitter, youtube`
@@ -79,7 +78,7 @@ Examples:
 
 ```jsonc
 // Native Facebook posts, last published window, lighter response
-{ "platform": "facebook", "skipAnalytics": true, "since": "2026-05-01T00:00:00Z", "until": "2026-06-01T00:00:00Z" }
+{ "platform": "facebook", "skipAnalytics": true, "since": "2026-05-01", "until": "2026-06-01" }
 ```
 
 ```jsonc

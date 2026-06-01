@@ -21,16 +21,16 @@ All four are profile-scoped via the connection's `Profile-Key` header (see Auth)
 
 | Tool | Purpose | Method + Endpoint | Required inputs | Optional inputs |
 |------|---------|-------------------|-----------------|-----------------|
-| `mcp__ayrshare__get_messages` | Read conversations / messages for one platform | `GET /messages/:platform` | `platform` (`facebook`\|`instagram`\|`twitter`) | `conversationsOnly` (bool), `conversationId`, `status`, `action`, `limit` (1-100, **X/Twitter only**), `next` (cursor, **X only**), `passthrough` |
-| `mcp__ayrshare__send_message` | Send a DM (text and/or media) | `POST /messages/:platform` | `platform` (`facebook`\|`instagram`\|`twitter`); **`message` OR `mediaUrls`**; **`recipientId` OR `conversationId`** | `passthrough` |
+| `mcp__ayrshare__get_messages` | Read conversations / messages for one platform | `GET /messages/:platform` | `platform` (`facebook`\|`instagram`\|`twitter`) | `conversationsOnly` (bool), `conversationId`, `status` (`active`\|`archived`), `limit` (1-100, **X/Twitter only**), `next` (cursor, **X only**) |
+| `mcp__ayrshare__send_message` | Send a DM (text and/or media) | `POST /messages/:platform` | `platform` (`facebook`\|`instagram`\|`twitter`); **`message` OR `mediaUrls`**; **`recipientId` OR `conversationId`** | — (none beyond the above) |
 | `mcp__ayrshare__get_auto_response` | Read the account's DM auto-reply settings | `GET /messages/autoresponse` | — (no params) | — |
-| `mcp__ayrshare__set_auto_response` | Update the account's DM auto-reply settings | `POST /messages/autoresponse` | at least one of `autoResponseActive` (bool), `autoResponseMessage` (string), `autoResponseWaitSeconds` (int) | `passthrough` |
+| `mcp__ayrshare__set_auto_response` | Update the account's DM auto-reply settings | `POST /messages/autoresponse` | at least one of `autoResponseActive` (bool), `autoResponseMessage` (string), `autoResponseWaitSeconds` (int) | — (none beyond the above) |
 
 Full input schemas and example payloads/responses are in [`references/schemas.md`](references/schemas.md).
 
 ## Auth
 
-All four tools are **profile-scoped via the connection's `Profile-Key` header**, not a per-call argument. The header is set in the MCP client config (`.mcp.json` headers): include `Profile-Key: <profileKey>` to act as one client profile; omit it to act on the account's primary/Business profile. To switch profiles you reconfigure the connection header — you do **not** pass a `profileKey` parameter to any tool, and `passthrough` cannot carry one (it is a blocked credential key). Full two-layer model: `../getting-started/SKILL.md`.
+All four tools are **profile-scoped via the connection's `Profile-Key` header**, not a per-call argument. The header is set in the MCP client config (`.mcp.json` headers): include `Profile-Key: <profileKey>` to act as one client profile; omit it to act on the account's primary/Business profile. To switch profiles you reconfigure the connection header — you do **not** pass a `profileKey` parameter to any tool. Full two-layer model: `../getting-started/SKILL.md`.
 
 This applies to the auto-response tools too: they are account-level (no `platform`), but still scoped to whichever profile the connection's `Profile-Key` selects. Different connections → different DM auto-reply settings.
 
@@ -50,7 +50,7 @@ This applies to the auto-response tools too: they are account-level (no `platfor
 ## Gotchas
 
 - **DMs are only FB / IG / X.** `get_messages` and `send_message` reject any other platform. Don't try LinkedIn/TikTok/YouTube/etc. DMs through these tools — there is no messaging surface for them.
-- **Scope comes from the connection, not a parameter.** Whose DMs you read/send, and whose auto-responder you read/set, is fixed by the connection's `Profile-Key` header. There is no `profileKey` argument on any of these four tools, and `passthrough` cannot carry one. Confirm you're on the right connection before reading or sending.
+- **Scope comes from the connection, not a parameter.** Whose DMs you read/send, and whose auto-responder you read/set, is fixed by the connection's `Profile-Key` header. There is no `profileKey` argument on any of these four tools. Confirm you're on the right connection before reading or sending.
 - **`send_message` needs content AND target.** Missing either side fails: you must give `message` OR `mediaUrls`, **and** `recipientId` OR `conversationId`. FB/IG additionally require `recipientId` specifically — a `conversationId` alone won't do.
 - **`mediaUrls` is an array of URLs.** Media is referenced by reachable URL, same as posts — there is no upload step here. Validate a media URL with `mcp__ayrshare__validate_media` (see the Media skill) before sending if you're unsure it's reachable.
 - **Auto-response empty string resets, not clears.** `autoResponseMessage: ""` reverts to the Ayrshare default reply; it does not produce an empty auto-reply. To stop auto-replying entirely, set `autoResponseActive: false`.

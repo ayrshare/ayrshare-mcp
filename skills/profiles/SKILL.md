@@ -12,8 +12,8 @@ Profile management is the **agency / multi-client layer** of Ayrshare. A *profil
 
 | Tool | Purpose | Method + Endpoint | Profile-scoped | Required inputs | Optional inputs |
 |------|---------|-------------------|----------------|-----------------|-----------------|
-| `mcp__ayrshare__create_profile` | Create a new client profile; returns its `profileKey` | `POST /profiles` | No (account-level) | `title` | `messagingActive`, `hideTopHeader`, `hideLogo`, `topHeader`, `subHeader`, `disableSocial`, `team` (requires `email`), `email`, `tags`, `passthrough` |
-| `mcp__ayrshare__list_profiles` | List all profiles under the Business account and their linked platforms | `GET /profiles` | No (account-level) | — | — |
+| `mcp__ayrshare__create_profile` | Create a new client profile; returns its `profileKey` | `POST /profiles` | No (account-level) | `title` | `messagingActive`, `hideTopHeader`, `hideLogo`, `topHeader`, `subHeader`, `disableSocial`, `team` (requires `email`), `email`, `tags` |
+| `mcp__ayrshare__list_profiles` | List all profiles under the Business account and their linked platforms | `GET /profiles` | No (account-level) | — | `title`, `refId`, `hasActiveSocialAccounts`, `includesActiveSocialAccounts`, `isByokLinked`, `actionLog`, `limit`, `cursor`, `include` |
 
 Full input schemas and example payloads/responses are in [`references/schemas.md`](references/schemas.md).
 
@@ -46,7 +46,7 @@ After the client's accounts are linked, point the MCP connection at that profile
 
 ## Gotchas
 
-- **Business key only — no `profileKey` as auth, and no `profileKey` argument anywhere.** These are account-level tools authenticated by the Business key. Neither tool accepts a `profileKey` parameter; profile scoping is the `Profile-Key` connection header, set in `.mcp.json`, not a per-call value. `passthrough` cannot carry it either (credential keys are dropped).
+- **Business key only — no `profileKey` as auth, and no `profileKey` argument anywhere.** These are account-level tools authenticated by the Business key. Neither tool accepts a `profileKey` parameter; profile scoping is the `Profile-Key` connection header, set in `.mcp.json`, not a per-call value.
 - **`create_profile` does not link any accounts.** A new profile starts empty. The OAuth/connect step is done in the dashboard or via the REST API — there is no MCP tool for it. Don't promise the user a "connect link" from these tools.
 - **No delete tool.** The MCP cannot delete or offboard a profile. If a user asks to remove a profile, tell them it must be done in the Ayrshare dashboard or via the REST API — do not claim an MCP tool can do it.
 - **`team` without `email` fails.** If `team: true`, `email` is required.

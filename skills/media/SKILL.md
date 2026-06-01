@@ -19,13 +19,13 @@ If a user asks to "upload", "store in the library", or "resize for Instagram": t
 
 | Tool | Purpose | Method + Endpoint | Required inputs | Optional inputs |
 |------|---------|-------------------|-----------------|-----------------|
-| `mcp__ayrshare__validate_media` | HEAD-check that a media URL is reachable and report its content type, before using it in a post | POST `/media/urlExists` | `mediaUrl` (a single media URL string) | `passthrough` |
+| `mcp__ayrshare__validate_media` | HEAD-check that a media URL is reachable and report its content type, before using it in a post | POST `/media/urlExists` | `mediaUrl` (a single media URL string) | — (none) |
 
 Per-platform media constraints to check before posting (dimensions, aspect ratios, size, duration) are in `references/limits.md`. Example payloads are in `references/examples.md`.
 
 ## Auth note
 
-This tool operates on the profile selected by the connection's `Profile-Key` header — there is **no per-call `profileKey` argument**. The Business API key (HTTP Bearer) is configured when the MCP server is installed; see `../getting-started/SKILL.md` for installation and the full auth model. To act on a different client profile, reconfigure the connection's `Profile-Key` header; omit it to act under the account's primary/Business profile. `passthrough` **cannot** carry a `profileKey` — it is a blocked credential key.
+This tool operates on the profile selected by the connection's `Profile-Key` header — there is **no per-call `profileKey` argument**. The Business API key (HTTP Bearer) is configured when the MCP server is installed; see `../getting-started/SKILL.md` for installation and the full auth model. To act on a different client profile, reconfigure the connection's `Profile-Key` header; omit it to act under the account's primary/Business profile.
 
 ## Usage guidance
 
@@ -39,5 +39,5 @@ This tool operates on the profile selected by the connection's `Profile-Key` hea
 - **No upload / no library / no resize.** The MCP only validates a URL. If the user wants media "uploaded", "stored", or "resized", explain there is no such tool — they must host the media at a public URL (at the right dimensions) and reference it by URL. Don't claim media was uploaded or resized.
 - **Constraints are per-platform — there is no resize tool to fix them.** Each network has different dimension/aspect-ratio/size/duration requirements (e.g. Instagram square/portrait vs an X landscape image vs a 9:16 story). One asset is rarely valid everywhere. Check `references/limits.md` and supply a correctly-sized URL per target platform.
 - **Media must be reachable before `create_post` references it.** Don't put an unvalidated URL in `mediaUrls`. Confirm with `validate_media` first, then reference that URL (cross-link: `../post/SKILL.md`).
-- **Profile scoping is the `Profile-Key` header, not a param.** There is no `profileKey` argument and `passthrough` cannot carry one. To target a different client profile, reconfigure the connection's `Profile-Key` header. (Shared rule — see getting-started.)
+- **Profile scoping is the `Profile-Key` header, not a param.** There is no `profileKey` argument. To target a different client profile, reconfigure the connection's `Profile-Key` header. (Shared rule — see getting-started.)
 - **On failure, explain — don't auto-retry.** When `validate_media` reports an unreachable or wrong-type URL, surface that to the user (and use `mcp__ayrshare__explain_error` if a numeric error code came back) rather than auto-retrying. A 4xx means the URL is unreachable, the wrong type, or the key/profile is wrong — fix the input, don't loop. A 429 gets at most one retry after a short delay. (Mirror of the global retry-safety rule — full version in getting-started.)

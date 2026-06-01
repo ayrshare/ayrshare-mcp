@@ -18,9 +18,9 @@ All three are scoped to the connection's profile via the `Profile-Key` header (s
 
 | Tool | Purpose | Method + Endpoint | Required inputs | Optional inputs |
 |------|---------|-------------------|-----------------|-----------------|
-| `mcp__ayrshare__get_post_analytics` | Engagement metrics for a post sent via Ayrshare | `POST /analytics/post` | `id` — the Ayrshare Post ID | `platforms` (subset of POST_PLATFORMS), `passthrough` |
-| `mcp__ayrshare__get_post_analytics_by_social_id` | Engagement metrics for a post by its native Social Post ID | `POST /analytics/post` | `id` — the native Social Post ID; `platform` — exactly **one** of `ANALYTICS_PLATFORMS` | `passthrough` |
-| `mcp__ayrshare__get_social_network_analytics` | Account/network-level analytics (followers, impressions, reach, demographics) | `POST /analytics/social` | `platforms` — array of POST_PLATFORMS | `quarters` (1–4), `daily` (bool), `period60Days` (bool, TikTok), `passthrough` |
+| `mcp__ayrshare__get_post_analytics` | Engagement metrics for a post sent via Ayrshare | `POST /analytics/post` | `id` — the Ayrshare Post ID | `platforms` (subset of POST_PLATFORMS) |
+| `mcp__ayrshare__get_post_analytics_by_social_id` | Engagement metrics for a post by its native Social Post ID | `POST /analytics/post` | `id` — the native Social Post ID; `platform` — exactly **one** of `ANALYTICS_PLATFORMS` | — (none) |
+| `mcp__ayrshare__get_social_network_analytics` | Account/network-level analytics (followers, impressions, reach, demographics) | `POST /analytics/social` | `platforms` — array of POST_PLATFORMS | `quarters` (1–4), `daily` (bool), `period60Days` (bool, TikTok; not with `daily`), `youtube` (`{ lifetime: bool }`), `userId` (X only), `userName` (X only) |
 
 `ANALYTICS_PLATFORMS` (for `get_post_analytics_by_social_id`): bluesky, facebook, instagram, linkedin, pinterest, reddit, snapchat, threads, tiktok, twitter, youtube.
 
@@ -28,7 +28,7 @@ Full input schemas, example payloads, the per-platform metric notes, and example
 
 ## Auth
 
-All three tools are scoped to the profile set by the `Profile-Key` connection header. **No tool takes a `profileKey` argument** — profile scoping is the connection's `Profile-Key` header (configured in the MCP client, e.g. `.mcp.json` headers), not a per-call parameter, and `passthrough` cannot carry it. To read a specific client's analytics, the connection must be configured with that client's `Profile-Key`; omit the header to read the account's primary/Business profile. Full two-layer model: `../getting-started/SKILL.md`.
+All three tools are scoped to the profile set by the `Profile-Key` connection header. **No tool takes a `profileKey` argument** — profile scoping is the connection's `Profile-Key` header (configured in the MCP client, e.g. `.mcp.json` headers), not a per-call parameter. To read a specific client's analytics, the connection must be configured with that client's `Profile-Key`; omit the header to read the account's primary/Business profile. Full two-layer model: `../getting-started/SKILL.md`.
 
 ## Usage guidance
 
@@ -48,5 +48,5 @@ All three tools are scoped to the profile set by the `Profile-Key` connection he
 - **X/Twitter threads via Social Post ID.** Query each tweet's Social Post ID individually; thread replies are not automatically included when you query the parent tweet's id.
 - **Analytics availability varies by platform.** Not every network exposes every metric; some require the post to be a certain type or the account to meet platform eligibility. A missing field is often a platform limitation, not a tool failure. (X, for example, withholds non-public/organic metrics for posts not sent by the authorized user.)
 - **Fresh posts may have no data yet.** Metrics lag publication — a post analyzed seconds after going live can legitimately return zeros or empty fields. That is not an error; the data simply hasn't populated. Don't retry in a loop expecting numbers to appear.
-- **Profile scoping is the `Profile-Key` header, not a parameter.** To read a specific client's analytics, the connection must carry that client's `Profile-Key`. There is no `profileKey` argument, and `passthrough` cannot supply one. (See `../getting-started/SKILL.md`.)
+- **Profile scoping is the `Profile-Key` header, not a parameter.** To read a specific client's analytics, the connection must carry that client's `Profile-Key`. There is no `profileKey` argument. (See `../getting-started/SKILL.md`.)
 - **On failure, call `mcp__ayrshare__explain_error`, then surface it — don't loop.** These are reads, but a 4xx (bad id, wrong platform, ineligible account) won't fix itself on retry. Translate the error via `mcp__ayrshare__explain_error` and present it. 429 gets at most one retry. (Mirrors the global retry-safety rule.)

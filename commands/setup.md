@@ -45,4 +45,4 @@ Configure the Ayrshare API key for Claude Code. Run this after installing the pl
 ## Notes
 - To rotate the key at any time, run /ayrshare:setup again.
 - The key scope should match the plugin installation scope so commands and MCP access are consistent.
-- Do NOT attempt to verify by calling any MCP tool after setup — the connection is loaded at session start and will always return 403 in the same session where the key was written.
+- Do NOT attempt to verify by calling any MCP tool after setup — the connection is loaded at session start and will return 401/403 in the same session where the key was written.

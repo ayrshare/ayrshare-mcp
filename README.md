@@ -141,17 +141,36 @@ Tool names follow the plugin's `mcp__ayrshare__<action>` convention (e.g. `mcp__
 
 ## Optional Configuration
 
-| Environment Variable | Description |
-|---|---|
-| `AYRSHARE_PROFILE_KEY` | Value for an optional `Profile-Key` connection header (act as a specific client profile). Only applies if you add a `Profile-Key` header to the MCP server config; there is no per-call `profileKey` parameter. |
-| `X_API_KEY` | X/Twitter API key (bring-your-own; forwarded as a connection header) |
-| `X_API_SECRET` | X/Twitter API secret (bring-your-own; forwarded as a connection header) |
+Both of these are configured by adding **connection headers** to the `ayrshare` server in `.mcp.json` (or via `claude mcp add --header`). There are no per-call `profileKey` or credential parameters on any tool.
+
+### Act as a specific client profile (`Profile-Key`)
+
+Add a `Profile-Key` header alongside `Authorization`:
+
+```jsonc
+"headers": {
+  "Authorization": "Bearer ${AYRSHARE_API_KEY}",
+  "Profile-Key": "${AYRSHARE_PROFILE_KEY}"   // optional; omit to act on the primary profile
+}
+```
+
+Then set `AYRSHARE_PROFILE_KEY` and restart. With no header set, calls act on the account's primary profile.
+
+### Bring-your-own X/Twitter app (BYOK)
+
+If you post to X/Twitter with your own developer app, the MCP server forwards a fixed allowlist of credential headers per request (values are never logged). Add the ones your app uses to the `ayrshare` server's `headers`:
+
+- `X-Twitter-OAuth1-Api-Key`, `X-Twitter-OAuth1-Api-Secret`
+- `X-Twitter-OAuth1-Access-Token`, `X-Twitter-OAuth1-Access-Token-Secret`
+- `X-Twitter-OAuth2-Client-Id`, `X-Twitter-OAuth2-Client-Secret`
+
+Without them, a BYOK X/Twitter account returns error `419` (`x_credentials_required`).
 
 ---
 
 ## Supported Platforms
 
-Facebook, Instagram, LinkedIn, X (Twitter), TikTok, YouTube, Pinterest, Reddit, Telegram, Threads, and more — depending on your Ayrshare plan and connected profiles.
+Facebook, Instagram, LinkedIn, X (Twitter), TikTok, YouTube, Pinterest, Reddit, Telegram, Threads, Bluesky, Snapchat, and Google Business Profile — depending on your Ayrshare plan and connected profiles.
 
 ---
 

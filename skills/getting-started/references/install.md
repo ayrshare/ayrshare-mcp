@@ -62,7 +62,7 @@ The plugin's `.mcp.json` uses `${AYRSHARE_API_KEY}` — Claude Code substitutes 
 | Environment Variable | Description |
 |---|---|
 | `AYRSHARE_PROFILE_KEY` | Value for an optional `Profile-Key` connection header — set this to act as a specific client profile. **Only takes effect if you add a `Profile-Key` header to the MCP server config** (the default config sends only the API key); there is no per-call `profileKey` parameter. See the auth model in SKILL.md. |
-| `X_API_KEY` / `X_API_SECRET` | X/Twitter API credentials (bring-your-own). |
+| X/Twitter BYOK headers | To post to X/Twitter with your own developer app, add the credential headers your app uses to the MCP server config: `X-Twitter-OAuth1-Api-Key`, `X-Twitter-OAuth1-Api-Secret`, `X-Twitter-OAuth1-Access-Token`, `X-Twitter-OAuth1-Access-Token-Secret`, `X-Twitter-OAuth2-Client-Id`, `X-Twitter-OAuth2-Client-Secret`. The server forwards only these exact headers (values never logged). Without them a BYOK account returns error `419`. |
 
 ## Notes
 

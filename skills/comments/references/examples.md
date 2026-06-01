@@ -32,7 +32,7 @@ Add `commentId: true` alongside `searchPlatformId` when the `id` is a native Soc
 }
 ```
 
-This is `mcp__ayrshare__add_comment`. Use when you want a comment ON THE POST. `platforms` is optional (a COMMENT_PLATFORMS subset) and only relevant when the post spans multiple networks and you want to scope the comment. To attach media, add `mediaUrls` with exactly one URL — supported only on Facebook, LinkedIn, and X (twitter).
+This is `mcp__ayrshare__add_comment`. Use when you want a comment ON THE POST. `platforms` is optional (a subset of `add_comment`'s networks: bluesky, facebook, instagram, linkedin, reddit, tiktok, twitter, youtube) and only relevant when the post spans multiple networks and you want to scope the comment. To attach media, add `mediaUrls` with exactly one URL — supported only on Facebook, LinkedIn, and X (twitter).
 
 ## Reply to an EXISTING comment
 
@@ -62,4 +62,4 @@ With `searchPlatformId`, `commentId` is a native Social Comment ID and exactly o
 
 ## Acting as a specific client profile
 
-Profile scoping is NOT a payload field. To reply on behalf of a client profile, set the connection's `Profile-Key` header in the MCP client config (`.mcp.json`) — see `../../getting-started/SKILL.md`. The tool payload itself stays unchanged; `passthrough` cannot carry a `profileKey`.
+Profile scoping is NOT a payload field. To reply on behalf of a client profile, set the connection's `Profile-Key` header in the MCP client config (`.mcp.json`) — see `../../getting-started/SKILL.md`. The tool payload itself stays unchanged.

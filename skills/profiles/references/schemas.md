@@ -8,17 +8,16 @@ Both tools run against the Ayrshare MCP server at `https://api.ayrshare.com/mcp`
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `title` | string | yes | Display name for the profile (e.g. the client or company name) |
-| `messagingActive` | boolean | no | Enable messaging (DMs) for this profile |
-| `hideTopHeader` | boolean | no | Hide the top header on the white-label linking page |
-| `hideLogo` | boolean | no | Hide the logo on the white-label linking page |
-| `topHeader` | string | no | Custom top-header text on the linking page |
-| `subHeader` | string | no | Custom sub-header text on the linking page |
-| `disableSocial` | array of strings | no | Social networks to disable for this profile |
+| `title` | string | yes | Display name for the profile (e.g. the client or company name). Must be unique. |
+| `messagingActive` | boolean | no | Enable messaging (DMs) for this profile. Messaging must first be enabled for the account. |
+| `hideTopHeader` | boolean | no | Hide the top header on the white-label linking page. |
+| `hideLogo` | boolean | no | Hide the logo on the white-label linking page. |
+| `topHeader` | string | no | Custom top-header text on the linking page. |
+| `subHeader` | string | no | Custom sub-header text on the linking page. |
+| `disableSocial` | array of strings | no | Social networks to disable for this profile. Values: bluesky, facebook, gmb, instagram, linkedin, pinterest, reddit, snapchat, telegram, threads, tiktok, twitter, youtube. |
 | `team` | boolean | no | Create a team profile. **If `true`, `email` is required.** |
 | `email` | string | no | Team member email. Required when `team` is `true`. |
-| `tags` | array of strings | no | Tags to attach to the profile |
-| `passthrough` | object | no | Advanced/undocumented API params, flattened onto the request top level. Credential/identity keys (`profileKey`, `apiKey`, `uid`, etc.) are dropped — `passthrough` **cannot** carry a `profileKey`. |
+| `tags` | array of strings | no | Tags to attach to the profile. |
 
 Example call (minimal):
 
@@ -46,4 +45,35 @@ The response contains the new profile's sensitive `profileKey` (and `refId`). **
 
 `GET /profiles`
 
-No inputs. Returns all profiles under the Business account — each with its `title`, `refId`, and the social platforms currently linked to it. For security the `GET /profiles` call does **not** return `profileKey`, so `list_profiles` cannot recover a lost key — retrieve that from the Ayrshare dashboard. Use `list_profiles` to find a profile or its `refId`, not to work around a misplaced key.
+Lists the User Profiles under the caller's Primary Profile (which is not itself included). All inputs are optional filters/pagination.
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `title` | string | no | Return only the profile with this (URL-encoded) title. |
+| `refId` | string | no | Return only the profile with this refId. |
+| `hasActiveSocialAccounts` | boolean | no | `true` = only profiles with at least one connected social account; `false` = only profiles with none. |
+| `includesActiveSocialAccounts` | array of strings | no | Filter to profiles whose active social accounts contain ALL of the listed platforms. |
+| `isByokLinked` | boolean | no | Filter by BYOK migration status. `true` = completed; `false` = eligible but not migrated. Omit for all. (Currently applies to X/Twitter BYOK.) |
+| `actionLog` | boolean \| number | no | Return the create/delete action log and active-user billing count. `true` = 60 days (default), or a number of days (1-365). |
+| `limit` | number | no | Max profiles to return. Default and maximum is 5000. |
+| `cursor` | string | no | Pagination cursor. When `hasMore` is true, pass the returned `nextCursor` here for the next page. |
+| `include` | string \| array | no | Return extended profile data (requires `refId`). Values: `suspension`, `socialHealth`, `linkingErrors`, `activity`, `quota`, `unlinkHistory`, `actionLog`. |
+
+Returns the profiles under the Business account — each with its `title`, `refId`, and the social platforms currently linked to it. For security the `GET /profiles` call does **not** return `profileKey`, so `list_profiles` cannot recover a lost key — retrieve that from the Ayrshare dashboard. Use `list_profiles` to find a profile or its `refId`, not to work around a misplaced key.
+
+Examples:
+
+```jsonc
+// All profiles (default)
+{}
+```
+
+```jsonc
+// Only profiles that already have a linked TikTok and Instagram
+{ "includesActiveSocialAccounts": ["tiktok", "instagram"] }
+```
+
+```jsonc
+// One profile by refId, with extended quota + activity data
+{ "refId": "ABCD1234", "include": ["quota", "activity"] }
+```

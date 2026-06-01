@@ -1,6 +1,6 @@
 # Per-platform media constraints to check before posting
 
-Values from Ayrshare's media guidelines. These are network requirements that Ayrshare enforces — an out-of-spec asset is rejected at post time. There is **no resize or upload tool** in the Ayrshare MCP: the agent must supply media already hosted at a public URL and already sized for each target platform, then confirm the URL is reachable with `mcp__ayrshare__validate_media` before posting.
+Values compiled from Ayrshare's published media guidelines as a convenience reference — **not a contract**. Platforms change these often; verify against the live Ayrshare media guidelines docs before relying on a specific number. **The MCP does not validate these limits**: `mcp__ayrshare__validate_media` only HEAD-checks that a URL is reachable and reports its content type. An out-of-spec asset is rejected by the platform at post time, not by `validate_media`. There is also **no resize or upload tool**: supply media already hosted at a public URL and already sized for each target platform, then confirm the URL is reachable with `mcp__ayrshare__validate_media` before posting.
 
 ## Hosting (no upload tool)
 

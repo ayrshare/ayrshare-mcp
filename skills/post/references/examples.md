@@ -85,3 +85,46 @@ The `mediaUrls` entry should be a URL you've already confirmed reachable/valid v
 ```
 
 `mcp__ayrshare__retry_post` only applies when the post is in status `error`; it retries ONCE and only if the error was retryable. Check status with `mcp__ayrshare__get_post` if unsure. On any error, call `mcp__ayrshare__explain_error` and surface the plain-language explanation rather than auto-retrying a 4xx. To recover a failure, use `retry_post` — not a second `create_post`.
+
+## Advanced fields (first-class typed inputs, not `passthrough`)
+
+`create_post`/`validate_post` accept many optional fields beyond the basics — set them directly at the top level (there is no generic `passthrough`). A few common ones:
+
+### Post with an automatic first comment
+
+```json
+{
+  "post": "Big launch thread below.",
+  "platforms": ["twitter", "linkedin"],
+  "firstComment": { "comment": "More details: https://example.com/launch" }
+}
+```
+
+### Hold a post for approval, then approve it
+
+```jsonc
+// 1) create_post — held in "awaiting approval"
+{
+  "post": "Q3 results are in.",
+  "platforms": ["linkedin"],
+  "requiresApproval": true
+}
+```
+
+```jsonc
+// 2) update_post — approve and publish (uses `approved`, NOT requiresApproval)
+{ "id": "POST_ID_RETURNED_BY_CREATE_POST", "approved": true }
+```
+
+### Post to YouTube (title is required via youTubeOptions)
+
+```json
+{
+  "post": "Behind the scenes of our launch.",
+  "platforms": ["youtube"],
+  "mediaUrls": ["https://cdn.example.com/launch.mp4"],
+  "youTubeOptions": { "title": "Launch — Behind the Scenes", "visibility": "public" }
+}
+```
+
+See `create-post-schema.md` for the full field list (scheduling, `autoRepost`, `autoHashtag`, `unsplash`, per-platform options, and more).

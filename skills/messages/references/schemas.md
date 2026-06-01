@@ -9,7 +9,7 @@ The MCP server reaches the Ayrshare API through four messaging tools:
 
 **DMs are ONLY on Facebook, Instagram, and Twitter/X.** `get_messages` and `send_message` are platform-scoped (one of `facebook`, `instagram`, `twitter`). The two auto-response tools are **account-level** — no `platform`.
 
-All four are **profile-scoped via the connection's `Profile-Key` header**, not a per-call argument. Include `Profile-Key: <profileKey>` in the MCP client config (`.mcp.json` headers) to act as one client profile; omit it to act on the account's primary/Business profile. There is no `profileKey` parameter on any tool, and `passthrough` cannot carry one (it is a blocked credential key).
+All four are **profile-scoped via the connection's `Profile-Key` header**, not a per-call argument. Include `Profile-Key: <profileKey>` in the MCP client config (`.mcp.json` headers) to act as one client profile; omit it to act on the account's primary/Business profile. There is no `profileKey` parameter on any tool.
 
 `MESSAGE_PLATFORMS` enum (the only three with a DM surface):
 `facebook, instagram, twitter`
@@ -23,13 +23,11 @@ Reads conversations and/or messages for a single platform. Returns conversations
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | `platform` | string (enum) | **yes** | The platform to read. One of `facebook`, `instagram`, `twitter`. |
-| `conversationsOnly` | boolean | no | Return only the list of conversations (threads), without the messages inside them. |
-| `conversationId` | string | no | Restrict to one conversation/thread. |
-| `status` | string | no | Filter by message status. |
-| `action` | string | no | Filter by action/type. |
+| `conversationsOnly` | boolean | no | Return only the list of conversations (threads), without the messages inside them. Ignores `conversationId` when set. |
+| `conversationId` | string | no | Restrict to one conversation/thread. Ignored when `conversationsOnly` is true. |
+| `status` | string | no | Filter by conversation status: `active` (default) or `archived`. |
 | `limit` | integer | no | Max results, 1-100. **Twitter/X only.** |
 | `next` | string | no | Pagination cursor from a prior call. **Twitter/X only.** |
-| `passthrough` | object | no | Advanced/undocumented API params, flattened onto the request. Credential keys (`profileKey`, `apiKey`, `uid`, etc.) are dropped. |
 
 Examples:
 
@@ -64,11 +62,10 @@ Sends a DM. You must supply **content** (`message` OR `mediaUrls`) **and** a **t
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | `platform` | string (enum) | **yes** | The platform to send on. One of `facebook`, `instagram`, `twitter`. |
-| `message` | string | conditional | Text body. Provide `message` OR `mediaUrls` (or both); at least one is required. |
-| `mediaUrls` | string[] (URLs) | conditional | Array of reachable media URLs. Provide `mediaUrls` OR `message` (or both); at least one is required. |
+| `message` | string | conditional | Text body. Provide `message` OR `mediaUrls` (or both); at least one is required. Required on X/Twitter even when `mediaUrls` is provided. |
+| `mediaUrls` | string[] (URLs) | conditional | Array of reachable media URLs (FB/IG accept multiple; X accepts one). Provide `mediaUrls` OR `message` (or both); at least one is required. |
 | `recipientId` | string | conditional | Target user/page-scoped id. Provide `recipientId` OR `conversationId`; at least one is required. **Required on Facebook and Instagram.** |
 | `conversationId` | string | conditional | Existing thread to send into. Provide `conversationId` OR `recipientId`; at least one is required. (On FB/IG you still need `recipientId`.) |
-| `passthrough` | object | no | Advanced/undocumented API params, flattened onto the request. Credential keys (`profileKey`, `apiKey`, `uid`, etc.) are dropped. |
 
 Constraints, in plain terms:
 
@@ -100,8 +97,8 @@ Examples:
 ```
 
 ```jsonc
-// Media-only DM (no text) — content requirement satisfied by mediaUrls
-{ "platform": "twitter", "recipientId": "9876543210", "mediaUrls": ["https://img.ayrshare.com/dm/promo.png"] }
+// Media-only DM (no text) — content requirement satisfied by mediaUrls (FB/IG; X requires message text)
+{ "platform": "facebook", "recipientId": "9876543210", "mediaUrls": ["https://img.ayrshare.com/dm/promo.png"] }
 ```
 
 ## `mcp__ayrshare__get_auto_response`
@@ -128,14 +125,13 @@ Returns (shape):
 
 `POST /messages/autoresponse`
 
-Updates the profile's DM auto-reply settings. **At least one** of the three setting fields is required; this is a partial update — omitted fields are left unchanged. Account-level (no `platform`).
+Updates the profile's DM auto-reply settings. **At least one** of the three setting fields is required. Account-level (no `platform`).
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `autoResponseActive` | boolean | conditional | Turn auto-reply on/off. At least one of these three fields is required. |
+| `autoResponseActive` | boolean | conditional | Turn auto-reply on/off (default `false`). At least one of these three fields is required. |
 | `autoResponseMessage` | string | conditional | The auto-reply text. **Empty string `""` resets to the Ayrshare default** (it does not blank the reply). At least one of these three fields is required. |
-| `autoResponseWaitSeconds` | integer | conditional | Delay (seconds) before the auto-reply sends. At least one of these three fields is required. |
-| `passthrough` | object | no | Advanced/undocumented API params, flattened onto the request. Credential keys (`profileKey`, `apiKey`, `uid`, etc.) are dropped. |
+| `autoResponseWaitSeconds` | integer | conditional | Delay (seconds) before the auto-reply sends again to the same correspondent (default `86400`, i.e. 24 h). At least one of these three fields is required. |
 
 Examples:
 
@@ -145,7 +141,7 @@ Examples:
 ```
 
 ```jsonc
-// Just turn it off (partial update — message + wait left as-is)
+// Just turn it off
 { "autoResponseActive": false }
 ```
 
