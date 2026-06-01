@@ -125,6 +125,23 @@ The plugin's `.mcp.json` uses `${AYRSHARE_API_KEY}` — Claude Code substitutes 
 |---|---|
 | `/ayrshare:list-profiles` | List profiles as a formatted table |
 
+### MCP tool reference skills
+
+These skills are **trigger-based** — they activate automatically on intent (even when you don't name Ayrshare) and teach Claude how to drive the MCP tools correctly: the two-layer auth model, `profileKey` usage, retry safety, and platform quirks. They cover all of the server's tools and focus on what Claude commonly gets wrong. **Start with `ayrshare-mcp-getting-started`** — every group skill cross-links to it.
+
+| Skill | Tools | Use when |
+|---|---|---|
+| `ayrshare-mcp-getting-started` | (cross-cutting) | Installing/configuring the plugin, any 401/403, "which key do I use", onboarding a client, or missing `AYRSHARE_API_KEY`. Home of the two-layer auth model, onboarding sequence, retry/`explain_error` rules, and the free-trial link. |
+| `ayrshare-mcp-profiles` | `create_profile`, `generate_jwt`, `list_profiles`, `delete_profile` | Creating/listing/deleting client profiles or generating an OAuth connect URL (account-level, Business key). |
+| `ayrshare-mcp-posts` | `validate_post`, `create_post`, `delete_post`, `get_post`, `update_post`, `retry_post` | Validating, posting, scheduling, editing, deleting, or retrying social content — even "schedule a tweet for Friday". |
+| `ayrshare-mcp-comments` | `get_comments`, `post_comment`, `reply_comment`, `delete_comment` | Reading, adding, replying to, or deleting comments on a post. |
+| `ayrshare-mcp-analytics` | `get_post_analytics`, `get_social_analytics` | Per-post analytics (by Ayrshare ID or native Social Post ID) or analytics on a social network (followers, reach, impressions). |
+| `ayrshare-mcp-media` | `upload_media`, `list_media`, `verify_media`, `resize_media` | Uploading, listing, verifying, or resizing media before posting. |
+| `ayrshare-mcp-history` | `get_history` | Fetching post history (account-level or per-profile), verifying a profile after onboarding, or finding native Social Post IDs. |
+| `ayrshare-mcp-user` | `get_user` | Checking the Business account's plan, quotas, or connected platforms; diagnosing a bad API key. |
+
+Tool names follow the plugin's `mcp__ayrshare__<action>` convention (e.g. `mcp__ayrshare__create_post`).
+
 ---
 
 ## Optional Configuration
