@@ -1,11 +1,16 @@
 # Analytics — Input Schemas & Examples
 
-Endpoints are relative to the API base `https://api.ayrshare.com/api`. The MCP server reaches them through the tools `mcp__ayrshare__get_post_analytics` (`POST /analytics/post`) and `mcp__ayrshare__get_social_analytics` (`POST /analytics/social`).
+The MCP server exposes three analytics tools:
 
-Both tools are profile-scoped: pass `profileKey` to read a client's analytics, omit it to read the Business account's own. A `profileKey` can also be set as the default via the `AYRSHARE_PROFILE_KEY` env var and overridden per-call.
+- `mcp__ayrshare__get_post_analytics` → `POST /analytics/post` — per-post metrics by **Ayrshare Post ID**.
+- `mcp__ayrshare__get_post_analytics_by_social_id` → `POST /analytics/post` — per-post metrics by **native Social Post ID**.
+- `mcp__ayrshare__get_social_network_analytics` → `POST /analytics/social` — account/network-level analytics.
 
-Platform enum (used by `get_social_analytics`):
-`bluesky, facebook, gmb, instagram, linkedin, pinterest, reddit, snapchat, telegram, threads, tiktok, twitter, youtube`
+All three are scoped to the profile set by the `Profile-Key` connection header. **No tool takes a `profileKey` argument** — profile scoping is the connection's `Profile-Key` header (set in the MCP client config), not a per-call parameter, and `passthrough` cannot carry it. Omit the header to act on the account's primary/Business profile. Most tools also accept an optional `passthrough` object (record) for advanced/undocumented API params; its keys are flattened onto the request top level (credential/identity keys are dropped).
+
+Platform enums:
+- `POST_PLATFORMS` (used by `get_social_network_analytics`, and by `platforms` in `get_post_analytics`): twitter, facebook, instagram, linkedin, tiktok, youtube, pinterest, reddit, telegram, gmb, bluesky, snapchat, threads.
+- `ANALYTICS_PLATFORMS` (used by `get_post_analytics_by_social_id`): bluesky, facebook, instagram, linkedin, pinterest, reddit, snapchat, threads, tiktok, twitter, youtube.
 
 ---
 
@@ -13,87 +18,98 @@ Platform enum (used by `get_social_analytics`):
 
 `POST /analytics/post`
 
-Metrics for one **specific post**. There are **two lookup methods**; choose based on whether the post originated via Ayrshare.
-
-### Method (a) — by Ayrshare Post ID (default, for posts sent via Ayrshare)
-
-Use the `id` returned by `mcp__ayrshare__create_post` (or found via `mcp__ayrshare__get_history`). No `searchPlatformId`.
+Engagement metrics for one **specific post sent via Ayrshare**, identified by its **Ayrshare Post ID**.
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `id` | string | yes | The Ayrshare Post ID returned by `mcp__ayrshare__create_post` (or found via `mcp__ayrshare__get_history`) |
-| `profileKey` | string | no | Read a specific profile's post analytics. Omit for the Business account. When supplied, replaces the Business key as auth. |
+| `id` | string | yes | The Ayrshare Post ID returned by `mcp__ayrshare__create_post` (or found via `mcp__ayrshare__get_post_history`). |
+| `platforms` | string[] | no | Subset of POST_PLATFORMS to narrow the response to specific networks for that post. |
+| `passthrough` | object | no | Advanced/undocumented API params; flattened onto the request top level. |
 
 Example call:
 
 ```json
-{ "id": "AYRSHARE_POST_ID_HERE", "profileKey": "OPTIONAL_PROFILE_KEY" }
+{ "id": "AYRSHARE_POST_ID_HERE" }
 ```
 
-Returns per-network engagement metrics for that post (likes, comments, shares, views, etc.). Available fields differ by platform, and a freshly published post may return zeros until metrics populate.
+Narrow to specific networks:
 
-### Method (b) — by Social Post ID (for posts NOT sent via Ayrshare)
+```json
+{ "id": "AYRSHARE_POST_ID_HERE", "platforms": ["instagram", "linkedin"] }
+```
 
-For posts that did **not** originate via Ayrshare, pass the social network's **native** post id plus `searchPlatformId: true` to tell the endpoint you're searching by Social Post ID. The same `POST /analytics/post` call is used — only the id type and the `searchPlatformId` flag change.
+Returns per-network engagement metrics for that post (likes, comments, shares, views, etc.). Available fields differ by platform, and a freshly published post may return zeros until metrics populate. (Source: Ayrshare docs "Analytics on a Post", `apis/analytics/post`.)
 
-Find the native Social Post ID via the **get-history-by-social-id** path (the `id` field) — see the History skill. (Source: Ayrshare docs "Analytics on a Post by Social ID", `apis/analytics/social-by-id`.)
+---
 
-Supported platforms: **Facebook, Instagram, LinkedIn, Threads, TikTok, Twitter, YouTube**.
+## `mcp__ayrshare__get_post_analytics_by_social_id`
+
+`POST /analytics/post`
+
+The same per-post metrics, but for a post identified by its **native Social Post ID** — for posts that did **not** originate via Ayrshare, or when you only have the native id. This is a separate tool from `get_post_analytics`; the difference is the id type and the required single `platform`.
+
+Find the native Social Post ID via `mcp__ayrshare__get_platform_history` (the `id` field) — see the History skill. Supported platforms (ANALYTICS_PLATFORMS): **bluesky, facebook, instagram, linkedin, pinterest, reddit, snapchat, threads, tiktok, twitter, youtube**.
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `id` | string | one of `id`/`postIds` | A single Social Post ID (the native id from the social network). |
-| `postIds` | string[] | one of `id`/`postIds` | Batch of Social Post IDs (max 100) to fetch in one request. |
-| `platforms` | string[] | yes | Exactly **one** platform value, from the supported set above. |
-| `searchPlatformId` | boolean | yes | Must be `true` to search by Social Post ID. |
-| `profileKey` | string | no | Read a specific profile's analytics. Omit for the Business account. When supplied, replaces the Business key as auth. |
+| `id` | string | yes | A single native Social Post ID (the network's own post id). |
+| `platform` | string | yes | Exactly **one** platform from ANALYTICS_PLATFORMS (singular, not an array). |
+| `passthrough` | object | no | Advanced/undocumented API params; flattened onto the request top level. |
 
-Example — single Facebook post by Social Post ID:
+Example — a Facebook post by Social Post ID:
 
 ```json
 {
   "id": "104923907983682_108329000309742",
-  "platforms": ["facebook"],
-  "searchPlatformId": true
+  "platform": "facebook"
 }
 ```
 
-Example — batch of X/Twitter posts by Social Post ID:
+Example — an X/Twitter post by Social Post ID:
 
 ```json
 {
-  "postIds": ["1979851549871354062", "2011793803951137234"],
-  "platforms": ["twitter"],
-  "searchPlatformId": true
+  "id": "1979851549871354062",
+  "platform": "twitter"
 }
 ```
 
-Notes / gotchas for method (b):
-- **Recommended only for posts not sent via Ayrshare.** For Ayrshare-sent posts, use method (a) with the Ayrshare Post ID.
+Notes / gotchas:
+- **Use for posts not sent via Ayrshare.** For Ayrshare-sent posts, use `get_post_analytics` with the Ayrshare Post ID.
+- **One platform per call.** `platform` is a single value; query a different network with a separate call.
 - **Ownership required.** The linked account must own the post. **Exception: YouTube** — a non-owned video returns descriptive metadata (title, description, tags, channel title, privacy status, thumbnail URLs) but **zeros** for all numeric metrics (views, likes, comments, shares, subscriber changes, watch time, playlist additions).
-- **X/Twitter threads:** each tweet's Social Post ID must be supplied individually via `postIds`; thread replies are not auto-included when querying the parent tweet.
+- **X/Twitter threads:** query each tweet's Social Post ID with its own call; thread replies are not auto-included when querying the parent tweet.
 - X does not return non-public or organic metrics for posts not sent by the authorized user.
 - Instagram posts published before the account was converted to a business account have limited analytics.
 
-The response shape is identical to method (a) — see "Analytics on a Post" (`apis/analytics/post`).
+The response shape matches `get_post_analytics` — see "Analytics on a Post by Social ID" (`apis/analytics/social-by-id`).
 
 ---
 
-## `mcp__ayrshare__get_social_analytics`
+## `mcp__ayrshare__get_social_network_analytics`
 
 `POST /analytics/social`
 
-**Analytics on a social network** — account/network-level metrics such as followers, impressions, reach, and other profile-level numbers — for the requested platform(s).
+**Account/network-level analytics** — followers, impressions, reach, demographics, and other profile-level numbers — for the requested social network(s). This is the **social network account's** analytics, **not** an Ayrshare User Profile.
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `platforms` | string[] | yes | One or more platforms from the enum above |
-| `profileKey` | string | no | Read a specific profile's social-network analytics. Omit for the Business account. When supplied, replaces the Business key as auth. |
+| `platforms` | string[] | yes | One or more platforms from POST_PLATFORMS. |
+| `quarters` | number | no | Number of quarters of historical data to return (1–4). |
+| `daily` | boolean | no | Return daily-granularity data points. |
+| `period60Days` | boolean | no | TikTok: return the 60-day period view. |
+| `passthrough` | object | no | Advanced/undocumented API params; flattened onto the request top level. |
 
 Example call:
 
 ```json
-{ "platforms": ["instagram", "linkedin"], "profileKey": "OPTIONAL_PROFILE_KEY" }
+{ "platforms": ["instagram", "linkedin"] }
 ```
 
-Returns network-level metrics per requested social network (followers, impressions, reach, etc.). Some metrics require platform eligibility (e.g. business/creator accounts) and are simply absent otherwise. This is the "analytics on a social network" endpoint — it does **not** return per-post engagement; for that, use `mcp__ayrshare__get_post_analytics`.
+With options:
+
+```json
+{ "platforms": ["tiktok"], "quarters": 2, "daily": true, "period60Days": true }
+```
+
+Returns network-level metrics per requested social network (followers, impressions, reach, demographics, etc.). Some metrics require platform eligibility (e.g. business/creator accounts) and are simply absent otherwise. This is the account/network-level endpoint — it does **not** return per-post engagement; for that, use `get_post_analytics` or `get_post_analytics_by_social_id`. (Source: Ayrshare docs "Analytics on a Social Network", `apis/analytics/social`.)

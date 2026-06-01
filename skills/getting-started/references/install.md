@@ -6,7 +6,7 @@ The Ayrshare MCP server is an **HTTP MCP server** at `https://api.ayrshare.com/m
 
 ## Option 1 — Claude Code plugin (recommended)
 
-Installs the MCP server plus the `/ayrshare:setup` command, two agents (social-manager, profile-manager), and skills (post, analytics, profiles, comments, history, media, link, user, getting-started).
+Installs the MCP server plus the `/ayrshare:setup` command, the social-manager and profile-manager agents, and the trigger-based skills.
 
 ### Choose an install scope
 
@@ -30,7 +30,7 @@ After installing, configure your API key inside Claude Code:
 
 Then **restart Claude Code**. The MCP connection is initialized at session start, so the key won't be active until you restart.
 
-> **Do NOT verify by calling a tool in the same session you ran `/ayrshare:setup`.** The connection loads at session start and will return 403 in the same session where the key was written. Restart first, then run `mcp__ayrshare__get_user` to confirm.
+> **Do NOT verify by calling a tool in the same session you ran `/ayrshare:setup`.** The connection loads at session start and will return 403 in the same session where the key was written. Restart first, then run `mcp__ayrshare__list_profiles` (a no-argument read) to confirm.
 
 To rotate the key later, run `/ayrshare:setup` again (then restart).
 
@@ -61,13 +61,11 @@ The plugin's `.mcp.json` uses `${AYRSHARE_API_KEY}` — Claude Code substitutes 
 
 | Environment Variable | Description |
 |---|---|
-| `AYRSHARE_PROFILE_KEY` | Fix a **default** Business profile applied to all profile-scoped requests. A per-call `profileKey` parameter overrides it. |
-| `AYRSHARE_PRIVATE_KEY` | RSA private key — required for `/ayrshare:link` (branded short links). |
-| `AYRSHARE_DOMAIN` | Custom short-link domain — required for `/ayrshare:link`. |
+| `AYRSHARE_PROFILE_KEY` | Value for an optional `Profile-Key` connection header — set this to act as a specific client profile. **Only takes effect if you add a `Profile-Key` header to the MCP server config** (the default config sends only the API key); there is no per-call `profileKey` parameter. See the auth model in SKILL.md. |
 | `X_API_KEY` / `X_API_SECRET` | X/Twitter API credentials (bring-your-own). |
 
 ## Notes
 
-- A **Business plan** key is required for the Profiles / multi-profile onboarding tools (`mcp__ayrshare__create_profile`, `mcp__ayrshare__generate_jwt`, `mcp__ayrshare__list_profiles`, `mcp__ayrshare__delete_profile`).
+- A **Business plan** key is required for the Profiles / multi-profile tools (`mcp__ayrshare__create_profile`, `mcp__ayrshare__list_profiles`). Linking a client's social accounts and deleting profiles are done in the Ayrshare dashboard / REST API, not via MCP tools.
 - No account or key yet? Start a 28-day free trial of the Launch plan (see SKILL.md for the attributed signup link). Note the Launch trial does not include Profiles.
 - The key loads at session start — set it, then **restart Claude Code** before verifying.

@@ -2,7 +2,9 @@
 
 Inputs passed to the MCP tools. Platforms prioritized: twitter, facebook, instagram, linkedin. Remember the required order: `mcp__ayrshare__validate_post` → confirm with the user → `mcp__ayrshare__create_post`.
 
-## Validate before posting
+Profile scoping is **not** in these payloads — it is the `Profile-Key` connection header (set in the MCP client config), never a per-call `profileKey` argument. See `../../getting-started/SKILL.md`.
+
+## Validate before posting (dry-run)
 
 ```json
 {
@@ -11,9 +13,9 @@ Inputs passed to the MCP tools. Platforms prioritized: twitter, facebook, instag
 }
 ```
 
-This is `mcp__ayrshare__validate_post`. It reports platform-specific issues (char limits, unsupported media) without publishing. Surface any issues, ask how to proceed, then confirm and call `mcp__ayrshare__create_post` with the same inputs.
+This is `mcp__ayrshare__validate_post`. It reports platform-specific issues (char limits, unsupported media) WITHOUT publishing. Surface any issues, ask how to proceed, then confirm and call `mcp__ayrshare__create_post` with the same inputs.
 
-## Post now to X/Twitter and LinkedIn (under the Business account)
+## Post now to X/Twitter and LinkedIn
 
 ```json
 {
@@ -22,31 +24,31 @@ This is `mcp__ayrshare__validate_post`. It reports platform-specific issues (cha
 }
 ```
 
-## Schedule a post for a specific client profile
+This posts under whichever profile the connection's `Profile-Key` header selects (the primary/Business profile if the header is unset).
+
+## Schedule a post
 
 ```json
 {
   "post": "Join our webinar this Friday at 10am PT. Link in bio.",
   "platforms": ["facebook", "instagram", "linkedin"],
-  "profileKey": "PROFILE_KEY_FROM_CREATE_PROFILE",
   "scheduleDate": "2026-06-05T17:00:00Z"
 }
 ```
 
-Note: `scheduleDate` is absolute ISO 8601 in UTC. "Friday at 10am PT" was converted to `2026-06-05T17:00:00Z` before the call — the API does not parse human phrasing. `profileKey` here overrides any `AYRSHARE_PROFILE_KEY` env default.
+Note: `scheduleDate` is absolute ISO 8601 in UTC, and must be a future time. "Friday at 10am PT" was converted to `2026-06-05T17:00:00Z` before the call — the API does not parse human phrasing. To schedule for a different client profile, reconfigure the connection's `Profile-Key` header; there is no per-call profile argument.
 
-## Post with attached media + link shortening
+## Post with attached media
 
 ```json
 {
   "post": "Our new case study is live: https://example.com/case-study/acme",
   "platforms": ["twitter", "facebook"],
-  "mediaUrls": ["https://cdn.example.com/casestudy-hero.jpg"],
-  "shortenLinks": true
+  "mediaUrls": ["https://cdn.example.com/casestudy-hero.jpg"]
 }
 ```
 
-The `mediaUrls` entry should be a URL you've already confirmed reachable/valid via `mcp__ayrshare__verify_media` (see `../../media/SKILL.md`).
+The `mediaUrls` entry should be a URL you've already confirmed reachable/valid via `mcp__ayrshare__validate_media` (see `../../media/SKILL.md`).
 
 ## Fetch a post's status
 
@@ -54,7 +56,9 @@ The `mediaUrls` entry should be a URL you've already confirmed reachable/valid v
 { "id": "POST_ID_RETURNED_BY_CREATE_POST" }
 ```
 
-## Update a scheduled post (push the time back)
+`id` is the only input to `mcp__ayrshare__get_post`.
+
+## Reschedule a pending post (push the time back)
 
 ```json
 {
@@ -63,18 +67,21 @@ The `mediaUrls` entry should be a URL you've already confirmed reachable/valid v
 }
 ```
 
-## Delete a post
+`mcp__ayrshare__update_post` requires `id` plus at least one editable field. Editable fields: `scheduleDate`, `approved`, `notes`, `disableComments`, `scheduledPause`, `youTubeOptions`.
+
+## Approve a pending post
 
 ```json
-{ "id": "POST_ID_RETURNED_BY_CREATE_POST" }
+{
+  "id": "POST_ID_RETURNED_BY_CREATE_POST",
+  "approved": true
+}
 ```
 
-(Will not remove posts made through TEST accounts — those are permanent.)
-
-## Retry a FAILED post
+## Retry a post that errored
 
 ```json
-{ "id": "FAILED_POST_ID" }
+{ "id": "ERRORED_POST_ID" }
 ```
 
-Only valid when the post's prior send failed. Check with `mcp__ayrshare__get_post` if unsure. On any error, call `mcp__ayrshare__explain_error` and surface the plain-language explanation rather than auto-retrying a 4xx.
+`mcp__ayrshare__retry_post` only applies when the post is in status `error`; it retries ONCE and only if the error was retryable. Check status with `mcp__ayrshare__get_post` if unsure. On any error, call `mcp__ayrshare__explain_error` and surface the plain-language explanation rather than auto-retrying a 4xx. To recover a failure, use `retry_post` — not a second `create_post`.

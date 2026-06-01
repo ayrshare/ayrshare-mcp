@@ -1,61 +1,49 @@
 # Profiles — Input Schemas & Examples
 
-All four tools run against the Ayrshare MCP server at `https://api.ayrshare.com/mcp` and authenticate with the Business API key (the `Authorization: Bearer ${AYRSHARE_API_KEY}` header). No `profileKey` is used as the auth key. Endpoints below are the underlying Ayrshare REST routes each tool maps to.
+Both tools run against the Ayrshare MCP server at `https://api.ayrshare.com/mcp` and authenticate with the Business API key (the `Authorization: Bearer ${AYRSHARE_API_KEY}` header). No `profileKey` is used as the auth key, and **neither tool takes a `profileKey` argument** — to act as a specific profile you set the `Profile-Key` connection header in the MCP client config, not a per-call parameter. Endpoints below are the underlying Ayrshare REST routes each tool maps to.
 
 ## `mcp__ayrshare__create_profile`
 
-`POST /profiles/profile`
+`POST /profiles`
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | `title` | string | yes | Display name for the profile (e.g. the client or company name) |
+| `messagingActive` | boolean | no | Enable messaging (DMs) for this profile |
+| `hideTopHeader` | boolean | no | Hide the top header on the white-label linking page |
+| `hideLogo` | boolean | no | Hide the logo on the white-label linking page |
+| `topHeader` | string | no | Custom top-header text on the linking page |
+| `subHeader` | string | no | Custom sub-header text on the linking page |
+| `disableSocial` | array of strings | no | Social networks to disable for this profile |
+| `team` | boolean | no | Create a team profile. **If `true`, `email` is required.** |
+| `email` | string | no | Team member email. Required when `team` is `true`. |
+| `tags` | array of strings | no | Tags to attach to the profile |
+| `passthrough` | object | no | Advanced/undocumented API params, flattened onto the request top level. Credential/identity keys (`profileKey`, `apiKey`, `uid`, etc.) are dropped — `passthrough` **cannot** carry a `profileKey`. |
 
-Example call:
+Example call (minimal):
 
 ```json
 { "title": "Acme Corp" }
 ```
 
-The response contains the new profile's `profileKey` (and `refId`). **Capture the `profileKey`** — every profile-scoped operation downstream needs it (via `AYRSHARE_PROFILE_KEY` or a per-call `profileKey`), and `generate_jwt`/`delete_profile` need it as their body param.
-
-## `mcp__ayrshare__generate_jwt`
-
-`POST /profiles/generateJWT`
-
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `profileKey` | string | yes | The `profileKey` returned by `mcp__ayrshare__create_profile`. **Data, not auth** — identifies which profile to link. |
-| `domain` | string | yes | Redirect URL after OAuth completes (e.g. `https://yourapp.com/callback`). The integration must handle this redirect to detect when linking is done. |
-
-Example call:
+Example call (team profile with white-label chrome):
 
 ```json
 {
-  "profileKey": "PROFILE_KEY_FROM_STEP_1",
-  "domain": "https://yourapp.com/callback"
+  "title": "Acme Corp",
+  "team": true,
+  "email": "social@acme.com",
+  "messagingActive": true,
+  "topHeader": "Acme Social",
+  "disableSocial": ["telegram", "reddit"],
+  "tags": ["agency-client", "enterprise"]
 }
 ```
 
-Returns a URL. The user opens it in a browser, OAuths their social networks, and is redirected to `domain`. This linking step happens outside the tools.
+The response contains the new profile's sensitive `profileKey` (and `refId`). **Capture the `profileKey`** — it is shown once and is what you place in the `Profile-Key` connection header to operate as this profile downstream (posting, analytics, history). Treat it like a credential.
 
 ## `mcp__ayrshare__list_profiles`
 
 `GET /profiles`
 
-No inputs. Returns all profiles under the Business account, each with its `title` and `profileKey`. This is the recovery path when a `profileKey` has been lost.
-
-## `mcp__ayrshare__delete_profile`
-
-`DELETE /profiles/profile`
-
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `profileKey` | string | yes | The `profileKey` of the profile to delete. **Data, not auth.** |
-
-Example call:
-
-```json
-{ "profileKey": "PROFILE_KEY_TO_DELETE" }
-```
-
-**Destructive and irreversible** — permanently deletes the profile and unlinks its social accounts. Confirm with the user before calling, and never auto-retry on a 4xx (call `mcp__ayrshare__explain_error` instead).
+No inputs. Returns all profiles under the Business account — each with its `title`, `refId`, and the social platforms currently linked to it. This is the recovery path when a `profileKey` has been lost; do not create a duplicate profile to recover a key.
