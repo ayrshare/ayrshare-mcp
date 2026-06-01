@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "mcp__ayrshare__create_post",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '[ayrshare] About to publish a post. Ensure content has been reviewed and confirmed by the user before proceeding.'"
+          }
+        ]
+      }
+    ]
+  }
+}

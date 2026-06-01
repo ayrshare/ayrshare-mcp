@@ -1,0 +1,10 @@
+{
+  "name": "ayrshare",
+  "displayName": "Ayrshare Social Media",
+  "description": "Post, schedule, and analyze social media across 10+ platforms directly from Claude Code",
+  "version": "0.1.0",
+  "author": {
+    "name": "Ayrshare",
+    "url": "https://www.ayrshare.com"
+  }
+}
