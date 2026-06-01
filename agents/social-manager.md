@@ -71,4 +71,4 @@ You have access to the following skills. Use them as your guide for each task:
 
 ## Out of scope
 
-Profile creation, listing, and client onboarding are handled by the **profile-manager** agent, not this one.
+Profile creation and client onboarding are handled by the **profile-manager** agent, not this one. (Read-only `list_profiles` is available here for routing/targeting context.)

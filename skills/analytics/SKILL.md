@@ -19,7 +19,7 @@ All three are scoped to the connection's profile via the `Profile-Key` header (s
 | Tool | Purpose | Method + Endpoint | Required inputs | Optional inputs |
 |------|---------|-------------------|-----------------|-----------------|
 | `mcp__ayrshare__get_post_analytics` | Engagement metrics for a post sent via Ayrshare | `POST /analytics/post` | `id` — the Ayrshare Post ID | `platforms` (subset of POST_PLATFORMS), `passthrough` |
-| `mcp__ayrshare__get_post_analytics_by_social_id` | Engagement metrics for a post by its native Social Post ID | `POST /analytics/post` | `id` — the native Social Post ID; `platform` — exactly **one** ANALYTICS_PLATFORM | `passthrough` |
+| `mcp__ayrshare__get_post_analytics_by_social_id` | Engagement metrics for a post by its native Social Post ID | `POST /analytics/post` | `id` — the native Social Post ID; `platform` — exactly **one** of `ANALYTICS_PLATFORMS` | `passthrough` |
 | `mcp__ayrshare__get_social_network_analytics` | Account/network-level analytics (followers, impressions, reach, demographics) | `POST /analytics/social` | `platforms` — array of POST_PLATFORMS | `quarters` (1–4), `daily` (bool), `period60Days` (bool, TikTok), `passthrough` |
 
 `ANALYTICS_PLATFORMS` (for `get_post_analytics_by_social_id`): bluesky, facebook, instagram, linkedin, pinterest, reddit, snapchat, threads, tiktok, twitter, youtube.
