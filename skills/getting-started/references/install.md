@@ -20,7 +20,7 @@ Installs the MCP server plus the `/ayrshare:setup` command, the social-manager a
 
 After installing, configure your API key inside Claude Code:
 
-```
+```text
 /ayrshare:setup
 ```
 

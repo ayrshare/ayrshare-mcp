@@ -25,7 +25,7 @@ The plugin scope controls where commands, agents, and skills are available. Choo
 
 After installing, configure your API key:
 
-```
+```text
 /ayrshare:setup
 ```
 

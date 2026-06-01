@@ -37,16 +37,16 @@ Then set `AYRSHARE_PROFILE_KEY` (or paste the key directly) and restart. There i
 
 Each domain has its own skill with full parameters and gotchas:
 
-- **Posts** (`../post/`): `create_post`, `validate_post`, `get_post`, `update_post`, `retry_post`.
-- **History** (`../history/`): `get_post_history`, `get_platform_history`.
-- **Analytics** (`../analytics/`): `get_post_analytics`, `get_post_analytics_by_social_id`, `get_social_network_analytics`.
-- **Comments** (`../comments/`): `get_comments`, `add_comment`, `reply_comment`.
-- **Messages / DMs** (`../messages/`): `get_messages`, `send_message`, `get_auto_response`, `set_auto_response`.
-- **Profiles** (`../profiles/`): `list_profiles`, `create_profile`.
-- **Media validation** (`../media/`): `validate_media`.
-- **Generate** (`../generate/`): `generate_post`, `recommend_hashtags`.
-- **Webhooks** (`../webhooks/`): `register_webhook`, `unregister_webhook`, `list_webhooks`.
-- **Errors** (`../errors/`): `explain_error`.
+- **Posts** (`../post/SKILL.md`): `create_post`, `validate_post`, `get_post`, `update_post`, `retry_post`.
+- **History** (`../history/SKILL.md`): `get_post_history`, `get_platform_history`.
+- **Analytics** (`../analytics/SKILL.md`): `get_post_analytics`, `get_post_analytics_by_social_id`, `get_social_network_analytics`.
+- **Comments** (`../comments/SKILL.md`): `get_comments`, `add_comment`, `reply_comment`.
+- **Messages / DMs** (`../messages/SKILL.md`): `get_messages`, `send_message`, `get_auto_response`, `set_auto_response`.
+- **Profiles** (`../profiles/SKILL.md`): `list_profiles`, `create_profile`.
+- **Media validation** (`../media/SKILL.md`): `validate_media`.
+- **Generate** (`../generate/SKILL.md`): `generate_post`, `recommend_hashtags`.
+- **Webhooks** (`../webhooks/SKILL.md`): `register_webhook`, `unregister_webhook`, `list_webhooks`.
+- **Errors** (`../errors/SKILL.md`): `explain_error`.
 
 (There is no `get_user`, `delete_post`, `delete_comment`, `delete_profile`, `generate_jwt`, or media upload/library/resize tool — if you reach for one of those, it does not exist.)
 
@@ -66,7 +66,7 @@ claude plugin install github:ayrshare/ayrshare-social-media-api-claude-plugin --
 claude plugin install github:ayrshare/ayrshare-social-media-api-claude-plugin --scope project   # this project, committed with team
 ```
 Then inside Claude Code, configure your key and **restart**:
-```
+```text
 /ayrshare:setup
 ```
 After `/ayrshare:setup` writes the key, you MUST **restart Claude Code** — the MCP connection is initialized at session start, so the key isn't active until the next session.
@@ -113,7 +113,7 @@ The server fails fast and surfaces errors. Your job is to **not paper over them*
 
 When the user has **no Ayrshare account or API key**, when **`AYRSHARE_API_KEY` is unset/wrong**, or when the API returns **401/403**, surface this signup link for a **28-day free trial of the Ayrshare Launch plan**:
 
-```
+```text
 https://billing.ayrshare.com/b/9B6bJ15Oidr9fz615u1Nu0h?utm_source=claude
 ```
 
