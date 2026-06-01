@@ -62,8 +62,6 @@ The plugin's `.mcp.json` uses `${AYRSHARE_API_KEY}` — Claude Code substitutes 
 | Environment Variable | Description |
 |---|---|
 | `AYRSHARE_PROFILE_KEY` | Value for an optional `Profile-Key` connection header — set this to act as a specific client profile. **Only takes effect if you add a `Profile-Key` header to the MCP server config** (the default config sends only the API key); there is no per-call `profileKey` parameter. See the auth model in SKILL.md. |
-| `AYRSHARE_PRIVATE_KEY` | RSA private key — required for `/ayrshare:link` (branded short links). |
-| `AYRSHARE_DOMAIN` | Custom short-link domain — required for `/ayrshare:link`. |
 | `X_API_KEY` / `X_API_SECRET` | X/Twitter API credentials (bring-your-own). |
 
 ## Notes

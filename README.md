@@ -115,7 +115,6 @@ The plugin's `.mcp.json` uses `${AYRSHARE_API_KEY}` — Claude Code substitutes 
 | `/ayrshare:post` | Publish a post to one or more platforms |
 | `/ayrshare:analytics` | Fetch engagement and performance stats |
 | `/ayrshare:profiles` | List connected social media profiles |
-| `/ayrshare:link` | Generate a branded short link |
 
 ---
 
@@ -152,8 +151,6 @@ Tool names follow the plugin's `mcp__ayrshare__<action>` convention (e.g. `mcp__
 | Environment Variable | Description |
 |---|---|
 | `AYRSHARE_PROFILE_KEY` | Value for an optional `Profile-Key` connection header (act as a specific client profile). Only applies if you add a `Profile-Key` header to the MCP server config; there is no per-call `profileKey` parameter. |
-| `AYRSHARE_PRIVATE_KEY` | RSA private key — required for `/ayrshare:link` |
-| `AYRSHARE_DOMAIN` | Custom short link domain — required for `/ayrshare:link` |
 | `X_API_KEY` | X/Twitter API key (BYO credentials) |
 | `X_API_SECRET` | X/Twitter API secret (BYO credentials) |
 
