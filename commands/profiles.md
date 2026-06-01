@@ -14,9 +14,8 @@ List and inspect connected social media profiles via Ayrshare.
    |---|---|---|
    | (name) | (comma-separated list) | (key or "default") |
 
-3. If AYRSHARE_PROFILE_KEY is set in the environment, note which profile is currently the active default.
+3. If the MCP connection has a `Profile-Key` header configured (e.g. templated from `AYRSHARE_PROFILE_KEY`), note which profile is currently active.
 
-4. If the user has multiple profiles and no default is set, suggest:
-   "You can set a default profile by adding `export AYRSHARE_PROFILE_KEY=<profileKey>` to your shell profile, or by passing the profile key per request."
+4. If the user has multiple profiles and none is currently selected, explain how to act as a specific profile: add a `Profile-Key` header to the MCP server config set to that profile's key (you can template it as `${AYRSHARE_PROFILE_KEY}` and export the env var), then restart. There is NO per-request `profileKey` argument on any tool.
 
 5. If the call fails with an authentication error, suggest running /ayrshare:setup to reconfigure the API key.

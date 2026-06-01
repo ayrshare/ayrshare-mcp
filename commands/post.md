@@ -17,10 +17,11 @@ Publish a post to one or more social media platforms via Ayrshare.
 5. Call mcp__ayrshare__create_post with:
    - `post`: the text content
    - `platforms`: array of platform identifiers (e.g. `["twitter", "instagram", "linkedin"]`)
-   - `profileKey`: include if AYRSHARE_PROFILE_KEY is set in the environment, or if the user specified a profile
+   - optional `mediaUrls`: array of public media URLs to attach
 
 6. Report the result per platform. For any platform that failed, call mcp__ayrshare__explain_error on the error and show a human-readable explanation.
 
 ## Optional parameters
 - **Schedule**: if the user wants to schedule the post, include `scheduleDate` in ISO 8601 format (e.g. `2025-12-31T10:00:00Z`)
+- **Profile**: to post as a specific client profile, the MCP connection must carry that profile's `Profile-Key` header (set in the MCP config). It is NOT a `create_post` argument.
 - **X/Twitter BYO credentials**: if X_API_KEY and X_API_SECRET are set, pass them as connection headers
