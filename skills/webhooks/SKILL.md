@@ -26,7 +26,7 @@ All three are profile-scoped via the connection's `Profile-Key` header (see Auth
 
 ## Auth
 
-All three tools are **profile-scoped via the connection's `Profile-Key` header**, not a per-call argument. The header is set in the MCP client config (`.mcp.json` headers): include `Profile-Key: <profileKey>` to manage one client profile's webhooks; omit it to manage the account's primary/Business profile. To switch profiles you reconfigure the connection header — you do **not** pass a `profileKey` parameter, and `passthrough` cannot carry one (it is a blocked credential key). Full two-layer model: `../getting-started/SKILL.md`.
+All three tools are **profile-scoped via the connection's `Profile-Key` header**, not a per-call argument. The header is set in the MCP client config (`.mcp.json` headers): include `Profile-Key: <profileKey>` to manage one client profile's webhooks; omit it to manage the account's primary/Business profile. To switch profiles you reconfigure the connection header — you do **not** pass a `profileKey` parameter, and these webhook tools take no `passthrough` object at all (their inputs are exactly the fields in the table above). Full two-layer model: `../getting-started/SKILL.md`.
 
 ## Usage guidance
 

@@ -26,7 +26,7 @@ The response gives three things:
 
 ## Auth
 
-This tool is reached over the same authenticated connection as every other Ayrshare MCP tool. Profile context, where relevant, comes from the connection's `Profile-Key` header, not a per-call argument — there is **no** `profileKey` parameter, and `passthrough` cannot carry one (it is a blocked credential key). Full two-layer model: `../getting-started/SKILL.md`.
+This tool is reached over the same authenticated connection as every other Ayrshare MCP tool. Profile context, where relevant, comes from the connection's `Profile-Key` header, not a per-call argument — there is **no** `profileKey` parameter. (`explain_error` takes no `passthrough` object either; its only inputs are `code` and `platform`.) Full two-layer model: `../getting-started/SKILL.md`.
 
 ## Usage guidance
 
