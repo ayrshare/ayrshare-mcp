@@ -90,7 +90,7 @@ The response shape matches `get_post_analytics` — see "Analytics on a Post by 
 
 `POST /analytics/social`
 
-**Account/network-level analytics** — followers, impressions, reach, demographics, and other profile-level numbers — for the requested social network(s). This is the **social network account's** analytics, **not** an Ayrshare User Profile.
+**Account/network-level analytics** — followers, impressions, views, demographics, and other profile-level numbers (and reach, where the platform provides it) — for the requested social network(s). This is the **social network account's** analytics, **not** an Ayrshare User Profile.
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
@@ -118,4 +118,4 @@ With options (`daily` and `period60Days` are mutually exclusive — pick one):
 { "platforms": ["tiktok"], "period60Days": true }
 ```
 
-Returns network-level metrics per requested social network (followers, impressions, reach, demographics, etc.). Some metrics require platform eligibility (e.g. business/creator accounts) and are simply absent otherwise. Facebook needs >=100 page likes for full analytics; Instagram demographics need >=100 engagements in 30 days; LinkedIn/TikTok may lag 24-48 h. This is the account/network-level endpoint — it does **not** return per-post engagement; for that, use `get_post_analytics` or `get_post_analytics_by_social_id`. (Source: Ayrshare docs "Analytics on a Social Network", `apis/analytics/social`.)
+Returns network-level metrics per requested social network (followers, impressions, views, demographics, etc.; reach where the platform provides it). Some metrics require platform eligibility (e.g. business/creator accounts) and are simply absent otherwise. Facebook needs >=100 page likes for full analytics; Instagram demographics need >=100 engagements in 30 days; LinkedIn/TikTok may lag 24-48 h. This is the account/network-level endpoint — it does **not** return per-post engagement; for that, use `get_post_analytics` or `get_post_analytics_by_social_id`. (Source: Ayrshare docs "Analytics on a Social Network", `apis/analytics/social`.)

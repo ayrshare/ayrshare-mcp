@@ -72,7 +72,7 @@ Constraints, in plain terms:
 - **Content:** at least one of `message`, `mediaUrls`.
 - **Target:** at least one of `recipientId`, `conversationId`.
 - **Facebook / Instagram:** `recipientId` is mandatory (a bare `conversationId` is not enough).
-- **Messaging window:** each platform allows DMs only within its window (e.g. FB/IG generally within **24 hours** of the user's last inbound message). Outside the window the API returns a clear error — surface it via `mcp__ayrshare__explain_error`, don't retry.
+- **Messaging window:** each platform allows DMs only within its window (FB/IG follow Meta's standard messaging-window policy, tied to the user's last inbound message). Outside the window the API returns a clear error — surface it via `mcp__ayrshare__explain_error`, don't retry.
 
 Examples:
 

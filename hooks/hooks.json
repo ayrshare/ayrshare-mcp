@@ -2,11 +2,11 @@
   "hooks": {
     "PreToolUse": [
       {
-        "matcher": "mcp__ayrshare__create_post",
+        "matcher": "mcp__ayrshare__create_post|mcp__ayrshare__update_post|mcp__ayrshare__retry_post|mcp__ayrshare__add_comment|mcp__ayrshare__reply_comment|mcp__ayrshare__send_message",
         "hooks": [
           {
             "type": "command",
-            "command": "echo '[ayrshare] About to publish a post. Ensure content has been reviewed and confirmed by the user before proceeding.'"
+            "command": "printf '%s' '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"ask\",\"permissionDecisionReason\":\"This Ayrshare action publishes or sends content to live social accounts. Confirm the content, target platform(s)/profile, and timing with the user before approving.\"}}'"
           }
         ]
       }

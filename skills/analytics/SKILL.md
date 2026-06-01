@@ -10,7 +10,7 @@ Three analytics tools, split by *what* they measure and *which kind of id* ident
 
 - **`mcp__ayrshare__get_post_analytics`** — metrics for one **specific post sent via Ayrshare**: its likes, comments, shares, views, etc. Identify the post by its **Ayrshare Post ID** (the `id` returned by `mcp__ayrshare__create_post` or found via `mcp__ayrshare__get_post_history`).
 - **`mcp__ayrshare__get_post_analytics_by_social_id`** — the same per-post metrics, but for a post identified by its **native Social Post ID** (the network's own id). Use this for posts that did *not* originate via Ayrshare, or when all you have is the native id.
-- **`mcp__ayrshare__get_social_network_analytics`** — **account/network-level analytics** for a connected social network: followers, impressions, reach, demographics, and other profile-level numbers. This is the **social network account's** analytics, **not** an Ayrshare User Profile's.
+- **`mcp__ayrshare__get_social_network_analytics`** — **account/network-level analytics** for a connected social network: followers, impressions, views, demographics, and other profile-level numbers (and reach, where the platform provides it). This is the **social network account's** analytics, **not** an Ayrshare User Profile's.
 
 All three are scoped to the connection's profile via the `Profile-Key` header (see Auth below) — never a per-call argument.
 
@@ -20,7 +20,7 @@ All three are scoped to the connection's profile via the `Profile-Key` header (s
 |------|---------|-------------------|-----------------|-----------------|
 | `mcp__ayrshare__get_post_analytics` | Engagement metrics for a post sent via Ayrshare | `POST /analytics/post` | `id` — the Ayrshare Post ID | `platforms` (subset of POST_PLATFORMS) |
 | `mcp__ayrshare__get_post_analytics_by_social_id` | Engagement metrics for a post by its native Social Post ID | `POST /analytics/post` | `id` — the native Social Post ID; `platform` — exactly **one** of `ANALYTICS_PLATFORMS` | — (none) |
-| `mcp__ayrshare__get_social_network_analytics` | Account/network-level analytics (followers, impressions, reach, demographics) | `POST /analytics/social` | `platforms` — array of POST_PLATFORMS | `quarters` (1–4), `daily` (bool), `period60Days` (bool, TikTok; not with `daily`), `youtube` (`{ lifetime: bool }`), `userId` (X only), `userName` (X only) |
+| `mcp__ayrshare__get_social_network_analytics` | Account/network-level analytics (followers, impressions, views, demographics) | `POST /analytics/social` | `platforms` — array of POST_PLATFORMS | `quarters` (1–4), `daily` (bool), `period60Days` (bool, TikTok; not with `daily`), `youtube` (`{ lifetime: bool }`), `userId` (X only), `userName` (X only) |
 
 `ANALYTICS_PLATFORMS` (for `get_post_analytics_by_social_id`): bluesky, facebook, instagram, linkedin, pinterest, reddit, snapchat, threads, tiktok, twitter, youtube.
 
@@ -41,7 +41,7 @@ All three tools are scoped to the profile set by the `Profile-Key` connection he
 
 ## Gotchas
 
-- **Wrong tool = wrong answer.** Post-level vs network-level is the #1 error. `get_post_analytics` / `get_post_analytics_by_social_id` are *per post*; `get_social_network_analytics` is *account/network-level* (followers/impressions/reach). If the user asks about a post, the network tool will not have post metrics, and vice versa.
+- **Wrong tool = wrong answer.** Post-level vs network-level is the #1 error. `get_post_analytics` / `get_post_analytics_by_social_id` are *per post*; `get_social_network_analytics` is *account/network-level* (followers/impressions/views). If the user asks about a post, the network tool will not have post metrics, and vice versa.
 - **Ayrshare id vs native id picks the tool — they are different tools, not flags.** An Ayrshare Post ID goes to `get_post_analytics`; a native Social Post ID goes to `get_post_analytics_by_social_id`. Passing a native id to `get_post_analytics` (or vice versa) returns nothing useful.
 - **`get_post_analytics_by_social_id` needs exactly one `platform`.** It takes a single `platform` value (singular), not an array — the network you're querying the native id on.
 - **Ownership matters for the Social Post ID tool.** The linked account must own the post. **Exception: YouTube** — querying a non-owned video by social id returns descriptive metadata (title, description, tags, channel title, privacy status, thumbnails) but **zeros** for all numeric metrics (views, likes, comments, etc.).

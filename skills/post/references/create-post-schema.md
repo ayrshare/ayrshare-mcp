@@ -76,7 +76,7 @@ There is **no `profileKey` argument** on any of these tools. The profile is sele
 | Tool | Endpoint | Inputs |
 |------|----------|--------|
 | `mcp__ayrshare__get_post` | GET `/post/:id` | `id` (required) — the ONLY input |
-| `mcp__ayrshare__update_post` | PATCH `/post` | `id` (required) + at least one of: `scheduleDate`, `approved` (bool), `notes` (string), `disableComments` (bool), `scheduledPause` (bool), `youTubeOptions` (object). Primarily for editing/approving/rescheduling a PENDING post. |
+| `mcp__ayrshare__update_post` | PATCH `/post` | `id` (required) + at least one of: `scheduleDate`, `approved` (bool), `notes` (string), `disableComments` (bool; Instagram/LinkedIn only on update, and disabling on LinkedIn deletes existing comments), `scheduledPause` (bool), `youTubeOptions` (object; reuses the create-side YouTube schema, so `title` is required — re-send the existing title even when changing only visibility/description/categoryId). Primarily for editing/approving/rescheduling a PENDING post. |
 | `mcp__ayrshare__retry_post` | PUT `/post/retry` | `id` (required, must be a post in status `error`). Retries ONCE, only if the error was retryable. |
 
 ## Reminders

@@ -24,6 +24,8 @@ The response gives three things:
 - **Classification** — one of `developer-fix` (your code/config/input is wrong), `user-action` (the end user or their linked account must act, e.g. re-auth, permissions, content rules), or `network` (a transient/platform-side issue).
 - **Resolution hint** — a short suggested fix.
 
+The classification is derived from the error's HTTP status, not from the meaning of the message: `401/402/403` → `user-action`, `5xx` → `network`, and every other `4xx` (including `400`) → `developer-fix`. So a relink-required error such as `156` ("…is not linked") or `272` (X/Twitter authorization issue) — both HTTP `400` — is labeled `developer-fix` even though the real fix is an end-user relink. Treat the label as a coarse routing hint and always read the `cause` and `resolution` text; a `developer-fix` can still carry an instruction meant for the end user.
+
 ## Auth
 
 This tool is reached over the same authenticated connection as every other Ayrshare MCP tool. Profile context, where relevant, comes from the connection's `Profile-Key` header, not a per-call argument — there is **no** `profileKey` parameter. (`explain_error` takes no `passthrough` object either; its only inputs are `code` and `platform`.) Full two-layer model: `../getting-started/SKILL.md`.
@@ -34,7 +36,7 @@ This tool is reached over the same authenticated connection as every other Ayrsh
 - **Pass `platform` when you have it.** The same numeric code can mean different things per network; supplying the `platform` identifier (e.g. the platform that the failed call targeted) sharpens the cause and fix.
 - **`code` accepts a string of digits or a number.** Pass the bare code from the error (e.g. `156`, `"272"`). Strip any surrounding text.
 - **Act on the classification:**
-  - `developer-fix` → the input/config/code is wrong; fix it before retrying (do not blindly re-call the failing tool).
+  - `developer-fix` → usually the input/config/code is wrong; fix it before retrying (do not blindly re-call the failing tool). But because this bucket is just "a 4xx that isn't 401/402/403", it also catches end-user issues that happen to return `400` (e.g. an account relink, like codes `156`/`272`) — read the `resolution` and relay it to the end user when that is what it says.
   - `user-action` → the end user or their linked social account must do something (re-authenticate, grant a permission, change content); relay the resolution hint to them.
   - `network` → transient/platform-side; a single retry after a short delay is reasonable (matching the global 429/transient rule), but don't loop.
 - **It does not fix the underlying call.** `explain_error` only decodes the code. After understanding it, address the root cause and re-run the original tool deliberately — don't auto-retry the failed write.
