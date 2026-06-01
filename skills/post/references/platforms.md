@@ -1,6 +1,6 @@
 # Platform enum
 
-The `platforms` array in `mcp__ayrshare__create_post` / `mcp__ayrshare__validate_post` (and the `platform` filter on history/analytics tools) accepts **only** these 13 values, verbatim: `twitter, facebook, instagram, linkedin, tiktok, youtube, pinterest, reddit, telegram, gmb, bluesky, snapchat, threads`. They are case-sensitive lowercase. Any other value rejects the call.
+The `platforms` array in `mcp__ayrshare__create_post` and `mcp__ayrshare__validate_post` (and the optional `platforms` filter on `get_post_history`, `get_post_analytics`, and `get_social_network_analytics`) accepts **only** these 13 values, verbatim: `twitter, facebook, instagram, linkedin, tiktok, youtube, pinterest, reddit, telegram, gmb, bluesky, snapchat, threads`. They are case-sensitive lowercase. Any other value rejects the call. NOTE: the single `platform` field on `get_platform_history` and `get_post_analytics_by_social_id` uses a NARROWER set (no `gmb`/`telegram`; `get_platform_history` also excludes `reddit`) — see the History and Analytics skills.
 
 | Enum value | Network | Common wrong inputs to avoid |
 |------------|---------|------------------------------|

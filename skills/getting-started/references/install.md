@@ -30,7 +30,7 @@ After installing, configure your API key inside Claude Code:
 
 Then **restart Claude Code**. The MCP connection is initialized at session start, so the key won't be active until you restart.
 
-> **Do NOT verify by calling a tool in the same session you ran `/ayrshare:setup`.** The connection loads at session start and will return 403 in the same session where the key was written. Restart first, then run `mcp__ayrshare__list_profiles` (a no-argument read) to confirm.
+> **Do NOT verify by calling a tool in the same session you ran `/ayrshare:setup`.** The connection loads at session start and will return 403 in the same session where the key was written. Restart first, then run `mcp__ayrshare__get_post_history` (a plan-agnostic read; `list_profiles` needs a Business plan) to confirm.
 
 To rotate the key later, run `/ayrshare:setup` again (then restart).
 

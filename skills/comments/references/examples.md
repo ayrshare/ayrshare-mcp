@@ -1,6 +1,6 @@
 # Example payloads — Ayrshare MCP comments
 
-Inputs passed to the MCP tools. `id` is the post id returned by `mcp__ayrshare__create_post`. `commentId` is a comment id returned by `mcp__ayrshare__get_comments`. No tool takes a `profileKey` argument — profile scoping is the connection's `Profile-Key` header (see `../getting-started/SKILL.md`).
+Inputs passed to the MCP tools. `id` is the post id returned by `mcp__ayrshare__create_post`. `commentId` is a comment id returned by `mcp__ayrshare__get_comments`. No tool takes a `profileKey` argument — profile scoping is the connection's `Profile-Key` header (see `../../getting-started/SKILL.md`).
 
 ## Read the comments on a post
 
@@ -62,4 +62,4 @@ With `searchPlatformId`, `commentId` is a native Social Comment ID and exactly o
 
 ## Acting as a specific client profile
 
-Profile scoping is NOT a payload field. To reply on behalf of a client profile, set the connection's `Profile-Key` header in the MCP client config (`.mcp.json`) — see `../getting-started/SKILL.md`. The tool payload itself stays unchanged; `passthrough` cannot carry a `profileKey`.
+Profile scoping is NOT a payload field. To reply on behalf of a client profile, set the connection's `Profile-Key` header in the MCP client config (`.mcp.json`) — see `../../getting-started/SKILL.md`. The tool payload itself stays unchanged; `passthrough` cannot carry a `profileKey`.

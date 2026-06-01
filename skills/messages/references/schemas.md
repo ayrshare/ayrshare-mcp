@@ -159,4 +159,4 @@ Examples:
 { "autoResponseWaitSeconds": 60 }
 ```
 
-For the shared auth model and the global retry-safety rule (never auto-retry the `send_message` write on a 4xx; translate via `mcp__ayrshare__explain_error`; 429 gets one retry), see `../getting-started/SKILL.md`.
+For the shared auth model and the global retry-safety rule (never auto-retry the `send_message` write on a 4xx; translate via `mcp__ayrshare__explain_error`; 429 gets one retry), see `../../getting-started/SKILL.md`.

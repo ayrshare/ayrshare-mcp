@@ -85,7 +85,7 @@ claude plugin install github:ayrshare/ayrshare-mcp
 ```
 The plugin's `.mcp.json` substitutes `${AYRSHARE_API_KEY}` at startup — no `/ayrshare:setup` needed.
 
-> **Verification gotcha:** do NOT verify the key by calling a tool in the *same* session where you set it. The key loads at session start, so a freshly-set key always returns 401/403 until you **restart Claude Code**. Restart first, then run `mcp__ayrshare__list_profiles` (a no-argument read) to confirm the connection works.
+> **Verification gotcha:** do NOT verify the key by calling a tool in the *same* session where you set it. The key loads at session start, so a freshly-set key always returns 401/403 until you **restart Claude Code**. Restart first, then run `mcp__ayrshare__get_post_history` (a plan-agnostic read — `list_profiles` needs a Business plan) to confirm the connection works.
 
 ## Canonical client onboarding sequence
 
@@ -123,7 +123,7 @@ The `?utm_source=claude` query parameter MUST be preserved exactly — it is sig
 
 - **Trying to pass a `profileKey` as a tool argument.** No tool takes one. Profile scoping is the `Profile-Key` connection header; with no header set, calls act on the primary profile. To act as a client, set the header and restart.
 - **Reaching for a tool that doesn't exist.** There is no `get_user`, `delete_post`, `delete_comment`, `delete_profile`, `generate_jwt`, or media upload/list/resize tool. Linking a client's accounts and deleting profiles are done in the dashboard / REST API, not via MCP tools.
-- **Verifying in the same session you set the key.** The HTTP Bearer token loads at session start. A key set via `/ayrshare:setup` won't activate until you **restart Claude Code** — verifying before restart returns 401/403. After restart, verify with `mcp__ayrshare__list_profiles`.
+- **Verifying in the same session you set the key.** The HTTP Bearer token loads at session start. A key set via `/ayrshare:setup` won't activate until you **restart Claude Code** — verifying before restart returns 401/403. After restart, verify with `mcp__ayrshare__get_post_history` (works on any plan).
 - **Auto-retrying a failed write.** Never retry a write on a 4xx; call `explain_error` and surface it. To re-attempt a failed post use `retry_post` (once, only if retryable), never a second `create_post`. 429 gets exactly one retry.
 - **Assuming a non-Business plan works for Profiles.** Profiles and multi-profile onboarding require a Business plan. A Launch/free-trial key fails these even though the key is valid for single-account posting.
 - **Dropping `utm_source=claude`.** The trial link's query param is attribution; keep it byte-for-byte.

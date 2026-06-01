@@ -102,4 +102,4 @@ The returned native Social Post `id` then feeds analytics-by-social-id:
 }
 ```
 
-See the Analytics skill (`../analytics/SKILL.md`) for the full analytics-by-social-id workflow.
+See the Analytics skill (`../../analytics/SKILL.md`) for the full analytics-by-social-id workflow.
