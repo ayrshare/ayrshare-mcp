@@ -18,7 +18,7 @@ An LLM can write an OAuth flow. It can't get you approved as a Meta Tech Provide
 ## Prerequisites
 
 - [Claude Code](https://claude.ai/code) installed
-- An Ayrshare account with an API key — get one at [app.ayrshare.com](https://app.ayrshare.com) under **Settings → API Key**
+- An Ayrshare account with an API key — get one at [app.ayrshare.com](https://app.ayrshare.com) under **Settings → API Key** or get a [28 day free trial here](https://billing.ayrshare.com/b/9B6bJ15Oidr9fz615u1Nu0h?utm_source=(github))
 
 ---
 
