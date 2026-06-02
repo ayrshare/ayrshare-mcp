@@ -134,8 +134,10 @@ Trigger-based skills activate automatically on intent (even when you don't name 
 | `generate` | `generate_post`, `recommend_hashtags` | Drafting AI post copy (never publishes) or suggesting hashtags for a keyword. |
 | `webhooks` | `register_webhook`, `unregister_webhook`, `list_webhooks` | Subscribing to push notifications (e.g. when a scheduled post publishes) instead of polling. |
 | `errors` | `explain_error` | Decoding an Ayrshare `Error <code>` into a plain-English cause + fix. |
+| `draft-in-brand-voice` | (workflow: `get_platform_history`/`get_post_history` → `get_post_analytics` → `generate_post` → `validate_post`) | Writing on-brand content by matching a profile's established voice from its post history; drafts only. |
+| `plan-and-schedule-campaign` | (workflow: `validate_post` → `create_post` per post, with `scheduleDate`) | Planning and scheduling a multi-post, multi-platform campaign or content calendar, validating each post first. |
 
-Tool names follow the plugin's `mcp__ayrshare__<action>` convention (e.g. `mcp__ayrshare__create_post`).
+The last two are multi-step **workflow** skills: they orchestrate the tools above rather than adding new ones. Tool names follow the plugin's `mcp__ayrshare__<action>` convention (e.g. `mcp__ayrshare__create_post`).
 
 ---
 

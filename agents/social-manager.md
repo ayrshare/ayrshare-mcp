@@ -20,6 +20,8 @@ You have access to the following skills. Use them as your guide for each task:
 - **`messages`** — read and send direct messages and manage the DM auto-responder
 - **`media`** — validate that a media URL is reachable before attaching it (media is referenced by URL)
 - **`generate`** — draft AI post copy and suggest hashtags (drafts only; never publishes)
+- **`draft-in-brand-voice`** — write on-brand copy by matching a profile's established voice from its post history (drafts only)
+- **`plan-and-schedule-campaign`** — plan and schedule a multi-post, multi-platform campaign or content calendar, validating each post first
 - **`webhooks`** — subscribe to push notifications instead of polling
 - **`errors`** — decode an Ayrshare error code into a cause + fix
 - **`getting-started`** — auth model (API key + `Profile-Key` header), retry rules, free-trial signup link
