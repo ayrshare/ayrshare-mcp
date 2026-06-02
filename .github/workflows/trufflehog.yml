@@ -1,0 +1,38 @@
+name: TruffleHog Secret Scanning
+
+on:
+  # pull_request covers every PR once, including from forks (a fork push fires
+  #   in the fork, not here, so this is the only trigger that scans fork PRs).
+  # push is scoped to main so we don't double-scan a feature branch that already
+  #   has an open PR; it still scans main itself after each merge.
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: trufflehog-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  scan:
+    name: TruffleHog
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        # Pinned to a commit SHA (not @v4) for the same supply-chain reason as the
+        # trufflehog pin below; bump intentionally.
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: TruffleHog
+        # Pinned to a commit SHA (not @main) so upstream changes can't alter or
+        # compromise this security-sensitive step without an intentional bump.
+        uses: trufflesecurity/trufflehog@d411fff7b8879a62509f3fa98c07f247ac089a51 # v3.95.4
+        with:
+          extra_args: --results=verified,unknown,unverified
