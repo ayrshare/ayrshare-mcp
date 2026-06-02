@@ -1,4 +1,5 @@
 ---
+name: social-manager
 description: Social media manager that publishes, schedules, and analyzes content across platforms via Ayrshare
 model: claude-opus-4-8
 effort: high

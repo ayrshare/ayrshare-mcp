@@ -1,4 +1,5 @@
 ---
+name: profile-manager
 description: Profile manager for creating, listing, and generating social-account linking URLs for Ayrshare client profiles under a Business account
 model: claude-opus-4-8
 effort: high
