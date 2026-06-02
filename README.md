@@ -1,6 +1,6 @@
 # Ayrshare MCP for Claude Code
 
-Publish, schedule, and analyze social media across 10+ platforms directly from Claude Code — powered by the [Ayrshare](https://www.ayrshare.com) API.
+The unified social media API for AI agents. Publish, schedule, and analyze across 13+ networks directly from Claude Code, with post history for brand voice and validation against each platform's rules before every post — powered by the [Ayrshare](https://www.ayrshare.com) API.
 
 ---
 
