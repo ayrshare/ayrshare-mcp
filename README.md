@@ -1,13 +1,24 @@
-# Ayrshare MCP for Claude Code
+# Ayrshare for Claude Code
 
 The unified social media API for AI agents. Publish, schedule, and analyze across 13+ networks directly from Claude Code, with post history for brand voice and validation against each platform's rules before every post — powered by the [Ayrshare](https://www.ayrshare.com) API.
 
+Your agent can already write a post. Getting it published safely is the part that breaks. Ayrshare validates each post against the platform's rules first, so nothing goes live that a network would reject. One call covers Facebook, Instagram, LinkedIn, X, TikTok, YouTube, Pinterest, Reddit, Telegram, Threads, Bluesky, and more. Pull a brand's history to match its voice, read analytics to see what worked. Platform API changes are on us, not your agent. We are handling 25M+ API calls a day, so platform changes are our problem, not your agent's.
+
+---
+## Why not just have Claude write the integration?
+
+An LLM can write an OAuth flow. It can't get you approved as a Meta Tech Provider, keep up with X's pay-per-use API changes, or know that a hashtag was banned last week. Ayrshare handles that ongoing maintenance for you:
+
+- **Validated before publishing**. validate_post and validate_media catch errors against each platform's rules before anything goes live, so your agent never ships a post that gets rejected. X BYOK is supported for the 2026 mandate, and we track platform rule changes so your integration doesn't break.
+- **One call, 13+ networks**. A single request publishes everywhere, with per-platform validation before anything goes live.
+- **Built for many accounts**. Post on behalf of thousands of your users' profiles, not just one brand. Multi-tenant from day one.
+- **Post history for context and optimization**. Pull a profile's past posts so your agent matches its voice from the first draft, and mine years of performance data to optimize what to post next.
 ---
 
 ## Prerequisites
 
 - [Claude Code](https://claude.ai/code) installed
-- An Ayrshare account with an API key — get one at [app.ayrshare.com](https://app.ayrshare.com) under **Settings → API Key**
+- An Ayrshare account with an API key — get one at [app.ayrshare.com](https://app.ayrshare.com) under **Settings → API Key** or get a [28 day free trial here](https://billing.ayrshare.com/b/9B6bJ15Oidr9fz615u1Nu0h?utm_source=(github))
 
 ---
 
