@@ -4,8 +4,8 @@
 # so local detection is the only layer that actually prevents exposure.
 
 if ! command -v trufflehog >/dev/null 2>&1; then
-  echo "⚠  trufflehog not installed. Run: brew install trufflehog"
-  echo "   Skipping local secret scan (CI will still scan)."
+  echo "⚠  trufflehog not installed. Install: https://github.com/trufflesecurity/trufflehog#installation"
+  echo "   (macOS: brew install trufflehog). Skipping local secret scan; CI will still scan."
   exit 0
 fi
 

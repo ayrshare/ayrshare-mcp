@@ -22,7 +22,7 @@ We use [TruffleHog](https://github.com/trufflesecurity/trufflehog) to catch secr
 before they are committed. After cloning:
 
 ```sh
-brew install trufflehog          # or see TruffleHog docs for your OS
+brew install trufflehog          # macOS; other OSes: https://github.com/trufflesecurity/trufflehog#installation
 git config core.hooksPath .githooks
 chmod +x .githooks/pre-commit
 ```
@@ -34,10 +34,10 @@ lets the commit through, CI is the backstop in that case.
 
 ## CI backstop
 
-Every push and pull request runs the **TruffleHog Secret Scanning** workflow
-(`.github/workflows/trufflehog.yml`) over the full git history. Any finding fails the
-check, including unverifiable ones such as a private key. This check is **required**
-in branch protection for `main`, so a red PR cannot be merged.
+Every pull request (and every push to `main`) runs the **TruffleHog Secret Scanning**
+workflow (`.github/workflows/trufflehog.yml`). Any finding fails the check, including
+unverifiable ones such as a private key. This check is **required** in branch
+protection for `main`, so a red PR cannot be merged.
 
 If a real placeholder ever trips the scanner (a fake-but-realistic example token in
 docs), add a `trufflehog:ignore` comment on that line rather than weakening the scan.
