@@ -9,8 +9,14 @@ if ! command -v trufflehog >/dev/null 2>&1; then
   exit 0
 fi
 
+# --trust-local-git-config is required: without it TruffleHog can read 0 bytes
+#   from a hook context and scan nothing (see trufflehog issue #4575).
+# --results includes "unverified" so the hook also blocks findings it cannot
+#   verify as live, e.g. a staged private key (which is exactly what we must
+#   never let reach a public repo).
 trufflehog git "file://$(git rev-parse --show-toplevel)" \
-  --since-commit HEAD --results=verified,unknown --fail --no-update || {
+  --since-commit HEAD --results=verified,unknown,unverified \
+  --fail --no-update --trust-local-git-config || {
     echo "✖  Secret detected. Commit blocked."
     echo "   Remove the secret AND rotate the key (assume it is already compromised)."
     exit 1

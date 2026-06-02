@@ -27,16 +27,20 @@ git config core.hooksPath .githooks
 chmod +x .githooks/pre-commit
 ```
 
-The `pre-commit` hook scans your staged changes and blocks the commit if it finds a
-verified secret. If TruffleHog is not installed, the hook warns and lets the commit
-through, CI is the backstop in that case.
+The `pre-commit` hook scans your staged changes and blocks the commit if it finds
+anything that looks like a secret, including findings it cannot verify as live (a
+staged private key, for example). If TruffleHog is not installed, the hook warns and
+lets the commit through, CI is the backstop in that case.
 
 ## CI backstop
 
 Every push and pull request runs the **TruffleHog Secret Scanning** workflow
-(`.github/workflows/trufflehog.yml`) over the full git history. A verified finding
-fails the check. This check should be marked **required** in branch protection for
-`main`, so a red PR cannot be merged.
+(`.github/workflows/trufflehog.yml`) over the full git history. Any finding fails the
+check, including unverifiable ones such as a private key. This check is **required**
+in branch protection for `main`, so a red PR cannot be merged.
+
+If a real placeholder ever trips the scanner (a fake-but-realistic example token in
+docs), add a `trufflehog:ignore` comment on that line rather than weakening the scan.
 
 If a secret ever does land on a branch: **rotate the key first** (it is already
 exposed), then scrub the history.

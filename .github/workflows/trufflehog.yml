@@ -24,6 +24,8 @@ jobs:
           persist-credentials: false
 
       - name: TruffleHog
-        uses: trufflesecurity/trufflehog@main
+        # Pinned to a commit SHA (not @main) so upstream changes can't alter or
+        # compromise this security-sensitive step without an intentional bump.
+        uses: trufflesecurity/trufflehog@d411fff7b8879a62509f3fa98c07f247ac089a51 # v3.95.4
         with:
-          extra_args: --results=verified,unknown
+          extra_args: --results=verified,unknown,unverified
