@@ -167,7 +167,7 @@ The last two are multi-step **workflow** skills: they orchestrate the tools abov
 
 ## Optional Configuration
 
-Both of these are configured by adding **connection headers** to the `ayrshare` server in `.mcp.json` (or via `claude mcp add --header`). There are no per-call `profileKey` or credential parameters on any tool.
+These are all configured by adding **connection headers** to the `ayrshare` server in `.mcp.json` (or via `claude mcp add --header`). Profile scoping and credentials are connection headers, not per-call arguments — the one exception is `generate_jwt`, which takes a *target* `profileKey` argument (the sub-profile to mint a linking URL for; see the Profiles skill).
 
 ### Act as a specific client profile (`Profile-Key`)
 
