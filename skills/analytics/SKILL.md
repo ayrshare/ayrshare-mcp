@@ -30,6 +30,8 @@ Full input schemas, example payloads, the per-platform metric notes, and example
 
 All three tools are scoped to the profile set by the `Profile-Key` connection header. **No tool takes a `profileKey` argument** — profile scoping is the connection's `Profile-Key` header (configured in the MCP client, e.g. `.mcp.json` headers), not a per-call parameter. To read a specific client's analytics, the connection must be configured with that client's `Profile-Key`; omit the header to read the account's primary/Business profile. Full two-layer model: `../getting-started/SKILL.md`.
 
+**Exception — `get_social_network_analytics` `userId`/`userName` (Twitter/X):** targeting a specific X user by `userId` (numeric Twitter ID) or `userName` (handle) instead of the linked account uses the **API key only and ignores `Profile-Key`** — that call is not profile-scoped. All other analytics calls are profile-scoped as above. See `references/schemas.md`.
+
 ## Usage guidance
 
 - **Choose by scope first, then by id type.** "How did this post do" → a post-analytics tool. "How many followers / what's our reach / analytics on our LinkedIn network" → `get_social_network_analytics` with the platform(s). Post-level and network-level tools are not interchangeable and rarely both needed for one question.

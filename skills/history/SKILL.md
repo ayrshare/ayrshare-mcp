@@ -26,6 +26,8 @@ Full input schemas and example payloads/responses are in [`references/schemas.md
 
 Both tools are **profile-scoped via the connection's `Profile-Key` header**, not a per-call argument. The header is set in the MCP client config (`.mcp.json` headers): include `Profile-Key: <profileKey>` to act as one client profile; omit it to act on the account's primary/Business profile. To switch profiles you reconfigure the connection header — you do **not** pass a `profileKey` parameter to the tool. Full two-layer model: `../getting-started/SKILL.md`.
 
+**Exception — `get_platform_history` `userId`/`userName` (Twitter/X):** when you target a specific X user by `userId` (numeric Twitter ID) or `userName` (handle), that lookup uses the **API key only and ignores `Profile-Key`** — it is not scoped to the connection's profile. Every other history call (and `get_post_history` entirely) is profile-scoped as above. See `references/schemas.md`.
+
 ## Usage guidance
 
 - **The connection's `Profile-Key` header decides whose history you see.** With it → that profile's posts. Without it → the account's primary/Business profile. This is set at the connection level, not per call, so be deliberate about which connection (which `Profile-Key`) you're using.
