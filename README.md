@@ -1,18 +1,31 @@
 # Ayrshare for Claude Code
 
-The unified social media API for AI agents. Publish, schedule, and analyze across 13+ networks from Claude Code, with post history for brand voice and compliance validation before every post. Powered by the [Ayrshare](https://www.ayrshare.com) API.
+The unified social media API for AI agents. Publish, schedule, and analyze across 13+ networks directly from Claude Code, with post history for brand voice and validation against each platform's rules before every post — powered by the [Ayrshare](https://www.ayrshare.com) API.
 
-Your agent can already write a post.Getting it published safely is the part that breaks. Ayrshare validates each post against the platform's rules first, so nothing goes live that a network would reject. One call covers Facebook, Instagram, LinkedIn, X, TikTok, YouTube, Pinterest, Reddit, Telegram, Threads, Bluesky, and more. Pull a brand's history to match its voice, read analytics to see what worked. Platform API changes are on us, not your agent. We are handling 25M+ API calls a day, so platform changes are our problem, not your agent's.
+Your agent can already write a post. Getting it published safely is the part that breaks. Ayrshare validates each post against the platform's rules first, so nothing goes live that a network would reject. One call covers Facebook, Instagram, LinkedIn, X, TikTok, YouTube, Pinterest, Reddit, Telegram, Threads, Bluesky, and more. Pull a brand's history to match its voice, read analytics to see what worked. Platform API changes are on us, not your agent. We are handling 25M+ API calls a day, so platform changes are our problem, not your agent's.
+
+## The loop
+
+Your agent runs the full social loop without leaving Claude Code:
+
+- **Learn** — match a brand's voice from its post history, and see what performed.
+- **Act** — publish and schedule across 13+ networks in one call.
+- **Observe** — pull live analytics to see what worked.
+- **Stay safe** — validate every post against each platform's rules before it goes live.
+- **Assist** — draft and confirm before anything publishes.
 
 ---
 ## Why not just have Claude write the integration?
 
-An LLM can write an OAuth flow. It can't get you approved as a Meta Tech Provider, keep up with X's pay-per-use API changes, or know that a hashtag was banned last week. Ayrshare handles that ongoing maintenance for you:
+An LLM can write an OAuth flow. It can't get you approved as a Meta Tech Provider, keep up with X's pay-per-use API changes, or keep your integration working the next time a platform changes its rules. Ayrshare handles that ongoing maintenance for you:
 
-- **Validated before publishing**. validate_post and validate_media catch errors against each platform's rules before anything goes live, so your agent never ships a post that gets rejected. X BYOK is supported for the 2026 mandate, and we track platform rule changes so your integration doesn't break.
+- **Validated before publishing**. `validate_post` checks your content against each platform's rules (length, format, media requirements) before anything goes live, and `validate_media` confirms a media URL is reachable first — so your agent doesn't ship a post a network will reject. X BYOK is supported for the 2026 mandate, and Ayrshare maintains the platform integrations so a network's API change doesn't break yours.
 - **One call, 13+ networks**. A single request publishes everywhere, with per-platform validation before anything goes live.
 - **Built for many accounts**. Post on behalf of thousands of your users' profiles, not just one brand. Multi-tenant from day one.
 - **Post history for context and optimization**. Pull a profile's past posts so your agent matches its voice from the first draft, and mine years of performance data to optimize what to post next.
+
+**Safety by default:** the plugin validates and asks for confirmation before publishing — your agent drafts, you approve.
+
 ---
 
 ## Prerequisites
@@ -30,13 +43,13 @@ The plugin scope controls where commands, agents, and skills are available. Choo
 
 | Scope | Command | Where it's available |
 |---|---|---|
-| Global (default) | `claude plugin install github:ayrshare/ayrshare-mcp` | Every project on this machine |
-| This project only | `claude plugin install github:ayrshare/ayrshare-mcp --scope local` | Current project, not committed to git |
-| This project (shared) | `claude plugin install github:ayrshare/ayrshare-mcp --scope project` | Current project, committed to git with the team |
+| Global (default) | `claude plugin install github:ayrshare/ayrshare-social-media-api-claude-plugin` | Every project on this machine |
+| This project only | `claude plugin install github:ayrshare/ayrshare-social-media-api-claude-plugin --scope local` | Current project, not committed to git |
+| This project (shared) | `claude plugin install github:ayrshare/ayrshare-social-media-api-claude-plugin --scope project` | Current project, committed to git with the team |
 
 After installing, configure your API key:
 
-```
+```text
 /ayrshare:setup
 ```
 
@@ -50,7 +63,7 @@ After installing, configure your API key:
 
 ```bash
 # 1. Install the plugin globally (this is the default)
-claude plugin install github:ayrshare/ayrshare-mcp
+claude plugin install github:ayrshare/ayrshare-social-media-api-claude-plugin
 
 # 2. Configure your API key (stored in ~/.claude/)
 # Run inside Claude Code:
@@ -65,7 +78,7 @@ Commands, agents, and skills are available in every project. The key is stored i
 
 ```bash
 # 1. Install scoped to the current project (not committed to git)
-claude plugin install github:ayrshare/ayrshare-mcp --scope local
+claude plugin install github:ayrshare/ayrshare-social-media-api-claude-plugin --scope local
 
 # 2. Configure your API key (stored in .mcp.json in the project directory)
 # Run inside Claude Code:
@@ -80,7 +93,7 @@ Commands, agents, and skills only appear in this project. The key is written to 
 
 ```bash
 # 1. Install scoped to the project (committed to git)
-claude plugin install github:ayrshare/ayrshare-mcp --scope project
+claude plugin install github:ayrshare/ayrshare-social-media-api-claude-plugin --scope project
 
 # 2. Configure your API key (stored in .mcp.json in the project directory)
 # Run inside Claude Code:
@@ -111,7 +124,7 @@ For CI environments or users who manage env vars via shell profile:
 
 ```bash
 export AYRSHARE_API_KEY=your_key_here
-claude plugin install github:ayrshare/ayrshare-mcp
+claude plugin install github:ayrshare/ayrshare-social-media-api-claude-plugin
 ```
 
 The plugin's `.mcp.json` uses `${AYRSHARE_API_KEY}` — Claude Code substitutes it at startup. No setup command needed.
@@ -123,53 +136,67 @@ The plugin's `.mcp.json` uses `${AYRSHARE_API_KEY}` — Claude Code substitutes 
 | Command | Description |
 |---|---|
 | `/ayrshare:setup` | Configure or rotate your API key |
-| `/ayrshare:post` | Publish a post to one or more platforms |
-| `/ayrshare:analytics` | Fetch engagement and performance stats |
-| `/ayrshare:profiles` | List connected social media profiles |
-| `/ayrshare:link` | Generate a branded short link |
+
+The former `/ayrshare:post`, `/ayrshare:analytics`, and `/ayrshare:profiles` commands were consolidated into the **social-manager** and **profile-manager** agents and the trigger-based skills below.
 
 ---
 
 ## Skills
 
-| Skill | Description |
-|---|---|
-| `/ayrshare:list-profiles` | List profiles as a formatted table |
-
-### MCP tool reference skills
-
-These skills are **trigger-based** — they activate automatically on intent (even when you don't name Ayrshare) and teach Claude how to drive the MCP tools correctly: the two-layer auth model, `profileKey` usage, retry safety, and platform quirks. They cover all of the server's tools and focus on what Claude commonly gets wrong. **Start with `ayrshare-mcp-getting-started`** — every group skill cross-links to it.
+Trigger-based skills activate automatically on intent (even when you don't name Ayrshare) and teach Claude how to drive the MCP tools correctly: the auth model (API key + optional `Profile-Key` header), retry safety, and platform quirks. They cover all 27 of the server's tools. **Start with `getting-started`** — every group skill cross-links to it.
 
 | Skill | Tools | Use when |
 |---|---|---|
-| `ayrshare-mcp-getting-started` | (cross-cutting) | Installing/configuring the plugin, any 401/403, "which key do I use", onboarding a client, or missing `AYRSHARE_API_KEY`. Home of the two-layer auth model, onboarding sequence, retry/`explain_error` rules, and the free-trial link. |
-| `ayrshare-mcp-profiles` | `create_profile`, `generate_jwt`, `list_profiles`, `delete_profile` | Creating/listing/deleting client profiles or generating an OAuth connect URL (account-level, Business key). |
-| `ayrshare-mcp-posts` | `validate_post`, `create_post`, `delete_post`, `get_post`, `update_post`, `retry_post` | Validating, posting, scheduling, editing, deleting, or retrying social content — even "schedule a tweet for Friday". |
-| `ayrshare-mcp-comments` | `get_comments`, `post_comment`, `reply_comment`, `delete_comment` | Reading, adding, replying to, or deleting comments on a post. |
-| `ayrshare-mcp-analytics` | `get_post_analytics`, `get_social_analytics` | Per-post analytics (by Ayrshare ID or native Social Post ID) or analytics on a social network (followers, reach, impressions). |
-| `ayrshare-mcp-media` | `upload_media`, `list_media`, `verify_media`, `resize_media` | Uploading, listing, verifying, or resizing media before posting. |
-| `ayrshare-mcp-history` | `get_history` | Fetching post history (account-level or per-profile), verifying a profile after onboarding, or finding native Social Post IDs. |
-| `ayrshare-mcp-user` | `get_user` | Checking the Business account's plan, quotas, or connected platforms; diagnosing a bad API key. |
+| `getting-started` | (cross-cutting) | Installing/configuring the plugin, any 401/403, "which credential do I use", onboarding a client, or missing `AYRSHARE_API_KEY`. Home of the auth model (API key + `Profile-Key` header), onboarding sequence, retry/`explain_error` rules, and the free-trial link. |
+| `post` | `create_post`, `validate_post`, `get_post`, `update_post`, `retry_post` | Validating, posting, scheduling, editing, fetching, or retrying social content. |
+| `history` | `get_post_history`, `get_platform_history` | Listing posts sent via Ayrshare, or native posts (incl. ones not made via Ayrshare) and finding native Social Post IDs. |
+| `analytics` | `get_post_analytics`, `get_post_analytics_by_social_id`, `get_social_network_analytics` | Per-post analytics (by Ayrshare or native Social Post ID) or account/network analytics (followers, reach, impressions). |
+| `comments` | `get_comments`, `add_comment`, `reply_comment` | Reading, adding, or replying to comments on a post. |
+| `messages` | `get_messages`, `send_message`, `get_auto_response`, `set_auto_response` | Reading/sending direct messages (Facebook, Instagram, X) or configuring the DM auto-responder. |
+| `profiles` | `list_profiles`, `create_profile`, `generate_jwt_social_linking_url` | Creating or listing client profiles (account-level), or minting a client's social-account linking URL for the profile set by the `Profile-Key` header (Business/Enterprise plan). |
+| `media` | `validate_media` | Checking a media URL is reachable before posting (media is referenced by URL; there is no upload/library/resize tool). |
+| `generate` | `generate_post`, `recommend_hashtags` | Drafting AI post copy (never publishes) or suggesting hashtags for a keyword. |
+| `webhooks` | `register_webhook`, `unregister_webhook`, `list_webhooks` | Subscribing to push notifications (e.g. when a scheduled post publishes) instead of polling. |
+| `errors` | `explain_error` | Decoding an Ayrshare `Error <code>` into a plain-English cause + fix. |
+| `draft-in-brand-voice` | (workflow: `get_platform_history`/`get_post_history` → `get_post_analytics` → `generate_post` → `validate_post`) | Writing on-brand content by matching a profile's established voice from its post history; drafts only. |
+| `plan-and-schedule-campaign` | (workflow: `validate_post` → `create_post` per post, with `scheduleDate`) | Planning and scheduling a multi-post, multi-platform campaign or content calendar, validating each post first. |
 
-Tool names follow the plugin's `mcp__ayrshare__<action>` convention (e.g. `mcp__ayrshare__create_post`).
+The last two are multi-step **workflow** skills: they orchestrate the tools above rather than adding new ones. Tool names follow the plugin's `mcp__ayrshare__<action>` convention (e.g. `mcp__ayrshare__create_post`).
 
 ---
 
 ## Optional Configuration
 
-| Environment Variable | Description |
-|---|---|
-| `AYRSHARE_PROFILE_KEY` | Fix a default Business profile for all requests |
-| `AYRSHARE_PRIVATE_KEY` | RSA private key — required for `/ayrshare:link` |
-| `AYRSHARE_DOMAIN` | Custom short link domain — required for `/ayrshare:link` |
-| `X_API_KEY` | X/Twitter API key (BYO credentials) |
-| `X_API_SECRET` | X/Twitter API secret (BYO credentials) |
+Both of these are configured by adding **connection headers** to the `ayrshare` server in `.mcp.json` (or via `claude mcp add --header`). Profile scoping is the `Profile-Key` connection header, not a per-call argument — no Ayrshare MCP tool takes a `profileKey` parameter.
+
+### Act as a specific client profile (`Profile-Key`)
+
+Add a `Profile-Key` header alongside `Authorization`:
+
+```jsonc
+"headers": {
+  "Authorization": "Bearer ${AYRSHARE_API_KEY}",
+  "Profile-Key": "${AYRSHARE_PROFILE_KEY}"   // optional; omit to act on the primary profile
+}
+```
+
+Then set `AYRSHARE_PROFILE_KEY` and restart. With no header set, calls act on the account's primary profile. The `generate_jwt_social_linking_url` tool also uses this header: it mints the social-account linking URL for whichever sub-profile the `Profile-Key` selects (the header is required for that tool), and it needs no private key or domain — the server derives those from your authenticated account.
+
+### Bring-your-own X/Twitter app (BYOK)
+
+If you post to X/Twitter with your own developer app, the MCP server forwards a fixed allowlist of credential headers per request (values are never logged). Add the ones your app uses to the `ayrshare` server's `headers`:
+
+- `X-Twitter-OAuth1-Api-Key`, `X-Twitter-OAuth1-Api-Secret`
+- `X-Twitter-OAuth1-Access-Token`, `X-Twitter-OAuth1-Access-Token-Secret`
+- `X-Twitter-OAuth2-Client-Id`, `X-Twitter-OAuth2-Client-Secret`
+
+Without them, a BYOK X/Twitter account returns error `419` (`x_credentials_required`).
 
 ---
 
 ## Supported Platforms
 
-Facebook, Instagram, LinkedIn, X (Twitter), TikTok, YouTube, Pinterest, Reddit, Telegram, Threads, and more — depending on your Ayrshare plan and connected profiles.
+Facebook, Instagram, LinkedIn, X (Twitter), TikTok, YouTube, Pinterest, Reddit, Telegram, Threads, Bluesky, Snapchat, and Google Business Profile — depending on your Ayrshare plan and connected profiles.
 
 ---
 

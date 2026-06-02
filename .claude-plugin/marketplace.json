@@ -1,0 +1,40 @@
+{
+  "name": "ayrshare",
+  "owner": {
+    "name": "Ayrshare",
+    "url": "https://www.ayrshare.com"
+  },
+  "description": "The unified social media API for AI agents, native in Claude Code.",
+  "plugins": [
+    {
+      "name": "ayrshare",
+      "source": "./",
+      "displayName": "Ayrshare - Unified Social Media API for AI Agents",
+      "description": "The unified social media API for AI agents. Publish, schedule, and analyze across 13+ networks from Claude Code, with post history for brand voice and content validation against each platform's rules before every post.",
+      "version": "0.1.0",
+      "author": {
+        "name": "Ayrshare",
+        "url": "https://www.ayrshare.com"
+      },
+      "homepage": "https://www.ayrshare.com",
+      "repository": "https://github.com/ayrshare/ayrshare-social-media-api-claude-plugin",
+      "license": "MIT",
+      "category": "integrations",
+      "keywords": [
+        "social-media",
+        "publishing",
+        "scheduling",
+        "analytics",
+        "ayrshare",
+        "mcp",
+        "ai-agent",
+        "instagram",
+        "linkedin",
+        "x",
+        "tiktok",
+        "youtube",
+        "social-media-api"
+      ]
+    }
+  ]
+}

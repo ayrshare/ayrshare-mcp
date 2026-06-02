@@ -13,7 +13,7 @@ Configure the Ayrshare API key for Claude Code. Run this after installing the pl
 
    "Where do you want to store the API key?
    - **This project** — writes the key to `.mcp.json` in the current project directory (use if you installed the plugin with `--scope local` or `--scope project`)
-   - **Global** — stores the key in `~/.claude/` for all projects (use if you installed the plugin with `--scope user`)"
+   - **Global** — stores the key in `~/.claude/` for all projects (use if you installed the plugin globally — the default; Claude Code's CLI calls this scope `--scope user`)"
 
 3. Based on the answer:
 
@@ -45,4 +45,4 @@ Configure the Ayrshare API key for Claude Code. Run this after installing the pl
 ## Notes
 - To rotate the key at any time, run /ayrshare:setup again.
 - The key scope should match the plugin installation scope so commands and MCP access are consistent.
-- Do NOT attempt to verify by calling any MCP tool after setup — the connection is loaded at session start and will always return 403 in the same session where the key was written.
+- Do NOT attempt to verify by calling any MCP tool after setup — the connection is loaded at session start and will return 401/403 in the same session where the key was written.
