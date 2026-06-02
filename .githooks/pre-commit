@@ -1,0 +1,17 @@
+#!/bin/sh
+# Block commits that contain secrets, before they ever leave the machine.
+# This repo is public: a pushed secret is exposed instantly and cannot be un-leaked,
+# so local detection is the only layer that actually prevents exposure.
+
+if ! command -v trufflehog >/dev/null 2>&1; then
+  echo "⚠  trufflehog not installed. Run: brew install trufflehog"
+  echo "   Skipping local secret scan (CI will still scan)."
+  exit 0
+fi
+
+trufflehog git "file://$(git rev-parse --show-toplevel)" \
+  --since-commit HEAD --results=verified,unknown --fail --no-update || {
+    echo "✖  Secret detected. Commit blocked."
+    echo "   Remove the secret AND rotate the key (assume it is already compromised)."
+    exit 1
+  }
