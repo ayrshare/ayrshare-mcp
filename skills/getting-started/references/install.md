@@ -63,9 +63,10 @@ The plugin's `.mcp.json` uses `${AYRSHARE_API_KEY}` — Claude Code substitutes 
 |---|---|
 | `AYRSHARE_PROFILE_KEY` | Value for an optional `Profile-Key` connection header — set this to act as a specific client profile. **Only takes effect if you add a `Profile-Key` header to the MCP server config** (the default config sends only the API key); there is no per-call `profileKey` parameter. See the auth model in SKILL.md. |
 | X/Twitter BYOK headers | To post to X/Twitter with your own developer app, add the credential headers your app uses to the MCP server config: `X-Twitter-OAuth1-Api-Key`, `X-Twitter-OAuth1-Api-Secret`, `X-Twitter-OAuth1-Access-Token`, `X-Twitter-OAuth1-Access-Token-Secret`, `X-Twitter-OAuth2-Client-Id`, `X-Twitter-OAuth2-Client-Secret`. The server forwards only these exact headers (values never logged). Without them a BYOK account returns error `419`. |
+| `AYRSHARE_PRIVATE_KEY` / `AYRSHARE_DOMAIN` | Used only by `mcp__ayrshare__generate_jwt` (mint a client's social-account linking URL). Add `X-Ayrshare-Private-Key` (your `private.key`, **base64-encoded** via `cat private.key \| base64`) and `X-Ayrshare-Domain` (your onboarding domain) connection headers, env-substituted like the API key. The private key is a **high-value secret** — source it from a secret store and never commit it. Interim model; a server-side signing surface is planned. |
 
 ## Notes
 
-- A **Business plan** key is required for the Profiles / multi-profile tools (`mcp__ayrshare__create_profile`, `mcp__ayrshare__list_profiles`). Linking a client's social accounts and deleting profiles are done in the Ayrshare dashboard / REST API, not via MCP tools.
+- A **Business plan** key is required for the Profiles / multi-profile tools (`mcp__ayrshare__create_profile`, `mcp__ayrshare__list_profiles`, `mcp__ayrshare__generate_jwt`). `generate_jwt` mints a client's social-account linking URL (the client opens it to OAuth their accounts); deleting profiles is still done in the Ayrshare dashboard / REST API, not via an MCP tool.
 - No account or key yet? Start a 28-day free trial of the Launch plan (see SKILL.md for the attributed signup link). Note the Launch trial does not include Profiles.
 - The key loads at session start — set it, then **restart Claude Code** before verifying.

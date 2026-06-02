@@ -119,7 +119,7 @@ The former `/ayrshare:post`, `/ayrshare:analytics`, and `/ayrshare:profiles` com
 
 ## Skills
 
-Trigger-based skills activate automatically on intent (even when you don't name Ayrshare) and teach Claude how to drive the MCP tools correctly: the auth model (API key + optional `Profile-Key` header), retry safety, and platform quirks. They cover all 26 of the server's tools. **Start with `getting-started`** — every group skill cross-links to it.
+Trigger-based skills activate automatically on intent (even when you don't name Ayrshare) and teach Claude how to drive the MCP tools correctly: the auth model (API key + optional `Profile-Key` header), retry safety, and platform quirks. They cover all 27 of the server's tools. **Start with `getting-started`** — every group skill cross-links to it.
 
 | Skill | Tools | Use when |
 |---|---|---|
@@ -129,7 +129,7 @@ Trigger-based skills activate automatically on intent (even when you don't name 
 | `analytics` | `get_post_analytics`, `get_post_analytics_by_social_id`, `get_social_network_analytics` | Per-post analytics (by Ayrshare or native Social Post ID) or account/network analytics (followers, reach, impressions). |
 | `comments` | `get_comments`, `add_comment`, `reply_comment` | Reading, adding, or replying to comments on a post. |
 | `messages` | `get_messages`, `send_message`, `get_auto_response`, `set_auto_response` | Reading/sending direct messages (Facebook, Instagram, X) or configuring the DM auto-responder. |
-| `profiles` | `list_profiles`, `create_profile` | Creating or listing client profiles (account-level, Business plan). |
+| `profiles` | `list_profiles`, `create_profile`, `generate_jwt` | Creating or listing client profiles, or minting a client's social-account linking URL (account-level, Business plan). |
 | `media` | `validate_media` | Checking a media URL is reachable before posting (media is referenced by URL; there is no upload/library/resize tool). |
 | `generate` | `generate_post`, `recommend_hashtags` | Drafting AI post copy (never publishes) or suggesting hashtags for a keyword. |
 | `webhooks` | `register_webhook`, `unregister_webhook`, `list_webhooks` | Subscribing to push notifications (e.g. when a scheduled post publishes) instead of polling. |
@@ -155,6 +155,20 @@ Add a `Profile-Key` header alongside `Authorization`:
 ```
 
 Then set `AYRSHARE_PROFILE_KEY` and restart. With no header set, calls act on the account's primary profile.
+
+### Generate client linking URLs (`generate_jwt`)
+
+The `generate_jwt` tool mints the single sign-on URL a client opens to connect their own social accounts. It needs your account's JWT signing credentials, supplied as connection headers (env-substituted like the API key):
+
+```jsonc
+"headers": {
+  "Authorization": "Bearer ${AYRSHARE_API_KEY}",
+  "X-Ayrshare-Private-Key": "${AYRSHARE_PRIVATE_KEY}",   // your private.key, base64-encoded
+  "X-Ayrshare-Domain": "${AYRSHARE_DOMAIN}"              // your onboarding domain
+}
+```
+
+Encode the key with `cat private.key | base64` (a header cannot carry raw PEM newlines). The private key is a **high-value secret** — it can mint linking URLs for every profile under the account, so source it from an env var / secret store, never commit it, and keep `.mcp.json` out of version control. The tool injects these into the request server-side and never logs them; `generate_jwt` is the only tool that uses them. (This header-based model is interim; a server-side signing surface is planned.)
 
 ### Bring-your-own X/Twitter app (BYOK)
 

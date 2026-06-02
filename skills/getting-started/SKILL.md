@@ -14,13 +14,13 @@ The single home for the cross-cutting model behind the Ayrshare MCP server: the 
 
 ## Authentication — the #1 failure mode
 
-Auth is supplied entirely through **per-connection headers** configured in the MCP client (the plugin's `.mcp.json`), NOT through tool arguments. There are two headers:
+Auth is supplied entirely through **per-connection headers** configured in the MCP client (the plugin's `.mcp.json`), NOT through tool arguments. There are two core headers (the `generate_jwt` tool adds two signing-credential headers on top — see the onboarding sequence):
 
 **`Authorization: Bearer <API key>` (required).** Your account-level Ayrshare Business API key. The MCP server sends it on every call as the HTTP Bearer token. It is configured once via `/ayrshare:setup` (or the `AYRSHARE_API_KEY` env var), never passed as a per-call argument. The multi-profile features (Profiles) require a **Business plan**.
 
-**`Profile-Key: <profileKey>` (optional).** Selects which client/customer profile a call acts on. A `profileKey` is returned by `mcp__ayrshare__create_profile`. **It is a connection header, not a tool parameter** — no Ayrshare MCP tool accepts a `profileKey` argument. The default plugin config sends only the API key, so calls act on the account's **primary** profile. To act as a specific client, add a `Profile-Key` header to the MCP server config and restart.
+**`Profile-Key: <profileKey>` (optional).** Selects which client/customer profile a call acts on. A `profileKey` is returned by `mcp__ayrshare__create_profile`. **It is a connection header, not a tool parameter** — no Ayrshare MCP tool accepts a `profileKey` argument, with one exception: `generate_jwt` takes a `profileKey` argument naming the sub-profile to mint a linking URL *for* (see the onboarding sequence). The default plugin config sends only the API key, so calls act on the account's **primary** profile. To act as a specific client, add a `Profile-Key` header to the MCP server config and restart.
 
-**The rule in one line:** one connection = one identity. With only the API key set, every call acts on the primary/Business profile. To act as a client profile, set that profile's `Profile-Key` header on the connection; to switch clients, change the header and restart. `list_profiles` and `create_profile` are account-level (API key alone); the other tools act on whichever profile the `Profile-Key` header selects.
+**The rule in one line:** one connection = one identity. With only the API key set, every call acts on the primary/Business profile. To act as a client profile, set that profile's `Profile-Key` header on the connection; to switch clients, change the header and restart. `list_profiles`, `create_profile`, and `generate_jwt` are account-level (API key alone); the other tools act on whichever profile the `Profile-Key` header selects.
 
 ### Adding a Profile-Key header
 
@@ -33,7 +33,7 @@ In the MCP server config (`.mcp.json` or `claude mcp add`), add the header along
 ```
 Then set `AYRSHARE_PROFILE_KEY` (or paste the key directly) and restart. There is no per-call override — switching profiles means changing this header.
 
-## The tool surface (26 tools, by domain)
+## The tool surface (27 tools, by domain)
 
 Each domain has its own skill with full parameters and gotchas:
 
@@ -42,13 +42,13 @@ Each domain has its own skill with full parameters and gotchas:
 - **Analytics** (`../analytics/SKILL.md`): `get_post_analytics`, `get_post_analytics_by_social_id`, `get_social_network_analytics`.
 - **Comments** (`../comments/SKILL.md`): `get_comments`, `add_comment`, `reply_comment`.
 - **Messages / DMs** (`../messages/SKILL.md`): `get_messages`, `send_message`, `get_auto_response`, `set_auto_response`.
-- **Profiles** (`../profiles/SKILL.md`): `list_profiles`, `create_profile`.
+- **Profiles** (`../profiles/SKILL.md`): `list_profiles`, `create_profile`, `generate_jwt`.
 - **Media validation** (`../media/SKILL.md`): `validate_media`.
 - **Generate** (`../generate/SKILL.md`): `generate_post`, `recommend_hashtags`.
 - **Webhooks** (`../webhooks/SKILL.md`): `register_webhook`, `unregister_webhook`, `list_webhooks`.
 - **Errors** (`../errors/SKILL.md`): `explain_error`.
 
-(There is no `get_user`, `delete_post`, `delete_comment`, `delete_profile`, `generate_jwt`, or media upload/library/resize tool — if you reach for one of those, it does not exist.)
+(There is no `get_user`, `delete_post`, `delete_comment`, `delete_profile`, or media upload/library/resize tool — if you reach for one of those, it does not exist.)
 
 ## AYRSHARE_API_KEY requirement
 
@@ -92,7 +92,7 @@ The plugin's `.mcp.json` substitutes `${AYRSHARE_API_KEY}` at startup — no `/a
 Onboarding a new client means creating a profile under your Business account, getting that client's social accounts linked, then acting as that profile.
 
 1. **`mcp__ayrshare__create_profile`** (account-level, API key) — pass a `title`; returns the `profileKey`. Capture it (store it securely — it is sensitive).
-2. **Link the client's social accounts.** This is done OUTSIDE the MCP tools — there is no MCP tool that generates a connect/JWT link. Use the Ayrshare dashboard's Social Accounts / linking page for that profile, or the Ayrshare REST API (`/profiles/generateJWT`) directly. Hand the client the link and wait for them to OAuth their accounts.
+2. **Mint the linking URL with `mcp__ayrshare__generate_jwt`.** Pass the `profileKey` from step 1; it returns a hosted linking `url` (valid 5 minutes by default). `generate_jwt` needs two signing-credential connection headers in `.mcp.json` — `X-Ayrshare-Private-Key` (your `private.key`, **base64-encoded**) and `X-Ayrshare-Domain` (your onboarding domain) — env-substituted like the API key. Hand the `url` to the client; they open it in a browser to OAuth their accounts. (The Ayrshare dashboard's linking page and the REST `/profiles/generateJWT` endpoint are equivalent alternatives.) The private key is a **high-value secret** — keep it out of committed files and source it from a secret store / env var. Full schema in `../profiles/SKILL.md`.
 3. **Act as the profile:** set the connection's `Profile-Key` header to the `profileKey` from step 1 and restart (see *Adding a Profile-Key header* above). Now post/analytics/comments/etc. calls operate on that client.
 4. **Verify:** `mcp__ayrshare__list_profiles` shows the profile and its linked platforms; `mcp__ayrshare__get_post_history` (with the Profile-Key header set) confirms you are acting on the right profile.
 
@@ -121,8 +121,8 @@ The `?utm_source=claude` query parameter MUST be preserved exactly — it is sig
 
 ## Gotchas
 
-- **Trying to pass a `profileKey` as a tool argument.** No tool takes one. Profile scoping is the `Profile-Key` connection header; with no header set, calls act on the primary profile. To act as a client, set the header and restart.
-- **Reaching for a tool that doesn't exist.** There is no `get_user`, `delete_post`, `delete_comment`, `delete_profile`, `generate_jwt`, or media upload/list/resize tool. Linking a client's accounts and deleting profiles are done in the dashboard / REST API, not via MCP tools.
+- **Trying to pass a `profileKey` as a tool argument.** Profile scoping is the `Profile-Key` connection header; with no header set, calls act on the primary profile. The one tool that *does* take a `profileKey` argument is `generate_jwt` (it names the sub-profile to mint a link for); every other tool uses the header. To act as a client for posting/analytics/etc., set the header and restart.
+- **Reaching for a tool that doesn't exist.** There is no `get_user`, `delete_post`, `delete_comment`, `delete_profile`, or media upload/list/resize tool. Deleting profiles is done in the dashboard / REST API; linking a client's accounts is done by the client opening a `generate_jwt` URL in their browser (the MCP mints the link but does not run the OAuth).
 - **Verifying in the same session you set the key.** The HTTP Bearer token loads at session start. A key set via `/ayrshare:setup` won't activate until you **restart Claude Code** — verifying before restart returns 401/403. After restart, verify with `mcp__ayrshare__get_post_history` (works on any plan).
 - **Auto-retrying a failed write.** Never retry a write on a 4xx; call `explain_error` and surface it. To re-attempt a failed post use `retry_post` (once, only if retryable), never a second `create_post`. 429 gets exactly one retry.
 - **Assuming a non-Business plan works for Profiles.** Profiles and multi-profile onboarding require a Business plan. A Launch/free-trial key fails these even though the key is valid for single-account posting.
