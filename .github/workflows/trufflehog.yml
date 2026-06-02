@@ -1,7 +1,12 @@
 name: TruffleHog Secret Scanning
 
 on:
+  # pull_request covers every PR once, including from forks (a fork push fires
+  #   in the fork, not here, so this is the only trigger that scans fork PRs).
+  # push is scoped to main so we don't double-scan a feature branch that already
+  #   has an open PR; it still scans main itself after each merge.
   push:
+    branches: [main]
   pull_request:
 
 permissions:
