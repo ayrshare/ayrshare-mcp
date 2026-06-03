@@ -8,22 +8,23 @@ The plugin lets an agent run the full social workflow without leaving Claude Cod
 
 ## The loop
 
-**Learn**. Retrieve a profile's post history for brand-voice context and review how past posts performed.
-**Act**. Publish and schedule across 13+ networks in a single call.
-**Observe**. Read live analytics to inform the next post.
-**Stay safe**. Validate each post against platform rules, then confirm before publishing
+- **Learn**. Retrieve a profile's post history for brand-voice context and review how past posts performed.
+- **Act**. Publish and schedule across 13+ networks in a single call.
+- **Observe**. Read live analytics to inform the next post.
+- **Stay safe**. Validate each post against platform rules, then confirm before publishing.
 
 ---
 ## Why use the API instead of a custom integration?
 
 An LLM can generate an OAuth flow, but it does not cover Meta Tech Provider approval, X's pay-per-use API changes, or ongoing maintenance when a network changes its rules. The plugin handles:
 
-**Pre-publish validation**. validate_post checks length, format, and media requirements against each network's rules. validate_media confirms a media URL is reachable before the request is sent. X BYOK is supported for the 2026 mandate, and platform integrations are maintained so an upstream API change does not break your integration.
-**One call, 13+ networks**. A single request publishes to all connected platforms, each validated against its own rules.
-**Multi-tenant**. Post on behalf of many user profiles rather than a single brand.
-**History API**. Retrieve a profile's past posts for brand-voice context, and use historical performance data to inform future posts.
+- **Pre-publish validation**. `validate_post` checks length, format, and media requirements against each network's rules. `validate_media` confirms a media URL is reachable before the request is sent. X BYOK is supported for the 2026 mandate, and platform integrations are maintained so an upstream API change does not break your integration.
+- **One call, 13+ networks**. A single request publishes to all connected platforms, each validated against its own rules.
+- **Multi-tenant**. Post on behalf of many user profiles rather than a single brand.
+- **History API**. Retrieve a profile's past posts for brand-voice context, and use historical performance data to inform future posts.
 
-**Safety**
+### Safety
+
 By default the plugin validates a post and requests confirmation before publishing. The agent prepares the draft; the user approves it.
 
 ---
