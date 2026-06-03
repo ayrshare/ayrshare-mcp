@@ -4,7 +4,7 @@ The unified social media API for AI agents. Publish, schedule, and analyze acros
 
 ## Overview
 
-The plugin lets an agent run the full social workflow without leaving Claude Code. Each post is validated against the target network's rules before it is sent, so content a platform would reject is caught before it goes live. A single request publishes to Facebook, Instagram, LinkedIn, X, TikTok, YouTube, Pinterest, Reddit, Telegram, Threads, Bluesky, and others. Post history is available for matching a brand's voice, and analytics can be read back to inform the next post. Platform integrations are maintained by Ayrshare, so upstream API changes are handled outside your code. The API currently handles 25M+ calls per day.
+The plugin lets an agent run the full social workflow without leaving Claude Code. Before publishing, the agent validates each post against the target network's rules and asks you to confirm, so avoidable rejections are caught before anything goes live. A single request publishes to Facebook, Instagram, LinkedIn, X, TikTok, YouTube, Pinterest, Reddit, Telegram, Threads, Bluesky, and others. Post history is available for matching a brand's voice, and analytics can be read back to inform the next post. Platform integrations are maintained by Ayrshare, so upstream API changes are handled outside your code. The API currently handles 25M+ calls per day.
 
 ## The loop
 
@@ -18,7 +18,7 @@ The plugin lets an agent run the full social workflow without leaving Claude Cod
 
 An LLM can generate an OAuth flow, but it does not cover Meta Tech Provider approval, X's pay-per-use API changes, or ongoing maintenance when a network changes its rules. The plugin handles:
 
-- **Pre-publish validation**. `validate_post` checks length, format, and media requirements against each network's rules. `validate_media` confirms a media URL is reachable before the request is sent. X BYOK is supported for the 2026 mandate, and platform integrations are maintained so an upstream API change does not break your integration.
+- **Pre-publish validation**. `validate_post` dry-runs content against each network's rules (length, format, media requirements) before you publish, and `validate_media` checks that a media URL is reachable before you attach it in `mediaUrls`. X BYOK is supported for the 2026 mandate, and platform integrations are maintained so an upstream API change does not break your integration.
 - **One call, 13+ networks**. A single request publishes to all connected platforms, each validated against its own rules.
 - **Multi-tenant**. Post on behalf of many user profiles rather than a single brand.
 - **History API**. Retrieve a profile's past posts for brand-voice context, and use historical performance data to inform future posts.
