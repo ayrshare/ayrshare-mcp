@@ -6,7 +6,7 @@ The MCP server exposes three analytics tools:
 - `mcp__ayrshare__get_post_analytics_by_social_id` → `POST /analytics/post` — per-post metrics by **native Social Post ID**.
 - `mcp__ayrshare__get_social_network_analytics` → `POST /analytics/social` — account/network-level analytics.
 
-All three are scoped to the profile set by the `Profile-Key` connection header. **No tool takes a `profileKey` argument** — profile scoping is the connection's `Profile-Key` header (set in the MCP client config), not a per-call parameter. Omit the header to act on the account's primary/Business profile.
+All three are profile-scoped: choose the profile with an optional `profileKey` tool argument or the `Profile-Key` connection header (the argument wins when both are set). With neither, calls act on the account's primary/Business profile.
 
 Platform enums:
 - `POST_PLATFORMS` (used by `get_social_network_analytics`, and by `platforms` in `get_post_analytics`): twitter, facebook, instagram, linkedin, tiktok, youtube, pinterest, reddit, telegram, gmb, bluesky, snapchat, threads.
@@ -99,8 +99,8 @@ The response shape matches `get_post_analytics` — see "Analytics on a Post by 
 | `daily` | boolean | no | Return daily time-series values instead of aggregated totals (Facebook, Instagram, Snapchat, TikTok, YouTube). **Do not combine with `period60Days`.** |
 | `period60Days` | boolean | no | TikTok only. Returns only 60-day aggregate totals for comments, shares, and views. **Do not combine with `daily`.** |
 | `youtube` | object | no | `{ lifetime: bool }` — when `lifetime` is true, include `lifetimeLikes` (sum of likes across all public channel videos; channels with >1,000 videos return null; cached 24 h). |
-| `userId` | string | no | X/Twitter only. Analytics for a specific user by numeric Twitter ID instead of the linked account. Use the API key only — no Profile-Key. |
-| `userName` | string | no | X/Twitter only. Analytics for a specific user by handle instead of the linked account. Use the API key only — no Profile-Key. |
+| `userId` | string | no | X/Twitter only. Analytics for a specific user by numeric Twitter ID instead of the linked account. Use the API key only; supplying a `profileKey` (argument or `Profile-Key` header) returns Error 400. |
+| `userName` | string | no | X/Twitter only. Analytics for a specific user by handle instead of the linked account. Use the API key only; supplying a `profileKey` (argument or `Profile-Key` header) returns Error 400. |
 
 Example call:
 

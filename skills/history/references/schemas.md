@@ -5,7 +5,7 @@ The MCP server reaches the Ayrshare API through two history tools:
 - `mcp__ayrshare__get_post_history` (`GET /history`) — posts sent via Ayrshare (Ayrshare Post IDs).
 - `mcp__ayrshare__get_platform_history` (`GET /history/:platform`) — native social posts, including posts not made via Ayrshare (native Social Post IDs).
 
-Both are **profile-scoped via the connection's `Profile-Key` header**, not a per-call argument. Include `Profile-Key: <profileKey>` in the MCP client config (`.mcp.json` headers) to act as one client profile; omit it to act on the account's primary/Business profile. There is no `profileKey` parameter on either tool.
+Both are **profile-scoped**: choose the profile with an optional `profileKey` tool argument or the `Profile-Key` connection header (the argument wins when both are set). With neither, calls act on the account's primary/Business profile.
 
 ## `mcp__ayrshare__get_post_history`
 
@@ -64,8 +64,8 @@ Returns **native** social posts for a single platform, **including posts not cre
 | `limit` | integer | no | Max number of posts to return, 1-500 (default 10). Keep at or below 100 for best performance. |
 | `skipAnalytics` | boolean | no | Return only the Social Post ID without full analytics (faster; avoids errors when limit > 100). |
 | `pagePublished` | boolean | no | Facebook only — when true, return only posts published by the Page itself. |
-| `userId` | string | no | Twitter/X only — target user by numeric Twitter ID (use API key only, no Profile-Key). |
-| `userName` | string | no | Twitter/X only — target user by handle (use API key only, no Profile-Key). |
+| `userId` | string | no | Twitter/X only, target user by numeric Twitter ID. Use the API key only; a `profileKey` (argument or `Profile-Key` header) returns Error 400. |
+| `userName` | string | no | Twitter/X only, target user by handle. Use the API key only; a `profileKey` (argument or `Profile-Key` header) returns Error 400. |
 | `next` | string | no | Pagination cursor returned by a prior call (`meta.pagination.next`). |
 | `since` | string | no | Facebook only — ISO date filtering posts on or after (e.g. `2026-03-17`). |
 | `until` | string | no | Facebook only — ISO date filtering posts on or before (e.g. `2026-03-20`). |

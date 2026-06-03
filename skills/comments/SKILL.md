@@ -10,7 +10,7 @@ The engagement tools: read comments on a post, add a new top-level comment, and 
 
 - API base (REST endpoints the tools wrap): `https://api.ayrshare.com/api`
 - Comments are scoped to a post you already published; you need that post's `id` (returned by `mcp__ayrshare__create_post` — see `../post/SKILL.md`).
-- **Profile scoping is a connection header, not a tool argument.** No comment tool takes a `profileKey` param. To act as a specific client profile, the MCP connection's `Profile-Key` header is set in the client config; omit it to act under the account's primary/Business profile. See `../getting-started/SKILL.md`.
+- **Profile scoping: `profileKey` argument or `Profile-Key` header.** Pass a comment tool's `profileKey` argument to act as a specific client profile for that call, or set the connection's `Profile-Key` header to default the whole connection to it (the argument wins when both are set); with neither, calls act under the account's primary/Business profile. See `../getting-started/SKILL.md`.
 
 ## Supported platforms
 
@@ -34,13 +34,13 @@ Field names beyond the core inputs and example payloads are in `references/examp
 
 ## Auth note
 
-These tools authenticate with the account's API key, configured when the MCP server is installed — see `../getting-started/SKILL.md` for installation and the full auth model; don't re-derive it here. Profile scoping is the per-connection `Profile-Key` header set in the MCP client config (`.mcp.json`), NOT a per-call argument. Omit the header to operate under the account's primary/Business profile.
+These tools authenticate with the account's API key, configured when the MCP server is installed. See `../getting-started/SKILL.md` for installation and the full auth model; don't re-derive it here. Profile scoping is the `profileKey` tool argument or the per-connection `Profile-Key` header (the argument wins when both are set). With neither, calls operate under the account's primary/Business profile.
 
 ## Usage guidance
 
 - **`add_comment` vs `reply_comment`** — pick by target, not by wording. A NEW top-level comment ON A POST is `add_comment` (needs the post `id`). A reply to an EXISTING comment is `reply_comment` (needs that comment's `commentId`). "Reply to the post" usually means a top-level comment → `add_comment`; "reply to that person/commenter" means `reply_comment`. When unsure, call `mcp__ayrshare__get_comments` first to see the comment thread and grab the right `commentId`.
 - **Read before you write.** To respond to a specific comment, `mcp__ayrshare__get_comments` gives you the comment ids and text. Don't guess a `commentId`.
-- **Match the profile to the post.** Comment on a post under the same connection `Profile-Key` that owns the post. Commenting under the primary/Business profile on a client's post (or vice versa) targets the wrong identity.
+- **Match the profile to the post.** Comment on a post under the same profile that owns it: pass that profile's `profileKey` argument (or use the matching `Profile-Key` connection). Commenting under the primary/Business profile on a client's post (or vice versa) targets the wrong identity.
 - **`mediaUrls` is restricted.** Both accept at most one media URL. `add_comment` supports it on Facebook, LinkedIn, and X (twitter); `reply_comment` supports it on Facebook and LinkedIn only (**not** X).
 - **TikTok Social-Comment-ID replies need `videoId`.** When replying to a TikTok comment by its Social Comment ID (`searchPlatformId`), `reply_comment` also requires `videoId`.
 

@@ -6,7 +6,7 @@ description: |
 
 # Ayrshare MCP — Posts
 
-The validate/write/read/lifecycle tools for individual social posts: validate, create or schedule, fetch, update, and retry. All operate on the profile selected by the connection's `Profile-Key` header — there is **no per-call `profileKey` argument**.
+The validate/write/read/lifecycle tools for individual social posts: validate, create or schedule, fetch, update, and retry. All operate on the profile selected by the optional `profileKey` argument or the connection's `Profile-Key` header (the argument wins when both are set).
 
 - API base (REST endpoints the tools wrap): `https://api.ayrshare.com/api`
 - Platform enum (the only valid values, verbatim): `twitter, facebook, instagram, linkedin, tiktok, youtube, pinterest, reddit, telegram, gmb, bluesky, snapchat, threads` — full table with notes in `references/platforms.md`.
@@ -25,7 +25,7 @@ Full `create_post`/`validate_post` input schema and example payloads are in `ref
 
 ## Auth note
 
-The Business API key (`Authorization: Bearer <key>`) is configured when the MCP server is installed — see `../getting-started/SKILL.md` for installation and the full auth model; don't re-derive it here. Profile scoping is **not** a per-call parameter: it is the optional `Profile-Key` connection header set in the MCP client config (`.mcp.json` headers). To act as a different client profile you reconfigure the connection's `Profile-Key`; omit it to act under the account's primary/Business profile.
+The Business API key (`Authorization: Bearer <key>`) is configured when the MCP server is installed. See `../getting-started/SKILL.md` for installation and the full auth model; don't re-derive it here. Profile scoping is the optional `profileKey` tool argument or the `Profile-Key` connection header (the argument wins when both are set). To act as a different client profile, pass its `profileKey` on the call or reconfigure the connection's `Profile-Key`; with neither, calls act under the account's primary/Business profile.
 
 ## Usage guidance
 
@@ -40,7 +40,7 @@ The Business API key (`Authorization: Bearer <key>`) is configured when the MCP 
 ## Gotchas
 
 - **Always validate before posting.** The repo's social-manager agent enforces `mcp__ayrshare__validate_post` → confirm → `mcp__ayrshare__create_post`. Skipping validation lets avoidable per-platform rejections (over-limit text, unsupported media) reach publish time.
-- **Profile scoping is a header, not an argument.** No post tool takes a `profileKey` parameter. The profile is selected by the `Profile-Key` connection header in the MCP client config; with it unset, every call acts under the account's primary/Business profile. To target a client profile, reconfigure the connection header. (Shared rule — see getting-started.)
+- **Profile scoping: `profileKey` argument or `Profile-Key` header.** Each post tool takes an optional `profileKey` argument (it wins over the `Profile-Key` connection header). With neither set, every call acts under the account's primary/Business profile. To target a client profile, pass its `profileKey` on the call or set the connection header. (Shared rule, see getting-started.)
 - **Invalid `platforms` enum value.** `platforms` accepts only the 13 values listed above. Common misses: `x` or `X` instead of `twitter`; `google`, `google_business`, or `googlebusiness` instead of `gmb`; `fb`/`ig`/`li` shorthands. One bad value rejects the call — see `references/platforms.md`.
 - **`scheduleDate` must be ISO 8601.** e.g. `2026-06-05T14:30:00Z`. Omit the field entirely to post now — do not pass an empty string or a human phrase like "Friday". Convert relative dates to an absolute ISO timestamp yourself before calling.
 - **Media must exist and verify before you reference it.** A `mediaUrls` entry that is unreachable or the wrong format fails the post. Check media first via `../media/SKILL.md` (`mcp__ayrshare__validate_media`, which HEAD-checks a URL is reachable and reports its content type), then pass the confirmed URLs into `create_post`.

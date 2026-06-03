@@ -25,7 +25,7 @@ Per-platform media constraints to check before posting (dimensions, aspect ratio
 
 ## Auth note
 
-This tool operates on the profile selected by the connection's `Profile-Key` header — there is **no per-call `profileKey` argument**. The Business API key (HTTP Bearer) is configured when the MCP server is installed; see `../getting-started/SKILL.md` for installation and the full auth model. To act on a different client profile, reconfigure the connection's `Profile-Key` header; omit it to act under the account's primary/Business profile.
+`validate_media` only HEAD-checks that a media URL is reachable, so it is effectively profile-agnostic, and it does **not** take a `profileKey` argument (it is one of the few tools excluded from per-call profile selection). The Business API key (HTTP Bearer) is configured when the MCP server is installed; see `../getting-started/SKILL.md` for installation, the full auth model, and *Which tools accept `profileKey`*.
 
 ## Usage guidance
 
@@ -39,5 +39,5 @@ This tool operates on the profile selected by the connection's `Profile-Key` hea
 - **No upload / no library / no resize.** The MCP only validates a URL. If the user wants media "uploaded", "stored", or "resized", explain there is no such tool — they must host the media at a public URL (at the right dimensions) and reference it by URL. Don't claim media was uploaded or resized.
 - **Constraints are per-platform — there is no resize tool to fix them.** Each network has different dimension/aspect-ratio/size/duration requirements (e.g. Instagram square/portrait vs an X landscape image vs a 9:16 story). One asset is rarely valid everywhere. Check `references/limits.md` and supply a correctly-sized URL per target platform.
 - **Media must be reachable before `create_post` references it.** Don't put an unvalidated URL in `mediaUrls`. Confirm with `validate_media` first, then reference that URL (cross-link: `../post/SKILL.md`).
-- **Profile scoping is the `Profile-Key` header, not a param.** There is no `profileKey` argument. To target a different client profile, reconfigure the connection's `Profile-Key` header. (Shared rule — see getting-started.)
+- **`validate_media` takes no `profileKey` argument** (it only checks a URL, so it is one of the few tools excluded from per-call profile selection). The profile-scoped tools do accept a `profileKey` argument (see getting-started).
 - **On failure, explain — don't auto-retry.** When `validate_media` reports an unreachable or wrong-type URL, surface that to the user (and use `mcp__ayrshare__explain_error` if a numeric error code came back) rather than auto-retrying. A 4xx means the URL is unreachable, the wrong type, or the key/profile is wrong — fix the input, don't loop. A 429 gets at most one retry after a short delay. (Mirror of the global retry-safety rule — full version in getting-started.)

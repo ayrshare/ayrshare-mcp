@@ -11,7 +11,7 @@ Two tools:
 - `mcp__ayrshare__get_post_history` — lists posts **sent via Ayrshare** (returns Ayrshare Post IDs). The default "what have we posted" tool, and the **onboarding verification step**.
 - `mcp__ayrshare__get_platform_history` — returns **native social posts**, including posts **not** made through Ayrshare (returns native Social Post IDs). This is how you find a native Social Post ID to feed `mcp__ayrshare__get_post_analytics_by_social_id`.
 
-Both are profile-scoped via the connection's `Profile-Key` header (see Auth) — neither takes a `profileKey` argument.
+Both are profile-scoped: choose the profile with the `profileKey` argument or the `Profile-Key` header (see Auth; the argument wins when both are set).
 
 ## Functions
 
@@ -24,13 +24,13 @@ Full input schemas and example payloads/responses are in [`references/schemas.md
 
 ## Auth
 
-Both tools are **profile-scoped via the connection's `Profile-Key` header**, not a per-call argument. The header is set in the MCP client config (`.mcp.json` headers): include `Profile-Key: <profileKey>` to act as one client profile; omit it to act on the account's primary/Business profile. To switch profiles you reconfigure the connection header — you do **not** pass a `profileKey` parameter to the tool. Full two-layer model: `../getting-started/SKILL.md`.
+Both tools are **profile-scoped**: choose the profile with an optional `profileKey` tool argument or the `Profile-Key` connection header (the argument wins when both are set). Pass `profileKey` on the call to act as one client for that call, or set the `Profile-Key` header (`.mcp.json` headers) to default the whole connection to it; with neither, calls act on the account's primary/Business profile. Full model: `../getting-started/SKILL.md`.
 
-**Exception — `get_platform_history` `userId`/`userName` (Twitter/X):** when you target a specific X user by `userId` (numeric Twitter ID) or `userName` (handle), that lookup uses the **API key only and ignores `Profile-Key`** — it is not scoped to the connection's profile. Every other history call (and `get_post_history` entirely) is profile-scoped as above. See `references/schemas.md`.
+**Exception, `get_platform_history` `userId`/`userName` (Twitter/X):** when you target a specific X user by `userId` (numeric Twitter ID) or `userName` (handle), that lookup must use the **API key only**; it is not profile-scoped. Supplying a `profileKey` (argument *or* `Profile-Key` header) alongside `userId`/`userName` returns **Error 400**. Every other history call (and `get_post_history` entirely) is profile-scoped as above. See `references/schemas.md`.
 
 ## Usage guidance
 
-- **The connection's `Profile-Key` header decides whose history you see.** With it → that profile's posts. Without it → the account's primary/Business profile. This is set at the connection level, not per call, so be deliberate about which connection (which `Profile-Key`) you're using.
+- **Your profile selection decides whose history you see.** Pass `profileKey` as the argument (per call; it wins) or set the connection's `Profile-Key` header → that profile's posts. With neither → the account's primary/Business profile. Be deliberate about which profile you're targeting.
 - **`get_post_history` filters are all optional.** Use `lastDays` to bound recency (default 30; pass `0` for all time), `startDate`/`endDate` for an explicit ISO 8601 window, `platforms` to narrow to a subset of networks, `status` to filter by lifecycle state (`awaiting approval`, `deleted`, `error`, `paused`, `pending`, `processing`, `success`), and `limit` to cap results (1-1000, default 25). Omit them all for the default recent history.
 - **Onboarding verification.** After a client completes OAuth via the JWT link, call `get_post_history` on the connection scoped to their `Profile-Key` to confirm the connection succeeded and surface their existing posts. This is the verification step in the onboarding sequence in `../getting-started/SKILL.md`.
 - **Looking up an Ayrshare Post ID?** `get_post_history` returns each post's Ayrshare `id` — the id you feed to `mcp__ayrshare__get_post_analytics` and `mcp__ayrshare__get_post` for Ayrshare-sent posts.
@@ -38,7 +38,7 @@ Both tools are **profile-scoped via the connection's `Profile-Key` header**, not
 
 ## Gotchas
 
-- **Scope comes from the connection, not a parameter.** Whose history you get is fixed by the connection's `Profile-Key` header; there is no `profileKey` argument and the call succeeds regardless. Confirm you're on the right connection before trusting the results.
+- **Be deliberate about scope.** Whose history you get is set by the `profileKey` argument (per call; it wins) or the connection's `Profile-Key` header; with neither it's the primary profile, and the call succeeds regardless. Confirm you're targeting the right profile before trusting the results.
 - **Two different tools, two different id types.** `get_post_history` returns **Ayrshare** Post IDs (for `get_post_analytics`, `get_post`, `retry_post`, `update_post`). `get_platform_history` returns **native** Social Post IDs (for `get_post_analytics_by_social_id`). Don't feed one tool's ids to a path expecting the other.
 - **`get_platform_history` requires `platform`.** It is `GET /history/:platform`, so exactly one platform is required: one of `bluesky, facebook, instagram, linkedin, pinterest, snapchat, threads, tiktok, twitter, youtube`. (Note this 10-platform history set excludes `gmb`, `reddit`, and `telegram`, which the 13-platform POST set includes.)
 - **`get_post_history` `platforms` is plural and an array.** It accepts a subset of the 13 POST platforms (`twitter, facebook, instagram, linkedin, tiktok, youtube, pinterest, reddit, telegram, gmb, bluesky, snapchat, threads`) and filters within the already-chosen profile scope — it does not change scope.
