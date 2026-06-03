@@ -13,7 +13,7 @@ Four tools, split into two jobs — moving messages, and the account-level auto-
 - `mcp__ayrshare__get_auto_response` — read the account's DM auto-reply settings.
 - `mcp__ayrshare__set_auto_response` — change the account's DM auto-reply settings.
 
-**DMs are ONLY on Facebook, Instagram, and Twitter/X.** No other network (LinkedIn, TikTok, YouTube, etc.) has a messaging surface here. `get_messages` and `send_message` are platform-scoped and accept exactly one of `facebook`, `instagram`, `twitter`. The two auto-response tools are **account-level** — they take no `platform` and govern the whole account's DM auto-reply.
+**DMs are ONLY on Facebook, Instagram, and Twitter/X.** No other network (LinkedIn, TikTok, YouTube, etc.) has a messaging surface here. `get_messages` and `send_message` are platform-scoped and accept exactly one of `facebook`, `instagram`, `twitter`. The two auto-response tools take no `platform`: they govern the selected profile's DM auto-reply across FB/IG/X at once (network-agnostic, but still scoped to the profile the `profileKey` argument or `Profile-Key` header selects).
 
 All four are profile-scoped: choose the profile with the `profileKey` argument or the `Profile-Key` header (see Auth; the argument wins when both are set).
 

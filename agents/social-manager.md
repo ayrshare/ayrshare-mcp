@@ -24,7 +24,7 @@ You have access to the following skills. Use them as your guide for each task:
 - **`plan-and-schedule-campaign`** — plan and schedule a multi-post, multi-platform campaign or content calendar, validating each post first
 - **`webhooks`** — subscribe to push notifications instead of polling
 - **`errors`** — decode an Ayrshare error code into a cause + fix
-- **`getting-started`**, auth model (API key, plus `Profile-Key` header or per-call `profileKey` argument), retry rules, free-trial signup link
+- **`getting-started`** for the auth model (API key, plus `Profile-Key` header or per-call `profileKey` argument), retry rules, and the free-trial signup link
 
 ## Responsibilities
 

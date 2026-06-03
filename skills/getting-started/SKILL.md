@@ -27,7 +27,7 @@ Auth has two parts. The **API key** is always a per-connection header configured
 Most tools are **profile-scoped** and accept the optional `profileKey` argument (equivalently, the `Profile-Key` header): the **post**, **history**, **analytics**, **comments**, **messages**, and **webhook** tools, plus `generate_jwt_social_linking_url`. Six tools do **not** take it:
 
 - **Account-level** (operate on the Business account, not a sub-profile): `create_profile`, `list_profiles`.
-- **No linked social account** (don't act on a profile's connected networks): `validate_media`, `explain_error`, `generate_post`, `recommend_hashtags`.
+- **Utility / AI tools** (no per-call sub-profile selection): `validate_media`, `explain_error`, `generate_post`, `recommend_hashtags`. (`recommend_hashtags` still reads the `Profile-Key` header to pick whose linked TikTok account it uses; it just does not accept the per-call argument.)
 
 **One exception:** on `get_platform_history` and `get_social_network_analytics`, a `userId`/`userName` lookup (a specific X/Twitter user, not your linked account) must use the **API key only**. Supplying a `profileKey` (argument *or* `Profile-Key` header) together with `userId`/`userName` returns **Error 400**.
 

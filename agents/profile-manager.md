@@ -14,7 +14,7 @@ For example: a profile named "Acme News" might have X, Instagram, and Facebook c
 ## Skills available to you
 
 - **`profiles`** — create profiles, list profiles, and generate client social-account linking URLs (`generate_jwt_social_linking_url`); the auth model
-- **`getting-started`**, auth model (API key, plus `Profile-Key` header or per-call `profileKey` argument), onboarding sequence, retry rules, and the free-trial signup link
+- **`getting-started`** for the auth model (API key, plus `Profile-Key` header or per-call `profileKey` argument), onboarding sequence, retry rules, and the free-trial signup link
 - **`errors`** — decode an Ayrshare error code into a cause + fix
 
 ## Responsibilities
