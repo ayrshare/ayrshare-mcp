@@ -1,30 +1,31 @@
 # Ayrshare for Claude Code
 
-The unified social media API for AI agents. Publish, schedule, and analyze across 13+ networks directly from Claude Code, with post history for brand voice and validation against each platform's rules before every post — powered by the [Ayrshare](https://www.ayrshare.com) API.
+The unified social media API for AI agents. Publish, schedule, and analyze across 13+ networks directly from Claude Code, with post history for brand voice and validation against each platform's rules before every post. Powered by the [Ayrshare](https://www.ayrshare.com) API.
 
-Your agent can already write a post. Getting it published safely is the part that breaks. Ayrshare validates each post against the platform's rules first, so nothing goes live that a network would reject. One call covers Facebook, Instagram, LinkedIn, X, TikTok, YouTube, Pinterest, Reddit, Telegram, Threads, Bluesky, and more. Pull a brand's history to match its voice, read analytics to see what worked. Platform API changes are on us, not your agent. We are handling 25M+ API calls a day, so platform changes are our problem, not your agent's.
+## Overview
+
+The plugin lets an agent run the full social workflow without leaving Claude Code. Before publishing, the agent validates each post against the target network's rules and asks you to confirm, so avoidable rejections are caught before anything goes live. A single request publishes to Facebook, Instagram, LinkedIn, X, TikTok, YouTube, Pinterest, Reddit, Telegram, Threads, Bluesky, and others. Post history is available for matching a brand's voice, and analytics can be read back to inform the next post. Platform integrations are maintained by Ayrshare, so upstream API changes are handled outside your code. The API currently handles 25M+ calls per day.
 
 ## The loop
 
-Your agent runs the full social loop without leaving Claude Code:
-
-- **Learn** — match a brand's voice from its post history, and see what performed.
-- **Act** — publish and schedule across 13+ networks in one call.
-- **Observe** — pull live analytics to see what worked.
-- **Stay safe** — validate every post against each platform's rules before it goes live.
-- **Assist** — draft and confirm before anything publishes.
+- **Learn**. Retrieve a profile's post history for brand-voice context and review how past posts performed.
+- **Act**. Publish and schedule across 13+ networks in a single call.
+- **Observe**. Read live analytics to inform the next post.
+- **Stay safe**. Validate each post against platform rules, then confirm before publishing.
 
 ---
-## Why not just have Claude write the integration?
+## Why use the API instead of a custom integration?
 
-An LLM can write an OAuth flow. It can't get you approved as a Meta Tech Provider, keep up with X's pay-per-use API changes, or keep your integration working the next time a platform changes its rules. Ayrshare handles that ongoing maintenance for you:
+An LLM can generate an OAuth flow, but it does not cover Meta Tech Provider approval, X's pay-per-use API changes, or ongoing maintenance when a network changes its rules. The plugin handles:
 
-- **Validated before publishing**. `validate_post` checks your content against each platform's rules (length, format, media requirements) before anything goes live, and `validate_media` confirms a media URL is reachable first — so your agent doesn't ship a post a network will reject. X BYOK is supported for the 2026 mandate, and Ayrshare maintains the platform integrations so a network's API change doesn't break yours.
-- **One call, 13+ networks**. A single request publishes everywhere, with per-platform validation before anything goes live.
-- **Built for many accounts**. Post on behalf of thousands of your users' profiles, not just one brand. Multi-tenant from day one.
-- **Post history for context and optimization**. Pull a profile's past posts so your agent matches its voice from the first draft, and mine years of performance data to optimize what to post next.
+- **Pre-publish validation**. `validate_post` dry-runs content against each network's rules (length, format, media requirements) before you publish, and `validate_media` checks that a media URL is reachable before you attach it in `mediaUrls`. X BYOK is supported for the 2026 mandate, and platform integrations are maintained so an upstream API change does not break your integration.
+- **One call, 13+ networks**. A single request publishes to all connected platforms, each validated against its own rules.
+- **Multi-tenant**. Post on behalf of many user profiles rather than a single brand.
+- **History API**. Retrieve a profile's past posts for brand-voice context, and use historical performance data to inform future posts.
 
-**Safety by default:** the plugin validates and asks for confirmation before publishing — your agent drafts, you approve.
+### Safety
+
+By default the plugin validates a post and requests confirmation before publishing. The agent prepares the draft; the user approves it.
 
 ---
 
