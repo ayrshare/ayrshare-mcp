@@ -185,13 +185,12 @@ Then set `AYRSHARE_PROFILE_KEY` and restart. With no header set, calls act on th
 
 ### Bring-your-own X/Twitter app (BYOK)
 
-If you post to X/Twitter with your own developer app, the MCP server forwards a fixed allowlist of credential headers per request (values are never logged). Add the ones your app uses to the `ayrshare` server's `headers`:
+Posting to X/Twitter requires your own X Developer App (the [X BYO-key mandate](https://www.ayrshare.com/docs/apis/overview#x/twitter-byo-credentials), effective March 31, 2026). After linking X with your app's credentials, add your OAuth 1.0a key pair as **two** connection headers on the `ayrshare` server (values are never logged):
 
-- `X-Twitter-OAuth1-Api-Key`, `X-Twitter-OAuth1-Api-Secret`
-- `X-Twitter-OAuth1-Access-Token`, `X-Twitter-OAuth1-Access-Token-Secret`
-- `X-Twitter-OAuth2-Client-Id`, `X-Twitter-OAuth2-Client-Secret`
+- `X-Twitter-OAuth1-Api-Key` — your X API Key (Consumer Key)
+- `X-Twitter-OAuth1-Api-Secret` — your X API Secret (Consumer Secret)
 
-Without them, a BYOK X/Twitter account returns error `419` (`x_credentials_required`).
+These are the only X BYO headers Ayrshare uses: one key pair per Ayrshare account, sent on every X-targeting request (the same pair for all sub-profiles). Ayrshare does **not** use OAuth 2.0 client credentials here. Without these headers, an X/Twitter request returns error `419` (`x_credentials_required`).
 
 ---
 

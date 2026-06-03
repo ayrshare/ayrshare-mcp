@@ -59,10 +59,10 @@ The plugin's `.mcp.json` uses `${AYRSHARE_API_KEY}` — Claude Code substitutes 
 
 ## Optional configuration
 
-| Environment Variable | Description |
+| Setting | Description |
 |---|---|
-| `AYRSHARE_PROFILE_KEY` | Value for an optional `Profile-Key` connection header — set this to act as a specific client profile. **Only takes effect if you add a `Profile-Key` header to the MCP server config** (the default config sends only the API key); there is no per-call `profileKey` parameter. See the auth model in SKILL.md. |
-| X/Twitter BYOK headers | To post to X/Twitter with your own developer app, add the credential headers your app uses to the MCP server config: `X-Twitter-OAuth1-Api-Key`, `X-Twitter-OAuth1-Api-Secret`, `X-Twitter-OAuth1-Access-Token`, `X-Twitter-OAuth1-Access-Token-Secret`, `X-Twitter-OAuth2-Client-Id`, `X-Twitter-OAuth2-Client-Secret`. The server forwards only these exact headers (values never logged). Without them a BYOK account returns error `419`. |
+| `AYRSHARE_PROFILE_KEY` (env var) | Value for an optional `Profile-Key` connection header — set this to act as a specific client profile. **Only takes effect if you add a `Profile-Key` header to the MCP server config** (the default config sends only the API key); there is no per-call `profileKey` parameter. See the auth model in SKILL.md. |
+| X/Twitter BYO headers | Posting to X/Twitter requires your own X Developer App (the X BYO-key mandate, effective March 31, 2026). Add your OAuth 1.0a key pair as **two** headers to the MCP server config: `X-Twitter-OAuth1-Api-Key` (your X API Key / Consumer Key) and `X-Twitter-OAuth1-Api-Secret` (your X API Secret / Consumer Secret). These two are the only X BYO headers Ayrshare uses — one key pair per account, on every X-targeting request; no OAuth 2.0 client credentials or per-user access tokens. Values are never logged. Without them an X request returns error `419`. |
 
 ## Notes
 
