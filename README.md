@@ -189,7 +189,7 @@ Posting to X/Twitter requires your own X Developer App (the [X BYO-key mandate](
 - `X-Twitter-OAuth1-Api-Key` — your X API Key (Consumer Key)
 - `X-Twitter-OAuth1-Api-Secret` — your X API Secret (Consumer Secret)
 
-These are the only X BYO headers Ayrshare uses: one key pair per Ayrshare account, sent on every X-targeting request (the same pair for all sub-profiles). Ayrshare does **not** use OAuth 2.0 client credentials or per-user OAuth 1.0a access tokens here. Without these headers, an X/Twitter request returns error `419` (`x_credentials_required`).
+These are the only X BYO headers Ayrshare uses: one key pair per Ayrshare account, sent on every X-targeting request (the same pair for all sub-profiles). Ayrshare does **not** use OAuth 2.0 client credentials here. Without these headers, an X/Twitter request returns error `419` (`x_credentials_required`).
 
 ---
 
