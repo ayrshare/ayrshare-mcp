@@ -75,12 +75,13 @@ Each domain has its own skill with full parameters and gotchas:
 
 Full, copy-paste instructions are in `references/install.md`. The essentials:
 
-**Claude Code plugin (recommended)** — installs commands, agents, and skills, then configures the key via setup:
+**Claude Code plugin (recommended)** — register the marketplace once, install (this brings commands, agents, and skills), then configure the key via setup:
 ```bash
-claude plugin install github:ayrshare/ayrshare-social-media-api-claude-plugin        # default: global (all projects)
+claude plugin marketplace add ayrshare/ayrshare-social-media-api-claude-plugin   # one time
+claude plugin install ayrshare@ayrshare                  # default scope: user (all projects)
 # or scope it:
-claude plugin install github:ayrshare/ayrshare-social-media-api-claude-plugin --scope local     # this project, not committed
-claude plugin install github:ayrshare/ayrshare-social-media-api-claude-plugin --scope project   # this project, committed with team
+claude plugin install ayrshare@ayrshare --scope local    # this project, not committed
+claude plugin install ayrshare@ayrshare --scope project  # this project, committed with team
 ```
 Then inside Claude Code, configure your key and **restart**:
 ```text
@@ -98,7 +99,8 @@ claude mcp add ayrshare --transport http \
 **Env var / CI:**
 ```bash
 export AYRSHARE_API_KEY=your_key_here
-claude plugin install github:ayrshare/ayrshare-social-media-api-claude-plugin
+claude plugin marketplace add ayrshare/ayrshare-social-media-api-claude-plugin
+claude plugin install ayrshare@ayrshare
 ```
 The plugin's `.mcp.json` substitutes `${AYRSHARE_API_KEY}` at startup — no `/ayrshare:setup` needed.
 
