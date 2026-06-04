@@ -168,7 +168,7 @@ The last two are multi-step **workflow** skills: they orchestrate the tools abov
 
 ## Optional Configuration
 
-The API key is configured as a **connection header** on the `ayrshare` server in `.mcp.json` (or via `claude mcp add --header`). Profile scoping has two equivalent inputs: a `Profile-Key` connection header (the default for every call) **or** an optional `profileKey` tool argument on each profile-scoped call (the argument wins when both are set). The per-call argument lets an agent act as a client it learns at runtime without editing `.mcp.json` or restarting.
+The API key is configured as a **connection header** on the `ayrshare` server in `.mcp.json` (or via `claude mcp add --header`). Profile scoping has two equivalent inputs: a `Profile-Key` connection header (the default for every call) **or** an optional `profileKey` tool argument on a profile-scoped tool call (the argument wins when both are set; a few utility/AI tools such as `generate_post` and `recommend_hashtags` are excluded, see `getting-started`). The per-call argument lets an agent act as a client it learns at runtime without editing `.mcp.json` or restarting.
 
 ### Act as a specific client profile (`Profile-Key` header or `profileKey` argument)
 
