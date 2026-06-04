@@ -10,11 +10,19 @@ Installs the MCP server plus the `/ayrshare:setup` command, the social-manager a
 
 ### Choose an install scope
 
+First register this repo as a marketplace (one time):
+
+```bash
+claude plugin marketplace add ayrshare/ayrshare-social-media-api-claude-plugin
+```
+
+Then install the `ayrshare` plugin (`plugin@marketplace`) at the scope you want:
+
 | Scope | Command | Where it's available |
 |---|---|---|
-| Global (default) | `claude plugin install github:ayrshare/ayrshare-social-media-api-claude-plugin` | Every project on this machine |
-| This project only | `claude plugin install github:ayrshare/ayrshare-social-media-api-claude-plugin --scope local` | Current project, not committed to git |
-| This project (shared) | `claude plugin install github:ayrshare/ayrshare-social-media-api-claude-plugin --scope project` | Current project, committed to git with the team |
+| Global (default) | `claude plugin install ayrshare@ayrshare` | Every project on this machine |
+| This project only | `claude plugin install ayrshare@ayrshare --scope local` | Current project, not committed to git |
+| This project (shared) | `claude plugin install ayrshare@ayrshare --scope project` | Current project, committed to git with the team |
 
 ### Configure the key, then restart
 
@@ -52,7 +60,8 @@ For CI environments or users who manage env vars via shell profile:
 
 ```bash
 export AYRSHARE_API_KEY=your_key_here
-claude plugin install github:ayrshare/ayrshare-social-media-api-claude-plugin
+claude plugin marketplace add ayrshare/ayrshare-social-media-api-claude-plugin
+claude plugin install ayrshare@ayrshare
 ```
 
 The plugin's `.mcp.json` uses `${AYRSHARE_API_KEY}` — Claude Code substitutes it at startup. No `/ayrshare:setup` needed.

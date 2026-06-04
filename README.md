@@ -40,13 +40,19 @@ By default the plugin validates a post and requests confirmation before publishi
 
 ### Plugin installation scopes
 
-The plugin scope controls where commands, agents, and skills are available. Choose one:
+The plugin scope controls where commands, agents, and skills are available. First register this repo as a marketplace (one time):
+
+```bash
+claude plugin marketplace add ayrshare/ayrshare-social-media-api-claude-plugin
+```
+
+Then install the `ayrshare` plugin (`plugin@marketplace`) at the scope you want:
 
 | Scope | Command | Where it's available |
 |---|---|---|
-| Global (default) | `claude plugin install github:ayrshare/ayrshare-social-media-api-claude-plugin` | Every project on this machine |
-| This project only | `claude plugin install github:ayrshare/ayrshare-social-media-api-claude-plugin --scope local` | Current project, not committed to git |
-| This project (shared) | `claude plugin install github:ayrshare/ayrshare-social-media-api-claude-plugin --scope project` | Current project, committed to git with the team |
+| Global (default) | `claude plugin install ayrshare@ayrshare` | Every project on this machine |
+| This project only | `claude plugin install ayrshare@ayrshare --scope local` | Current project, not committed to git |
+| This project (shared) | `claude plugin install ayrshare@ayrshare --scope project` | Current project, committed to git with the team |
 
 After installing, configure your API key:
 
@@ -63,10 +69,13 @@ After installing, configure your API key:
 #### Global — available in all your projects
 
 ```bash
-# 1. Install the plugin globally (this is the default)
-claude plugin install github:ayrshare/ayrshare-social-media-api-claude-plugin
+# 1. Register the marketplace (one time)
+claude plugin marketplace add ayrshare/ayrshare-social-media-api-claude-plugin
 
-# 2. Configure your API key (stored in ~/.claude/)
+# 2. Install the plugin globally (user is the default scope)
+claude plugin install ayrshare@ayrshare
+
+# 3. Configure your API key (stored in ~/.claude/)
 # Run inside Claude Code:
 /ayrshare:setup   # choose "Global" when asked
 ```
@@ -78,10 +87,13 @@ Commands, agents, and skills are available in every project. The key is stored i
 #### This project only — local, not committed
 
 ```bash
-# 1. Install scoped to the current project (not committed to git)
-claude plugin install github:ayrshare/ayrshare-social-media-api-claude-plugin --scope local
+# 1. Register the marketplace (one time)
+claude plugin marketplace add ayrshare/ayrshare-social-media-api-claude-plugin
 
-# 2. Configure your API key (stored in .mcp.json in the project directory)
+# 2. Install scoped to the current project (not committed to git)
+claude plugin install ayrshare@ayrshare --scope local
+
+# 3. Configure your API key (stored in .mcp.json in the project directory)
 # Run inside Claude Code:
 /ayrshare:setup   # choose "This project" when asked
 ```
@@ -93,10 +105,13 @@ Commands, agents, and skills only appear in this project. The key is written to 
 #### This project — committed with the team
 
 ```bash
-# 1. Install scoped to the project (committed to git)
-claude plugin install github:ayrshare/ayrshare-social-media-api-claude-plugin --scope project
+# 1. Register the marketplace (one time)
+claude plugin marketplace add ayrshare/ayrshare-social-media-api-claude-plugin
 
-# 2. Configure your API key (stored in .mcp.json in the project directory)
+# 2. Install scoped to the project (committed to git)
+claude plugin install ayrshare@ayrshare --scope project
+
+# 3. Configure your API key (stored in .mcp.json in the project directory)
 # Run inside Claude Code:
 /ayrshare:setup   # choose "This project" when asked
 ```
@@ -125,7 +140,8 @@ For CI environments or users who manage env vars via shell profile:
 
 ```bash
 export AYRSHARE_API_KEY=your_key_here
-claude plugin install github:ayrshare/ayrshare-social-media-api-claude-plugin
+claude plugin marketplace add ayrshare/ayrshare-social-media-api-claude-plugin
+claude plugin install ayrshare@ayrshare
 ```
 
 The plugin's `.mcp.json` uses `${AYRSHARE_API_KEY}` — Claude Code substitutes it at startup. No setup command needed.
