@@ -67,9 +67,9 @@ Each is an optional object applied only when its platform is in `platforms`: `in
 
 `create_post` is synchronous and returns per-platform `postIds`. To recover a failed send, use `retry_post` — NOT a second `create_post`.
 
-## Profile scoping (not an input)
+## Profile scoping (not a post-body field)
 
-There is **no `profileKey` argument** on any of these tools. The profile is selected by the `Profile-Key` connection header in the MCP client config (`.mcp.json` headers). Omit the header to act under the account's primary/Business profile; set it to target a specific client profile. See `../../getting-started/SKILL.md`.
+The profile is selected by the optional `profileKey` tool argument or the `Profile-Key` connection header in the MCP client config (`.mcp.json` headers); the argument wins when both are set. With neither, calls act under the account's primary/Business profile. See `../../getting-started/SKILL.md`.
 
 ## Lifecycle tools (key off the returned `id`)
 

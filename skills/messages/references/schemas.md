@@ -9,7 +9,7 @@ The MCP server reaches the Ayrshare API through four messaging tools:
 
 **DMs are ONLY on Facebook, Instagram, and Twitter/X.** `get_messages` and `send_message` are platform-scoped (one of `facebook`, `instagram`, `twitter`). The two auto-response tools are **account-level** — no `platform`.
 
-All four are **profile-scoped via the connection's `Profile-Key` header**, not a per-call argument. Include `Profile-Key: <profileKey>` in the MCP client config (`.mcp.json` headers) to act as one client profile; omit it to act on the account's primary/Business profile. There is no `profileKey` parameter on any tool.
+All four are **profile-scoped**: choose the profile with an optional `profileKey` tool argument or the `Profile-Key` connection header (the argument wins when both are set). With neither, calls act on the account's primary/Business profile.
 
 `MESSAGE_PLATFORMS` enum (the only three with a DM surface):
 `facebook, instagram, twitter`
@@ -105,7 +105,7 @@ Examples:
 
 `GET /messages/autoresponse`
 
-**No parameters.** Account-level (not platform-scoped) — scoped only by the connection's `Profile-Key` header. Returns the profile's DM auto-reply settings.
+**No functional parameters** (an optional `profileKey` argument, or the `Profile-Key` header, selects the profile). Account-level (not platform-scoped). Returns that profile's DM auto-reply settings.
 
 Request:
 

@@ -18,11 +18,11 @@ This skill **drafts only**. It never publishes. The output is copy for the user 
 - `mcp__ayrshare__generate_post` — optional AI drafting from a topic/brief. Brief it with the voice you observed; it returns draft text only and never publishes. (See `../generate/SKILL.md`.)
 - `mcp__ayrshare__validate_post` — dry-run the finished draft against each target platform's rules before you hand it back as "ready to post."
 
-All are profile-scoped by the connection's `Profile-Key` header — there is **no per-call `profileKey` argument**. The voice you match is the voice of whichever profile that header selects, so confirm you are on the right connection first.
+These are profile-scoped: choose the profile with the optional `profileKey` argument on each call or the connection's `Profile-Key` header (the argument wins when both are set). (`generate_post` is the exception: it takes no `profileKey` argument; see `../generate/SKILL.md`.) The voice you match is the voice of whichever profile you target, so settle that first and use it consistently across the calls.
 
 ## Workflow
 
-1. **Pick the profile and platform(s).** Voice is per profile (and often per platform — the same brand writes differently on LinkedIn vs X). Confirm which profile via the `Profile-Key` connection header (see `../getting-started/SKILL.md`); if the user has several profiles and none is set, ask which client this is for rather than guessing.
+1. **Pick the profile and platform(s).** Voice is per profile (and often per platform, the same brand writes differently on LinkedIn vs X). Confirm which profile you're drafting for: pass its `profileKey` argument on each call, or set the `Profile-Key` connection header (see `../getting-started/SKILL.md`); if the user has several profiles and none is given, ask which client this is for rather than guessing.
 2. **Pull the voice sample.** Call `mcp__ayrshare__get_platform_history` for each target platform (and/or `mcp__ayrshare__get_post_history` for recent Ayrshare-sent posts). Aim for a representative recent set, not one post.
 3. **Read the voice.** From the sample, characterize: tone (formal/playful/technical), sentence length and rhythm, emoji and hashtag habits, link/CTA patterns, formatting (line breaks, lists), and recurring vocabulary. Note differences per platform.
 4. **(Optional) Find what worked.** If the goal is performance, not just consistency, pull analytics that **match the history source**: use `mcp__ayrshare__get_post_analytics` for the Ayrshare Post IDs from `get_post_history`, and `mcp__ayrshare__get_post_analytics_by_social_id` for the native Social Post IDs surfaced by `get_platform_history` (native posts have no Ayrshare Post ID). Weight the draft toward the formats/voice that engaged best. This is the "train on voice + optimize on history" pairing — say so to the user when you use it.
@@ -41,7 +41,7 @@ All are profile-scoped by the connection's `Profile-Key` header — there is **n
 ## Gotchas
 
 - **No history, no voice match.** A fresh profile has no posts to learn from. Don't fabricate a "house voice" — fall back to the user's brief and say the voice could not be sampled.
-- **Voice is profile-scoped, like everything else.** The history you read and the draft you tune come from the profile the connection's `Profile-Key` header selects. Drafting for the wrong client is an auth-layer mistake, not a content one — confirm the connection first. There is no `profileKey` argument on any of these tools.
+- **Voice is profile-scoped, like everything else.** The history you read and the draft you tune come from whichever profile you target: the `profileKey` argument (per call) or the `Profile-Key` header. Drafting for the wrong client is an auth-layer mistake, not a content one, so settle the profile first and use it consistently. (`generate_post` takes no `profileKey` argument; the history/analytics/validate tools do.)
 - **Generated drafts still need validation.** `generate_post` output is not pre-validated against platform rules. Run `validate_post` before treating it as postable.
 - **Don't claim performance you didn't check.** Only invoke the "optimized on what worked" framing if you actually pulled analytics (step 4). Otherwise you matched voice, not performance — describe it as such.
 - **On any tool failure, call `mcp__ayrshare__explain_error`, then surface it — don't loop.** A missing TikTok link (for `recommend_hashtags`), unreachable media, or an empty history won't fix itself on retry. (Mirrors the global retry-safety rule in `../getting-started/SKILL.md`.)

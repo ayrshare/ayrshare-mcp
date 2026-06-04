@@ -1,6 +1,6 @@
 # Profiles — Input Schemas & Examples
 
-These tools run against the Ayrshare MCP server at `https://api.ayrshare.com/mcp` and authenticate with the Business API key (the `Authorization: Bearer ${AYRSHARE_API_KEY}` header). `create_profile` and `list_profiles` are account-level and **ignore** `Profile-Key`. `generate_jwt_social_linking_url` is profile-scoped: it mints the linking URL for the sub-profile named by the **`Profile-Key` connection header** (required), takes **no `profileKey` argument**, and needs no signing credentials (the server derives the private key and domain). No `profileKey` is ever used as the auth key, and no tool takes a `profileKey` parameter. Endpoints below are the underlying Ayrshare REST routes each tool maps to.
+These tools run against the Ayrshare MCP server at `https://api.ayrshare.com/mcp` and authenticate with the Business API key (the `Authorization: Bearer ${AYRSHARE_API_KEY}` header). `create_profile` and `list_profiles` are account-level and **ignore** `Profile-Key` (and take no `profileKey` argument). `generate_jwt_social_linking_url` is profile-scoped: it mints the linking URL for the target sub-profile, supplied as the **`profileKey` argument** or the **`Profile-Key` connection header** (required; the argument wins), and needs no signing credentials (the server derives the private key and domain). No `profileKey` is ever used as the auth key. Endpoints below are the underlying Ayrshare REST routes each tool maps to.
 
 ## `mcp__ayrshare__create_profile`
 
@@ -84,12 +84,13 @@ Examples:
 
 Mints a single sign-on **social-account linking URL** for one User Profile (sub-profile), so a client can connect their own social networks. This is the onboarding step after `create_profile`: hand the returned `url` to the client, who opens it in a browser to OAuth their accounts. The URL is valid for 5 minutes by default (or `expiresIn` on the Max Pack).
 
-**Target profile = the `Profile-Key` header (required).** Set the connection's `Profile-Key` header to the target sub-profile's key (the value `create_profile` returned); that is what the tool mints the link for. There is **no `profileKey` argument**. If the header is missing, the tool returns a 400 asking for it.
+**Target profile = the `profileKey` argument or `Profile-Key` header (required).** Supply the target sub-profile's key (the value `create_profile` returned) as the `profileKey` argument or the connection's `Profile-Key` header; the argument wins when both are present. That is what the tool mints the link for. If neither is set, the tool returns a 400 asking for it.
 
 **No signing credentials.** Unlike the lower-level JWT flow, you do **not** supply a private key or domain. The MCP server derives the account's signing key and onboarding domain **server-side** from your authenticated account, so there are no `X-Ayrshare-*` headers for this tool. It does require the account to have a **provisioned social-linking domain (Business/Enterprise plans)**; otherwise the call returns a clear "No social-linking domain is provisioned for this account" error. Optional BYOK X headers (`X-Twitter-OAuth1-Api-Key` / `X-Twitter-OAuth1-Api-Secret`) still apply if you link X with your own developer app.
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
+| `profileKey` | string | yes\* | Target sub-profile whose linking page this URL opens. \*Required, but may instead be supplied via the `Profile-Key` connection header; when both are present the argument wins. |
 | `logout` | boolean | no | Auto-log-out the current profile session when the URL is opened. Not recommended in production. |
 | `redirect` | string (URL) | no | Where to send the user after they click "Done" / the logo. |
 | `allowedSocial` | array of strings | no | Restrict which networks appear on the linking page (overrides the account's Social Networks config). Values: bluesky, facebook, gmb, instagram, linkedin, pinterest, reddit, snapchat, telegram, threads, tiktok, twitter, youtube. |
@@ -97,18 +98,19 @@ Mints a single sign-on **social-account linking URL** for one User Profile (sub-
 | `expiresIn` | number | no | Token longevity in **minutes** (1-2880; default 5). **Requires the Max Pack.** |
 | `email` | object | no | Send a Connect Accounts email with the link directly to the user. **Requires the Max Pack.** Fields: `to` (required), `bcc`, `termsUrl`, `privacyUrl`, `company`, `contactEmail`. |
 
-All fields are optional — with none set, the tool mints a default linking URL for the profile named by the `Profile-Key` header.
+Apart from the target profile (the `profileKey` argument or `Profile-Key` header, required), all fields are optional; with only the target profile set, the tool mints a default linking URL for it.
 
-Example call (minimal — the target profile comes from the `Profile-Key` header, so no arguments are required):
+Example call (minimal, pass the target profile as the `profileKey` argument; equivalently, set the `Profile-Key` header instead and send `{}`):
 
 ```json
-{}
+{ "profileKey": "<target sub-profile's profileKey>" }
 ```
 
 Example call (restricted networks, 1-hour link, custom redirect):
 
 ```json
 {
+  "profileKey": "<target sub-profile's profileKey>",
   "allowedSocial": ["facebook", "instagram", "linkedin", "tiktok"],
   "expiresIn": 60,
   "redirect": "https://acme.example/onboarding/done"

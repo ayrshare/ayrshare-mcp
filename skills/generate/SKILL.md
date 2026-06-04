@@ -11,7 +11,7 @@ Two tools that produce content for you to review and publish — neither one pos
 - `mcp__ayrshare__generate_post` — AI-drafts post copy from a topic/brief and/or media. **Draft only.**
 - `mcp__ayrshare__recommend_hashtags` — returns recommended hashtags for a keyword, sourced from a linked TikTok account.
 
-Both are profile-scoped via the connection's `Profile-Key` header (see Auth) — neither takes a `profileKey` argument.
+Unlike most Ayrshare MCP tools, neither of these takes a per-call `profileKey` argument (see Auth). `recommend_hashtags` is still scoped by the connection's `Profile-Key` header; it draws on that profile's linked TikTok account.
 
 ## Functions
 
@@ -22,7 +22,7 @@ Both are profile-scoped via the connection's `Profile-Key` header (see Auth) —
 
 ## Auth
 
-Both tools are **profile-scoped via the connection's `Profile-Key` header**, not a per-call argument. The header is set in the MCP client config (`.mcp.json` headers): include `Profile-Key: <profileKey>` to act as one client profile; omit it to act on the account's primary/Business profile. To switch profiles you reconfigure the connection header — you do **not** pass a `profileKey` parameter. Full two-layer model: `../getting-started/SKILL.md`.
+These two tools are exceptions to the per-call `profileKey` argument that the profile-scoped tools accept: **`generate_post` and `recommend_hashtags` do NOT take a `profileKey` argument.** `recommend_hashtags` is still scoped by the connection's `Profile-Key` header (set in `.mcp.json` headers): it uses that profile's linked TikTok account; omit the header to use the account's primary/Business profile. `generate_post` is account-level AI drafting. See *Which tools accept `profileKey`* in `../getting-started/SKILL.md`.
 
 ## Usage guidance
 
@@ -38,5 +38,5 @@ Both tools are **profile-scoped via the connection's `Profile-Key` header**, not
 - **`generate_post` requires `text` OR `mediaUrls`.** Calling it with neither has nothing to work from. If captioning media, the URLs must be publicly reachable (consider `mcp__ayrshare__validate_media` first).
 - **`recommend_hashtags` is TikTok-sourced.** No TikTok account linked on the active profile → the call errors. This is expected, not a bug; link TikTok or scope the connection to a profile that has one.
 - **`recommend_hashtags` takes a single keyword, not a phrase.** Spaces in `keyword` are removed before lookup (`sustainable fashion` becomes `sustainablefashion`), which produces poor or empty results. Pass one representative keyword instead of a multi-word topic.
-- **Scope comes from the connection, not a parameter.** Which profile's linked TikTok account `recommend_hashtags` uses is fixed by the connection's `Profile-Key` header; there is no `profileKey` argument.
+- **`recommend_hashtags` uses the connection's `Profile-Key`, and takes no `profileKey` argument.** Which profile's linked TikTok account it draws on is set by the `Profile-Key` header. Unlike the profile-scoped tools, neither generate tool accepts the per-call `profileKey` argument. (See *Which tools accept `profileKey`* in getting-started.)
 - **On failure, call `mcp__ayrshare__explain_error`, then surface it — don't loop.** A 4xx (missing `text`/`mediaUrls`, no linked TikTok, unreachable media) won't fix itself on retry. Translate the error via `mcp__ayrshare__explain_error` and present it; 429 gets at most one retry. (Mirrors the global retry-safety rule.)

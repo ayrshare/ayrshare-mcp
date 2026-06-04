@@ -144,17 +144,17 @@ The former `/ayrshare:post`, `/ayrshare:analytics`, and `/ayrshare:profiles` com
 
 ## Skills
 
-Trigger-based skills activate automatically on intent (even when you don't name Ayrshare) and teach Claude how to drive the MCP tools correctly: the auth model (API key + optional `Profile-Key` header), retry safety, and platform quirks. They cover all 27 of the server's tools. **Start with `getting-started`** — every group skill cross-links to it.
+Trigger-based skills activate automatically on intent (even when you don't name Ayrshare) and teach Claude how to drive the MCP tools correctly: the auth model (API key, plus optional profile selection by `Profile-Key` header or per-call `profileKey` argument), retry safety, and platform quirks. They cover all 27 of the server's tools. **Start with `getting-started`**; every group skill cross-links to it.
 
 | Skill | Tools | Use when |
 |---|---|---|
-| `getting-started` | (cross-cutting) | Installing/configuring the plugin, any 401/403, "which credential do I use", onboarding a client, or missing `AYRSHARE_API_KEY`. Home of the auth model (API key + `Profile-Key` header), onboarding sequence, retry/`explain_error` rules, and the free-trial link. |
+| `getting-started` | (cross-cutting) | Installing/configuring the plugin, any 401/403, "which credential do I use", onboarding a client, or missing `AYRSHARE_API_KEY`. Home of the auth model (API key, plus `Profile-Key` header or per-call `profileKey` argument), onboarding sequence, retry/`explain_error` rules, and the free-trial link. |
 | `post` | `create_post`, `validate_post`, `get_post`, `update_post`, `retry_post` | Validating, posting, scheduling, editing, fetching, or retrying social content. |
 | `history` | `get_post_history`, `get_platform_history` | Listing posts sent via Ayrshare, or native posts (incl. ones not made via Ayrshare) and finding native Social Post IDs. |
 | `analytics` | `get_post_analytics`, `get_post_analytics_by_social_id`, `get_social_network_analytics` | Per-post analytics (by Ayrshare or native Social Post ID) or account/network analytics (followers, reach, impressions). |
 | `comments` | `get_comments`, `add_comment`, `reply_comment` | Reading, adding, or replying to comments on a post. |
 | `messages` | `get_messages`, `send_message`, `get_auto_response`, `set_auto_response` | Reading/sending direct messages (Facebook, Instagram, X) or configuring the DM auto-responder. |
-| `profiles` | `list_profiles`, `create_profile`, `generate_jwt_social_linking_url` | Creating or listing client profiles (account-level), or minting a client's social-account linking URL for the profile set by the `Profile-Key` header (Business/Enterprise plan). |
+| `profiles` | `list_profiles`, `create_profile`, `generate_jwt_social_linking_url` | Creating or listing client profiles (account-level), or minting a client's social-account linking URL for the target profile (set by the `profileKey` argument or `Profile-Key` header; Business/Enterprise plan). |
 | `media` | `validate_media` | Checking a media URL is reachable before posting (media is referenced by URL; there is no upload/library/resize tool). |
 | `generate` | `generate_post`, `recommend_hashtags` | Drafting AI post copy (never publishes) or suggesting hashtags for a keyword. |
 | `webhooks` | `register_webhook`, `unregister_webhook`, `list_webhooks` | Subscribing to push notifications (e.g. when a scheduled post publishes) instead of polling. |
@@ -168,11 +168,11 @@ The last two are multi-step **workflow** skills: they orchestrate the tools abov
 
 ## Optional Configuration
 
-Both of these are configured by adding **connection headers** to the `ayrshare` server in `.mcp.json` (or via `claude mcp add --header`). Profile scoping is the `Profile-Key` connection header, not a per-call argument — no Ayrshare MCP tool takes a `profileKey` parameter.
+The API key is configured as a **connection header** on the `ayrshare` server in `.mcp.json` (or via `claude mcp add --header`). Profile scoping has two equivalent inputs: a `Profile-Key` connection header (the default for every call) **or** an optional `profileKey` tool argument on a profile-scoped tool call (the argument wins when both are set; a few utility/AI tools such as `generate_post` and `recommend_hashtags` are excluded, see `getting-started`). The per-call argument lets an agent act as a client it learns at runtime without editing `.mcp.json` or restarting.
 
-### Act as a specific client profile (`Profile-Key`)
+### Act as a specific client profile (`Profile-Key` header or `profileKey` argument)
 
-Add a `Profile-Key` header alongside `Authorization`:
+To make a whole connection default to one client, add a `Profile-Key` header alongside `Authorization`:
 
 ```jsonc
 "headers": {
@@ -181,7 +181,7 @@ Add a `Profile-Key` header alongside `Authorization`:
 }
 ```
 
-Then set `AYRSHARE_PROFILE_KEY` and restart. With no header set, calls act on the account's primary profile. The `generate_jwt_social_linking_url` tool also uses this header: it mints the social-account linking URL for whichever sub-profile the `Profile-Key` selects (the header is required for that tool), and it needs no private key or domain — the server derives those from your authenticated account.
+Then set `AYRSHARE_PROFILE_KEY` and restart. With no header set, calls act on the account's primary profile. To act as a client for a single call instead, pass `profileKey` as a tool argument on a profile-scoped call (it takes precedence over the header, no restart needed). The `generate_jwt_social_linking_url` tool uses the same target-profile value (required for that tool, via either input) and needs no private key or domain; the server derives those from your authenticated account.
 
 ### Bring-your-own X/Twitter app (BYOK)
 

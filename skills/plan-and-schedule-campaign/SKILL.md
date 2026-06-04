@@ -17,7 +17,7 @@ It is built on the suggest-and-approve pattern: draft and validate everything, s
 - `mcp__ayrshare__get_post` / `mcp__ayrshare__update_post` — inspect or edit a scheduled (pending) post afterward: reschedule, approve, or adjust. (See `../post/SKILL.md`.)
 - `mcp__ayrshare__generate_post` / `mcp__ayrshare__recommend_hashtags` — optional drafting aids for the copy (drafts only; they never publish). For on-brand copy, pair with `../draft-in-brand-voice/SKILL.md`.
 
-All are profile-scoped by the connection's `Profile-Key` header — there is **no per-call `profileKey` argument**. The whole campaign schedules under whichever profile that header selects, so confirm the connection before scheduling anything.
+These are profile-scoped: choose the profile with the optional `profileKey` argument on each call or the connection's `Profile-Key` header (the argument wins when both are set). (`generate_post`/`recommend_hashtags` are the exception, with no `profileKey` argument; see `../generate/SKILL.md`.) The whole campaign schedules under whichever profile you target, so settle that first and use it consistently across the posts.
 
 ## Scheduling fields (from the post schema)
 
@@ -32,7 +32,7 @@ Per-post timing/workflow controls (full schema in `../post/references/create-pos
 
 ## Workflow
 
-1. **Confirm the profile.** A campaign schedules under the profile the `Profile-Key` connection header selects. If several profiles exist and none is set, ask which client this is for (see `../getting-started/SKILL.md`).
+1. **Confirm the profile.** A campaign schedules under the profile you target, passed as the `profileKey` argument on each `create_post` (and `validate_post`), or via the `Profile-Key` connection header. If several profiles exist and none is given, ask which client this is for (see `../getting-started/SKILL.md`).
 2. **Build the plan.** Lay out the posts: for each, the message, the target platform(s), the media (if any), and the intended time. Adapt copy per platform (char limits, format) rather than reusing one string — use per-platform option objects where needed (e.g. `youTubeOptions.title`, `redditOptions.title` + `subreddit`). For drafting help, use `../generate/SKILL.md` or, for on-brand copy, `../draft-in-brand-voice/SKILL.md`.
 3. **Convert every time to ISO 8601 UTC.** Turn "Friday 9am" into an absolute `scheduleDate`. Never pass a human phrase or an empty string. Decide one timing model per post: a fixed `scheduleDate`, OR `autoSchedule`, OR `autoRepost` — never two at once.
 4. **Validate every post.** Call `mcp__ayrshare__validate_post` on each planned post (same inputs as `create_post`). Surface any per-platform issues and fix them before scheduling.
@@ -56,6 +56,6 @@ Per-post timing/workflow controls (full schema in `../post/references/create-pos
 - **`scheduleDate` must be ISO 8601 UTC, future.** e.g. `2026-07-08T12:30:00Z`. A human phrase, an empty string, or a past time fails or posts immediately. Convert relative times yourself.
 - **`scheduleDate` + `autoSchedule`/`autoRepost` is invalid.** They are mutually exclusive — combining them on one post is rejected. Pick one timing model.
 - **Scheduling is a write — never schedule without confirmation.** Present the full calendar first. Don't auto-retry a failed schedule on a 4xx; a closed window, bad media, or wrong platform won't fix itself, and a blind resend can duplicate. Use `idempotencyKey` to be safe.
-- **Profile scoping is the connection header.** The whole campaign schedules under the profile the `Profile-Key` header selects; there is no `profileKey` argument. Confirm the connection before scheduling for a client.
+- **Profile scoping: `profileKey` argument or `Profile-Key` header.** The whole campaign schedules under whichever profile you target: the `profileKey` argument on each post (it wins) or the `Profile-Key` header. Settle it before scheduling for a client, and keep it consistent across the posts.
 - **Recover failures with `retry_post`, not a second `create_post`.** A second create duplicates on platforms that already succeeded. `retry_post` re-attempts a failed post once, only if retryable.
 - **On any tool failure, call `mcp__ayrshare__explain_error`, then surface it.** Translate the error to plain language for the user; a 429 gets at most one retry after a short delay. (Mirrors the global retry-safety rule in `../getting-started/SKILL.md`.)

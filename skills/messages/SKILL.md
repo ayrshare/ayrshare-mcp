@@ -13,9 +13,9 @@ Four tools, split into two jobs — moving messages, and the account-level auto-
 - `mcp__ayrshare__get_auto_response` — read the account's DM auto-reply settings.
 - `mcp__ayrshare__set_auto_response` — change the account's DM auto-reply settings.
 
-**DMs are ONLY on Facebook, Instagram, and Twitter/X.** No other network (LinkedIn, TikTok, YouTube, etc.) has a messaging surface here. `get_messages` and `send_message` are platform-scoped and accept exactly one of `facebook`, `instagram`, `twitter`. The two auto-response tools are **account-level** — they take no `platform` and govern the whole account's DM auto-reply.
+**DMs are ONLY on Facebook, Instagram, and Twitter/X.** No other network (LinkedIn, TikTok, YouTube, etc.) has a messaging surface here. `get_messages` and `send_message` are platform-scoped and accept exactly one of `facebook`, `instagram`, `twitter`. The two auto-response tools take no `platform`: they govern the selected profile's DM auto-reply across FB/IG/X at once (network-agnostic, but still scoped to the profile the `profileKey` argument or `Profile-Key` header selects).
 
-All four are profile-scoped via the connection's `Profile-Key` header (see Auth) — none takes a `profileKey` argument.
+All four are profile-scoped: choose the profile with the `profileKey` argument or the `Profile-Key` header (see Auth; the argument wins when both are set).
 
 ## Functions
 
@@ -30,9 +30,9 @@ Full input schemas and example payloads/responses are in [`references/schemas.md
 
 ## Auth
 
-All four tools are **profile-scoped via the connection's `Profile-Key` header**, not a per-call argument. The header is set in the MCP client config (`.mcp.json` headers): include `Profile-Key: <profileKey>` to act as one client profile; omit it to act on the account's primary/Business profile. To switch profiles you reconfigure the connection header — you do **not** pass a `profileKey` parameter to any tool. Full two-layer model: `../getting-started/SKILL.md`.
+All four tools are **profile-scoped**: choose the profile with an optional `profileKey` tool argument or the `Profile-Key` connection header (the argument wins when both are set). Pass `profileKey` on the call to act as one client for that call, or set the `Profile-Key` header (`.mcp.json` headers) to default the whole connection to it; with neither, calls act on the account's primary/Business profile. Full model: `../getting-started/SKILL.md`.
 
-This applies to the auto-response tools too: they are account-level (no `platform`), but still scoped to whichever profile the connection's `Profile-Key` selects. Different connections → different DM auto-reply settings.
+This applies to the auto-response tools too: they take no `platform`, but still act on whichever profile the `profileKey` argument or `Profile-Key` header selects. Different profiles → different DM auto-reply settings.
 
 ## Usage guidance
 
@@ -50,7 +50,7 @@ This applies to the auto-response tools too: they are account-level (no `platfor
 ## Gotchas
 
 - **DMs are only FB / IG / X.** `get_messages` and `send_message` reject any other platform. Don't try LinkedIn/TikTok/YouTube/etc. DMs through these tools — there is no messaging surface for them.
-- **Scope comes from the connection, not a parameter.** Whose DMs you read/send, and whose auto-responder you read/set, is fixed by the connection's `Profile-Key` header. There is no `profileKey` argument on any of these four tools. Confirm you're on the right connection before reading or sending.
+- **Be deliberate about scope.** Whose DMs you read/send, and whose auto-responder you read/set, is set by the `profileKey` argument (per call; it wins) or the connection's `Profile-Key` header; with neither it's the primary profile. Confirm you're targeting the right profile before reading or sending.
 - **`send_message` needs content AND target.** Missing either side fails: you must give `message` OR `mediaUrls`, **and** `recipientId` OR `conversationId`. FB/IG additionally require `recipientId` specifically — a `conversationId` alone won't do. **On Twitter/X, `message` text is required even with `mediaUrls`** — a media-only DM (the generic "`mediaUrls` alone is fine" case) is rejected on X; it works only on FB/IG.
 - **`mediaUrls` is an array of URLs.** Media is referenced by reachable URL, same as posts — there is no upload step here. Validate a media URL with `mcp__ayrshare__validate_media` (see the Media skill) before sending if you're unsure it's reachable.
 - **Auto-response empty string resets, not clears.** `autoResponseMessage: ""` reverts to the Ayrshare default reply; it does not produce an empty auto-reply. To stop auto-replying entirely, set `autoResponseActive: false`.

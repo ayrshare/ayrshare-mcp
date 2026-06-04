@@ -12,7 +12,7 @@ Three tools for subscribing your endpoint to Ayrshare events so you receive **pu
 - `mcp__ayrshare__unregister_webhook` — cancel a subscription by action.
 - `mcp__ayrshare__list_webhooks` — list current subscriptions.
 
-All three are profile-scoped via the connection's `Profile-Key` header (see Auth) — none takes a `profileKey` argument.
+All three are profile-scoped: choose the profile with the `profileKey` argument or the `Profile-Key` header (see Auth; the argument wins when both are set).
 
 ## Functions
 
@@ -26,7 +26,7 @@ All three are profile-scoped via the connection's `Profile-Key` header (see Auth
 
 ## Auth
 
-All three tools are **profile-scoped via the connection's `Profile-Key` header**, not a per-call argument. The header is set in the MCP client config (`.mcp.json` headers): include `Profile-Key: <profileKey>` to manage one client profile's webhooks; omit it to manage the account's primary/Business profile. To switch profiles you reconfigure the connection header — you do **not** pass a `profileKey` parameter, and these webhook tools take no `passthrough` object at all (their inputs are exactly the fields in the table above). Full two-layer model: `../getting-started/SKILL.md`.
+All three tools are **profile-scoped**: choose the profile with an optional `profileKey` tool argument or the `Profile-Key` connection header (the argument wins when both are set). Pass `profileKey` on the call to manage one client profile's webhooks, or set the `Profile-Key` header (`.mcp.json` headers) to default the whole connection to it; with neither, calls manage the account's primary/Business profile. Beyond `profileKey`, these webhook tools take no `passthrough` object; their inputs are exactly the fields in the table above. Full model: `../getting-started/SKILL.md`.
 
 ## Usage guidance
 
@@ -42,6 +42,6 @@ All three tools are **profile-scoped via the connection's `Profile-Key` header**
 - **Non-HTTPS URLs are rejected.** `register_webhook` requires `https://`. A plain `http://` or hostless URL fails.
 - **One action per call.** `action` is a single value, not an array. To subscribe to multiple event types, register each separately.
 - **`scheduled` is the post-completion signal, not `social`.** For "tell me when my queued post published," use `scheduled` (platform-agnostic, fires on post completion). Don't reach for polling loops when a `scheduled` webhook does it push-style.
-- **Scope comes from the connection, not a parameter.** Which profile a webhook is registered/listed under is fixed by the connection's `Profile-Key` header; there is no `profileKey` argument. Be sure you're on the intended connection before registering.
+- **Be deliberate about scope.** Which profile a webhook is registered/listed under is set by the `profileKey` argument (per call; it wins) or the connection's `Profile-Key` header; with neither it's the primary profile. Confirm you're targeting the intended profile before registering.
 - **Unregister must match how you registered.** Cancel with the same `action` (and `source` if used). A mismatched `source` may leave a subscription active — verify with `list_webhooks`.
 - **On failure, call `mcp__ayrshare__explain_error`, then surface it — don't loop.** `register_webhook`/`unregister_webhook` are writes: never auto-retry on a 4xx (bad URL, unknown action, wrong scope). Translate the error via `mcp__ayrshare__explain_error` and present it; 429 gets at most one retry. (Mirrors the global retry-safety rule.)

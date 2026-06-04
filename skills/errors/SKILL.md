@@ -28,7 +28,7 @@ The classification is derived from the error's HTTP status, not from the meaning
 
 ## Auth
 
-This tool is reached over the same authenticated connection as every other Ayrshare MCP tool. Profile context, where relevant, comes from the connection's `Profile-Key` header, not a per-call argument — there is **no** `profileKey` parameter. (`explain_error` takes no `passthrough` object either; its only inputs are `code` and `platform`.) Full two-layer model: `../getting-started/SKILL.md`.
+This tool is reached over the same authenticated connection as every other Ayrshare MCP tool. `explain_error` is account-level: it decodes an error code and does **not** take a `profileKey` argument (it is one of the few tools excluded from per-call profile selection). Its only inputs are `code` and `platform` (no `passthrough` object). See *Which tools accept `profileKey`* in `../getting-started/SKILL.md`.
 
 ## Usage guidance
 
@@ -46,5 +46,5 @@ This tool is reached over the same authenticated connection as every other Ayrsh
 - **Don't echo raw error codes at the user.** A bare `Error 272` is unhelpful. Always run it through `explain_error` and present the cause + fix.
 - **The classification drives whether a retry is even sensible.** A `developer-fix` or `user-action` error will not resolve on retry — only `network`-class errors warrant the single transient retry. Never auto-retry a failed write on a 4xx just because you decoded it.
 - **Provide `platform` for accuracy.** Omitting it still works but may give a more generic explanation when the code is platform-specific.
-- **Scope (where it applies) comes from the connection, not a parameter.** There is no `profileKey` argument on this or any Ayrshare MCP tool.
+- **`explain_error` takes no `profileKey` argument.** It is account-level (one of the few tools excluded from per-call profile selection); the profile-scoped tools do accept a `profileKey` argument (see getting-started).
 - **`explain_error` is itself a read.** If the lookup call fails (rare), surface it plainly; don't loop. (Mirrors the global retry-safety rule in `../getting-started/SKILL.md`.)

@@ -2,7 +2,7 @@
 
 Inputs passed to the MCP tools. Platforms prioritized: twitter, facebook, instagram, linkedin. Remember the required order: `mcp__ayrshare__validate_post` → confirm with the user → `mcp__ayrshare__create_post`.
 
-Profile scoping is **not** in these payloads — it is the `Profile-Key` connection header (set in the MCP client config), never a per-call `profileKey` argument. See `../../getting-started/SKILL.md`.
+These example payloads omit profile scoping for brevity. To act as a specific client, add an optional `profileKey` argument to any of them (it wins over the `Profile-Key` connection header); with neither set, calls act on the primary/Business profile. See `../../getting-started/SKILL.md`.
 
 ## Validate before posting (dry-run)
 
@@ -24,7 +24,7 @@ This is `mcp__ayrshare__validate_post`. It reports platform-specific issues (cha
 }
 ```
 
-This posts under whichever profile the connection's `Profile-Key` header selects (the primary/Business profile if the header is unset).
+This posts under whichever profile you target: the optional `profileKey` argument or the connection's `Profile-Key` header (the primary/Business profile if neither is set).
 
 ## Schedule a post
 
@@ -36,7 +36,7 @@ This posts under whichever profile the connection's `Profile-Key` header selects
 }
 ```
 
-Note: `scheduleDate` is absolute ISO 8601 in UTC, and must be a future time. "Friday at 10am PT" was converted to `2026-06-05T17:00:00Z` before the call — the API does not parse human phrasing. To schedule for a different client profile, reconfigure the connection's `Profile-Key` header; there is no per-call profile argument.
+Note: `scheduleDate` is absolute ISO 8601 in UTC, and must be a future time. "Friday at 10am PT" was converted to `2026-06-05T17:00:00Z` before the call. The API does not parse human phrasing. To schedule for a different client profile, add its `profileKey` argument to the call (or set the connection's `Profile-Key` header).
 
 ## Post with attached media
 
