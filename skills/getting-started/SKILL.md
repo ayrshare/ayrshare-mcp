@@ -48,6 +48,8 @@ Then set `AYRSHARE_PROFILE_KEY` (or paste the key directly) and restart. Every c
 { "limit": 25, "profileKey": "<the client's profileKey>" }
 ```
 
+**Security note: the header keeps the key out of band; the argument does not.** A `Profile-Key` connection header is sent by the transport and never enters the model context or the conversation transcript. A `profileKey` argument is, by design, part of the tool call the agent emits, so it appears in the conversation transcript and the payload sent to the model provider. Prefer the header for static, single-profile setups; use the per-call argument deliberately when you need runtime selection. The exposure is bounded: a `profileKey` is inert without the account API key (which is never an argument), so a key seen in a transcript is not usable on its own.
+
 ## The tool surface (27 tools, by domain)
 
 Each domain has its own skill with full parameters and gotchas:
