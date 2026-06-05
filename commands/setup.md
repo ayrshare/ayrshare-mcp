@@ -55,9 +55,9 @@ classic cause of a `403 / code 102` after setup.
 
    The plugin's `.mcp.json` substitutes `${AYRSHARE_API_KEY}` at session start on every OS.
    The `settings.json` `env` approach (the Global / This project options above) is the most
-   portable choice: Claude Code reads it identically on macOS, Linux, and Windows, and it
-   also works where there is no launching shell (e.g. the Claude desktop app). Prefer it
-   unless the user specifically wants OS-managed environment variables.
+   portable choice: Claude Code reads it identically on macOS, Linux, and Windows, and
+   reads it however Claude Code itself is launched, not only from the shell that set it.
+   Prefer it unless the user specifically wants OS-managed environment variables.
 
 4. **Optional — default to a client profile.** The API key alone acts on the account's
    **primary** profile. Business accounts with client sub-profiles can optionally pin one as

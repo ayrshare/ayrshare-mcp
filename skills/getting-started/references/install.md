@@ -76,7 +76,7 @@ claude plugin install ayrshare@ayrshare
 
 The plugin's `.mcp.json` uses `${AYRSHARE_API_KEY}` — Claude Code substitutes it at startup. No `/ayrshare:setup` needed.
 
-This is the same variable `/ayrshare:setup` sets; the command just writes it into a `settings.json` `env` block for you instead of a shell profile. `settings.json` `env` is read by Claude Code regardless of how it is launched (terminal or desktop app), whereas a shell `export` only reaches sessions started from that shell.
+This is the same variable `/ayrshare:setup` sets; the command just writes it into a `settings.json` `env` block for you instead of a shell profile. `settings.json` `env` is read by Claude Code however Claude Code itself is launched, whereas a shell `export` only reaches sessions started from that shell.
 
 ## Optional configuration
 
