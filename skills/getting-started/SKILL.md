@@ -33,14 +33,14 @@ Most tools are **profile-scoped** and accept the optional `profileKey` argument 
 
 ### Setting the profile: connection header vs per-call argument
 
-**As a connection header (the default for every call).** In the MCP server config (`.mcp.json` or `claude mcp add`), add the header alongside `Authorization`:
+**As a connection header (the default for every call).** With the **plugin**, the bundled `.mcp.json` already carries the header with an empty default:
 ```jsonc
 "headers": {
   "Authorization": "Bearer ${AYRSHARE_API_KEY}",
-  "Profile-Key": "${AYRSHARE_PROFILE_KEY}"   // optional; omit to act on the primary profile
+  "Profile-Key": "${AYRSHARE_PROFILE_KEY:-}"   // empty when unset → primary profile
 }
 ```
-Then set `AYRSHARE_PROFILE_KEY` (or paste the key directly) and restart. Every call on that connection now defaults to that profile.
+So you just set `AYRSHARE_PROFILE_KEY` (in your `settings.json` `env` block, same place as `AYRSHARE_API_KEY`, on any OS) and restart; every call on that connection then defaults to that profile. Leave it unset and the header goes out empty, which the server treats as "act on the primary profile." (For a non-plugin `claude mcp add` setup, add the `Profile-Key` header yourself alongside `Authorization`.)
 
 **As a per-call argument (no restart).** Leave the header unset (or keep one as the default) and pass `profileKey` directly on a profile-scoped tool call to act as a specific client for that single call. The argument takes precedence over the header when both are set, so an agent can act as a client it discovers at runtime without touching `.mcp.json` or restarting:
 ```jsonc

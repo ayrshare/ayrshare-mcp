@@ -11,6 +11,8 @@ claude plugin install ayrshare@ayrshare
 
 Then run `/ayrshare:setup` to add your API key and **restart Claude Code**. Scopes and other install paths are under [Installation](#installation) below.
 
+After restarting, use the plugin by **asking in plain English** (e.g. "show my recent Instagram posts", "post this to LinkedIn tomorrow at 9am"); the tools fire on intent, and the trigger-skills route them. `/ayrshare:setup` is the only slash command, so there is no `/ayrshare:post` or `/ayrshare:get_post_history` to type.
+
 ## Overview
 
 The plugin lets an agent run the full social workflow without leaving Claude Code. Before publishing, the agent validates each post against the target network's rules and asks you to confirm, so avoidable rejections are caught before anything goes live. A single request publishes to Facebook, Instagram, LinkedIn, X, TikTok, YouTube, Pinterest, Reddit, Telegram, Threads, Bluesky, and others. Post history is available for matching a brand's voice, and analytics can be read back to inform the next post. Platform integrations are maintained by Ayrshare, so upstream API changes are handled outside your code. The API currently handles 25M+ calls per day.
@@ -84,12 +86,12 @@ claude plugin marketplace add ayrshare/ayrshare-social-media-api-claude-plugin
 # 2. Install the plugin globally (user is the default scope)
 claude plugin install ayrshare@ayrshare
 
-# 3. Configure your API key (stored in ~/.claude/)
+# 3. Configure your API key (sets AYRSHARE_API_KEY in ~/.claude/settings.json)
 # Run inside Claude Code:
-/ayrshare:setup   # choose "Global" when asked
+/ayrshare:setup   # accept the default "Global" when asked
 ```
 
-Commands, agents, and skills are available in every project. The key is stored in `~/.claude/` — no project files are modified.
+Commands, agents, and skills are available in every project. The key is stored as `AYRSHARE_API_KEY` in `~/.claude/settings.json`, which is exactly what the plugin's MCP server reads. No project files are modified.
 
 ---
 
@@ -102,12 +104,12 @@ claude plugin marketplace add ayrshare/ayrshare-social-media-api-claude-plugin
 # 2. Install scoped to the current project (not committed to git)
 claude plugin install ayrshare@ayrshare --scope local
 
-# 3. Configure your API key (stored in .mcp.json in the project directory)
+# 3. Configure your API key (sets AYRSHARE_API_KEY in ./.claude/settings.local.json)
 # Run inside Claude Code:
 /ayrshare:setup   # choose "This project" when asked
 ```
 
-Commands, agents, and skills only appear in this project. The key is written to `.mcp.json` in the project root. Add `.mcp.json` to `.gitignore` to keep the key out of version control.
+Commands, agents, and skills only appear in this project. The key is written as `AYRSHARE_API_KEY` to `./.claude/settings.local.json` so it stays out of git. Ensure that path is in your `.gitignore` (a default `*.local` pattern does **not** match `settings.local.json`) and confirm `git status` does not list it. Use the committed `./.claude/settings.json` only if you deliberately want to share one key with your team via the repo (not recommended for a secret).
 
 ---
 
@@ -120,12 +122,12 @@ claude plugin marketplace add ayrshare/ayrshare-social-media-api-claude-plugin
 # 2. Install scoped to the project (committed to git)
 claude plugin install ayrshare@ayrshare --scope project
 
-# 3. Configure your API key (stored in .mcp.json in the project directory)
+# 3. Configure your API key (sets your key in ./.claude/settings.local.json; gitignore that path)
 # Run inside Claude Code:
 /ayrshare:setup   # choose "This project" when asked
 ```
 
-The plugin is committed to the repo so the whole team gets it automatically. Each developer runs `/ayrshare:setup` individually to configure their own API key. Add `.mcp.json` to `.gitignore` so keys are never committed.
+The plugin is committed to the repo so the whole team gets it automatically. Each developer runs `/ayrshare:setup` individually to configure their own API key. Each developer's key should go in `./.claude/settings.local.json`, and that path should be added to `.gitignore` (a default `*.local` pattern does **not** match `settings.local.json`) so keys are never committed.
 
 ---
 
@@ -193,29 +195,22 @@ The last two are multi-step **workflow** skills: they orchestrate the tools abov
 
 ## Optional Configuration
 
-The API key is configured as a **connection header** on the `ayrshare` server in `.mcp.json` (or via `claude mcp add --header`). Profile scoping has two equivalent inputs: a `Profile-Key` connection header (the default for every call) **or** an optional `profileKey` tool argument on a profile-scoped tool call (the argument wins when both are set; a few utility/AI tools such as `generate_post` and `recommend_hashtags` are excluded, see `getting-started`). The per-call argument lets an agent act as a client it learns at runtime without editing `.mcp.json` or restarting.
+The API key is supplied through the `AYRSHARE_API_KEY` environment variable, which the `ayrshare` server's `.mcp.json` interpolates into its `Authorization` header (`Bearer ${AYRSHARE_API_KEY}`). `/ayrshare:setup` sets that variable for you in a `settings.json` `env` block. Profile scoping has two equivalent inputs: a `Profile-Key` connection header (the default for every call) **or** an optional `profileKey` tool argument on a profile-scoped tool call (the argument wins when both are set; a few utility/AI tools such as `generate_post` and `recommend_hashtags` are excluded, see `getting-started`). The per-call argument lets an agent act as a client it learns at runtime without editing `.mcp.json` or restarting.
 
-### Act as a specific client profile (`Profile-Key` header or `profileKey` argument)
+The bundled `.mcp.json` already declares the optional `Profile-Key` and X BYOK headers with empty defaults (`${VAR:-}`), so you enable each by setting the matching environment variable (same `settings.json` `env` block as `AYRSHARE_API_KEY`, on any OS) and restarting. Leave a variable unset and its header goes out empty, which the server treats as not provided. No `.mcp.json` editing, and nothing to redo after `claude plugin update`.
 
-To make a whole connection default to one client, add a `Profile-Key` header alongside `Authorization`:
+### Act as a specific client profile (`AYRSHARE_PROFILE_KEY` or `profileKey` argument)
 
-```jsonc
-"headers": {
-  "Authorization": "Bearer ${AYRSHARE_API_KEY}",
-  "Profile-Key": "${AYRSHARE_PROFILE_KEY}"   // optional; omit to act on the primary profile
-}
-```
-
-Then set `AYRSHARE_PROFILE_KEY` and restart. With no header set, calls act on the account's primary profile. To act as a client for a single call instead, pass `profileKey` as a tool argument on a profile-scoped call (it takes precedence over the header, no restart needed). The `generate_jwt_social_linking_url` tool uses the same target-profile value (required for that tool, via either input). You do not pass a private key or domain (the server derives them from your authenticated account), but the account must still have a **provisioned social-linking domain (Business/Enterprise)**; without one the call returns a "No social-linking domain is provisioned for this account" error.
+Set `AYRSHARE_PROFILE_KEY` (in your `settings.json` `env`) and restart to default the whole connection to one client; the bundled `Profile-Key: ${AYRSHARE_PROFILE_KEY:-}` header carries it. With it unset, calls act on the account's primary profile. To act as a client for a single call instead, pass `profileKey` as a tool argument on a profile-scoped call (it takes precedence over the header, no restart needed). The `generate_jwt_social_linking_url` tool uses the same target-profile value (required for that tool, via either input). You do not pass a private key or domain (the server derives them from your authenticated account), but the account must still have a **provisioned social-linking domain (Business/Enterprise)**; without one the call returns a "No social-linking domain is provisioned for this account" error.
 
 ### Bring-your-own X/Twitter app (BYOK)
 
-Posting to X/Twitter requires your own X Developer App (the [X BYO-key mandate](https://www.ayrshare.com/docs/apis/overview#x/twitter-byo-credentials), effective March 31, 2026). After linking X with your app's credentials, add your OAuth 1.0a key pair as **two** connection headers on the `ayrshare` server (values are never logged):
+Posting to X/Twitter requires your own X Developer App (the [X BYO-key mandate](https://www.ayrshare.com/docs/apis/overview#x/twitter-byo-credentials), effective March 31, 2026). After linking X with your app's credentials, set **both** environment variables and restart (values are never logged):
 
-- `X-Twitter-OAuth1-Api-Key` — your X API Key (Consumer Key)
-- `X-Twitter-OAuth1-Api-Secret` — your X API Secret (Consumer Secret)
+- `X_TWITTER_OAUTH1_API_KEY`: your X API Key (Consumer Key); sent as the `X-Twitter-OAuth1-Api-Key` header.
+- `X_TWITTER_OAUTH1_API_SECRET`: your X API Secret (Consumer Secret); sent as the `X-Twitter-OAuth1-Api-Secret` header.
 
-These are the only X BYO headers Ayrshare uses: one key pair per Ayrshare account, sent on every X-targeting request (the same pair for all sub-profiles). Ayrshare does **not** use OAuth 2.0 client credentials here. Without these headers, an X/Twitter request returns error `419` (`x_credentials_required`).
+These are the only X BYO headers Ayrshare uses: one key pair per Ayrshare account, sent on every X-targeting request (the same pair for all sub-profiles). Ayrshare does **not** use OAuth 2.0 client credentials here. Set both or neither: with neither set, an X/Twitter request returns error `419` (`x_credentials_required`); with only one set, it returns error `400`.
 
 ---
 
