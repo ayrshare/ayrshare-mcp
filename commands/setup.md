@@ -79,11 +79,25 @@ classic cause of a `403 / code 102` after setup.
    locks the user out of other client profiles; the one thing a pinned key changes is that the default
    is that profile rather than primary, so reaching primary again means removing the variable and restarting.
 
-   (X/Twitter, advanced: posting to X additionally requires your X app's OAuth 1.0a key pair as
-   `X_TWITTER_OAUTH1_API_KEY` and `X_TWITTER_OAUTH1_API_SECRET` in the same `env` block. Optional and
-   X-only; skip if you do not post to X. Details in the install reference.)
+5. **Optional: X/Twitter (BYOK) credentials.** Posting to X/Twitter requires your own X
+   Developer App's OAuth 1.0a key pair (the BYO-key mandate); without it, any X call fails
+   with error `419`. This is optional and X-only; skip it unless the user posts to X. Ask:
 
-5. **Offer to clean up a stale duplicate server.** Older versions of this command
+   "Will you post to X/Twitter? It needs your own X app credentials. (optional)
+   - **No (default):** skip. You can add them later by re-running `/ayrshare:setup`.
+   - **Yes:** paste your X **API Key** (Consumer Key) and your X **API Secret** (Consumer Secret)."
+
+   If **yes**, set BOTH `env.X_TWITTER_OAUTH1_API_KEY` and `env.X_TWITTER_OAUTH1_API_SECRET`
+   alongside `env.AYRSHARE_API_KEY` in the same file and scope. Set **both or neither**: with only
+   one set an X call fails with `400`, with neither an X call fails with `419` (non-X networks are
+   unaffected either way). If **no**, write nothing: the bundled `${X_TWITTER_OAUTH1_API_KEY:-}` /
+   `${X_TWITTER_OAUTH1_API_SECRET:-}` headers go out empty and the server ignores them.
+
+   This pair is **account-level** and rides on **every** X-targeting request alongside the API key,
+   independent of whether a Profile-Key is set. (If a Profile-Key is set, the X call acts on that
+   profile's linked X account, but it still uses this same account-level app credential pair.)
+
+6. **Offer to clean up a stale duplicate server.** Older versions of this command
    created a separate `ayrshare` MCP server (via `claude mcp add`) with the key in a
    header. That extra server shadows or collides with the plugin and should be removed.
    Run `claude mcp list` and identify it carefully:
@@ -101,7 +115,7 @@ classic cause of a `403 / code 102` after setup.
    - If the only `ayrshare`-related server is the plugin's own (`plugin:ayrshare:ayrshare`),
      there is nothing to clean up; do not prompt for removal.
 
-6. **Tell the user to restart, and how to use it afterward.**
+7. **Tell the user to restart, and how to use it afterward.**
    - "Setup complete. **Restart Claude Code** to activate the connection. The MCP server is initialized at session start, so the key won't be active until you restart."
    - Then set expectations on invocation: after restart, the tools are used by **asking in plain English** (e.g. "show my recent Instagram posts", "post this to LinkedIn"), not by typing a slash command. `/ayrshare:setup` is the **only** slash command; the other tools fire on intent (the trigger-skills route them), so `/ayrshare:get_post_history` and similar will read as "unknown command."
 
