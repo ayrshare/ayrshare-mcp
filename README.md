@@ -102,12 +102,12 @@ claude plugin marketplace add ayrshare/ayrshare-social-media-api-claude-plugin
 # 2. Install scoped to the current project (not committed to git)
 claude plugin install ayrshare@ayrshare --scope local
 
-# 3. Configure your API key (sets AYRSHARE_API_KEY in ./.claude/settings.json)
+# 3. Configure your API key (sets AYRSHARE_API_KEY in ./.claude/settings.local.json)
 # Run inside Claude Code:
 /ayrshare:setup   # choose "This project" when asked
 ```
 
-Commands, agents, and skills only appear in this project. The key is written as `AYRSHARE_API_KEY` to `./.claude/settings.json`. If you do not want it committed, use `./.claude/settings.local.json` (same `env` shape) and add that path to `.gitignore` yourself: a default `*.local` pattern does **not** match `settings.local.json`, so confirm `git status` does not list the file before committing.
+Commands, agents, and skills only appear in this project. The key is written as `AYRSHARE_API_KEY` to `./.claude/settings.local.json` so it stays out of git. Ensure that path is in your `.gitignore` (a default `*.local` pattern does **not** match `settings.local.json`) and confirm `git status` does not list it. Use the committed `./.claude/settings.json` only if you deliberately want to share one key with your team via the repo (not recommended for a secret).
 
 ---
 
@@ -120,7 +120,7 @@ claude plugin marketplace add ayrshare/ayrshare-social-media-api-claude-plugin
 # 2. Install scoped to the project (committed to git)
 claude plugin install ayrshare@ayrshare --scope project
 
-# 3. Configure your API key (sets AYRSHARE_API_KEY in ./.claude/settings.json)
+# 3. Configure your API key (sets your key in ./.claude/settings.local.json, gitignored)
 # Run inside Claude Code:
 /ayrshare:setup   # choose "This project" when asked
 ```
@@ -208,7 +208,7 @@ Posting to X/Twitter requires your own X Developer App (the [X BYO-key mandate](
 - `X_TWITTER_OAUTH1_API_KEY` — your X API Key (Consumer Key); sent as the `X-Twitter-OAuth1-Api-Key` header.
 - `X_TWITTER_OAUTH1_API_SECRET` — your X API Secret (Consumer Secret); sent as the `X-Twitter-OAuth1-Api-Secret` header.
 
-These are the only X BYO headers Ayrshare uses: one key pair per Ayrshare account, sent on every X-targeting request (the same pair for all sub-profiles). Ayrshare does **not** use OAuth 2.0 client credentials here. Set both or neither; with neither set, an X/Twitter request returns error `419` (`x_credentials_required`).
+These are the only X BYO headers Ayrshare uses: one key pair per Ayrshare account, sent on every X-targeting request (the same pair for all sub-profiles). Ayrshare does **not** use OAuth 2.0 client credentials here. Set both or neither: with neither set, an X/Twitter request returns error `419` (`x_credentials_required`); with only one set, it returns error `400`.
 
 ---
 

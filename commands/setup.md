@@ -20,7 +20,7 @@ classic cause of a `403 / code 102` after setup.
 
    "Where should this key be available?
    - **Global (default)** — every project and session on this machine. Stored in `~/.claude/settings.json`.
-   - **This project** — only this repo (still persists across sessions). Stored in `./.claude/settings.json`.
+   - **This project** — only this repo (still persists across sessions). Stored in `./.claude/settings.local.json` (kept out of git).
    - **I'll set it myself (CI / advanced)** — print instructions, write nothing."
 
 3. **Write the variable** based on the answer. In every write case you are adding
@@ -30,13 +30,13 @@ classic cause of a `403 / code 102` after setup.
 
    **Global:** target `~/.claude/settings.json` — your home directory on every OS (`~/.claude/settings.json` on macOS/Linux, `%USERPROFILE%\.claude\settings.json` on Windows).
 
-   **This project:** target `./.claude/settings.json` (the current working directory).
-   Remind the user that `.claude/settings.json` is normally committed; if they do not
-   want the key in git, use `.claude/settings.local.json` instead (same `env` shape).
-   A default `.gitignore` does **not** ignore `settings.local.json` (a `*.local`
-   pattern does not match `*.local.json`), so explicitly tell the user to add
-   `.claude/settings.local.json` to their `.gitignore` and confirm `git status` does
-   not list it before committing.
+   **This project:** target `./.claude/settings.local.json` (the current working directory's
+   `.claude/`). This is the default because the file holds a secret and `settings.local.json`
+   is meant to stay out of git. A default `.gitignore` does **not** ignore it (a `*.local`
+   pattern does not match `*.local.json`), so tell the user to add `.claude/settings.local.json`
+   to their `.gitignore` and confirm `git status` does not list it before committing. Only if
+   the user explicitly wants to commit/share one key with their team should you write the
+   committed `./.claude/settings.json` instead (discouraged for a secret).
 
    The resulting file should look like (other keys preserved):
    ```json
@@ -51,7 +51,7 @@ classic cause of a `403 / code 102` after setup.
    environment variable with their platform's own mechanism, so it is present in the
    environment **before** Claude Code launches:
    - macOS / Linux: `export AYRSHARE_API_KEY=...` in a shell profile (`~/.zshrc`, `~/.bashrc`, ...), or a CI secret.
-   - Windows: `setx AYRSHARE_API_KEY "..."` (or `$env:AYRSHARE_API_KEY="..."` in PowerShell), or set it under System Environment Variables.
+   - Windows: `setx AYRSHARE_API_KEY "..."` (persistent; relaunch Claude Code afterward) or set it under System Environment Variables. (`$env:AYRSHARE_API_KEY="..."` in PowerShell works too, but only for a Claude Code launched from that same session.)
 
    The plugin's `.mcp.json` substitutes `${AYRSHARE_API_KEY}` at session start on every OS.
    The `settings.json` `env` approach (the Global / This project options above) is the most
