@@ -38,8 +38,9 @@ def extract_description(text):
         return None
     marker = dline.group(1).strip()
 
-    # Block scalar form: `description: |` (or `>`) followed by indented lines.
+    # Block scalar form: `description: |` (or `>`, with optional `+`/`-` chomping).
     if marker[:1] in ("|", ">"):
+        chomp = marker[1] if len(marker) > 1 and marker[1] in "+-" else ""
         raw = []
         for line in frontmatter[dline.end():].split("\n"):
             if line.strip() == "":
@@ -50,12 +51,25 @@ def extract_description(text):
                 break  # a dedented, non-blank line ends the block scalar
         while raw and raw[0] == "":
             raw.pop(0)
-        while raw and raw[-1] == "":
-            raw.pop()
         if not raw:
             return ""
         indent = min(len(l) - len(l.lstrip()) for l in raw if l.strip())
-        return "\n".join(l[indent:] if l.strip() else "" for l in raw)
+        lines = [l[indent:] if l.strip() else "" for l in raw]
+        trailing = 0
+        for l in reversed(lines):
+            if l == "":
+                trailing += 1
+            else:
+                break
+        body = "\n".join(lines[: len(lines) - trailing] if trailing else lines)
+        # Apply YAML chomping so the length matches what a YAML parser produces:
+        # strip ('-') drops the final newline; keep ('+') preserves every trailing
+        # blank line; clip (the default) keeps exactly one trailing newline.
+        if chomp == "-":
+            return body
+        if chomp == "+":
+            return body + "\n" * (trailing + 1)
+        return body + "\n"
 
     # Inline form: `description: some text` (optionally quoted).
     return marker.strip("\"'")
