@@ -10,7 +10,7 @@ One tool, the canonical way to decode any Ayrshare error code:
 
 - `mcp__ayrshare__explain_error` — looks up an error `code` in the Ayrshare error catalog and returns a plain-English cause, a classification, and a short resolution hint.
 
-It is the cross-cutting helper every other group skill points to: when a tool call fails with a structured `Error <code>: ...`, translate it here before surfacing anything to the user.
+It is the cross-cutting helper every other group skill points to: when a tool call fails with a structured error code (e.g. `Error 156: ...`), translate it here before surfacing anything to the user.
 
 ## Functions
 
@@ -32,7 +32,7 @@ This tool is reached over the same authenticated connection as every other Ayrsh
 
 ## Usage guidance
 
-- **This is the first stop after ANY failed tool call.** When `create_post`, `add_comment`, `get_platform_history`, or any other Ayrshare MCP tool returns a structured `Error <code>: ...`, call `explain_error` with that `code` (pass the failing `platform` if you have it) and surface the explanation. Do **not** echo the raw error or guess at the meaning.
+- **This is the first stop after ANY failed tool call.** When `create_post`, `add_comment`, `get_platform_history`, or any other Ayrshare MCP tool returns a structured error code (e.g. `Error 156: ...`), call `explain_error` with that `code` (pass the failing `platform` if you have it) and surface the explanation. Do **not** echo the raw error or guess at the meaning.
 - **Pass `platform` when you have it.** The same numeric code can mean different things per network; supplying the `platform` identifier (e.g. the platform that the failed call targeted) sharpens the cause and fix.
 - **`code` accepts a string of digits or a number.** Pass the bare code from the error (e.g. `156`, `"272"`). Strip any surrounding text.
 - **Act on the classification:**
