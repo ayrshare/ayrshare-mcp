@@ -205,8 +205,8 @@ Set `AYRSHARE_PROFILE_KEY` (in your `settings.json` `env`) and restart to defaul
 
 Posting to X/Twitter requires your own X Developer App (the [X BYO-key mandate](https://www.ayrshare.com/docs/apis/overview#x/twitter-byo-credentials), effective March 31, 2026). After linking X with your app's credentials, set **both** environment variables and restart (values are never logged):
 
-- `X_TWITTER_OAUTH1_API_KEY` — your X API Key (Consumer Key); sent as the `X-Twitter-OAuth1-Api-Key` header.
-- `X_TWITTER_OAUTH1_API_SECRET` — your X API Secret (Consumer Secret); sent as the `X-Twitter-OAuth1-Api-Secret` header.
+- `X_TWITTER_OAUTH1_API_KEY`: your X API Key (Consumer Key); sent as the `X-Twitter-OAuth1-Api-Key` header.
+- `X_TWITTER_OAUTH1_API_SECRET`: your X API Secret (Consumer Secret); sent as the `X-Twitter-OAuth1-Api-Secret` header.
 
 These are the only X BYO headers Ayrshare uses: one key pair per Ayrshare account, sent on every X-targeting request (the same pair for all sub-profiles). Ayrshare does **not** use OAuth 2.0 client credentials here. Set both or neither: with neither set, an X/Twitter request returns error `419` (`x_credentials_required`); with only one set, it returns error `400`.
 

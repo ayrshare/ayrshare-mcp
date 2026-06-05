@@ -19,16 +19,16 @@ classic cause of a `403 / code 102` after setup.
 2. **Choose scope.** Ask one question, defaulting to Global:
 
    "Where should this key be available?
-   - **Global (default)** — every project and session on this machine. Stored in `~/.claude/settings.json`.
-   - **This project** — only this repo (still persists across sessions). Stored in `./.claude/settings.local.json` (kept out of git).
-   - **I'll set it myself (CI / advanced)** — print instructions, write nothing."
+   - **Global (default):** every project and session on this machine. Stored in `~/.claude/settings.json`.
+   - **This project:** only this repo (still persists across sessions). Stored in `./.claude/settings.local.json` (kept out of git).
+   - **I'll set it myself (CI / advanced):** print instructions, write nothing."
 
 3. **Write the variable** based on the answer. In every write case you are adding
    or updating `env.AYRSHARE_API_KEY` in a `settings.json` file. Read the file if it
    exists, parse it as JSON, set `env.AYRSHARE_API_KEY` to the key, and write it back
    preserving every other field. Create the file (and its directory) if missing.
 
-   **Global:** target `~/.claude/settings.json` — your home directory on every OS (`~/.claude/settings.json` on macOS/Linux, `%USERPROFILE%\.claude\settings.json` on Windows).
+   **Global:** target `~/.claude/settings.json` (your home directory on every OS: `~/.claude/settings.json` on macOS/Linux, `%USERPROFILE%\.claude\settings.json` on Windows).
 
    **This project:** target `./.claude/settings.local.json` (the current working directory's
    `.claude/`). This is the default because the file holds a secret and `settings.local.json`
@@ -59,16 +59,16 @@ classic cause of a `403 / code 102` after setup.
    reads it however Claude Code itself is launched, not only from the shell that set it.
    Prefer it unless the user specifically wants OS-managed environment variables.
 
-4. **Optional — default to a client profile.** The API key alone acts on the account's
+4. **Optional: default to a client profile.** The API key alone acts on the account's
    **primary** profile. Business accounts with client sub-profiles can optionally pin one as
    the connection default. This step is optional; skip it (leave the primary profile) unless
    the user asks. Ask:
 
    "Pin a default client profile for this connection? (optional)
-   - **No (default)** — calls act on your **primary** profile. You can still target any client on
+   - **No (default):** calls act on your **primary** profile. You can still target any client on
      a single call by passing a `profileKey` argument to the tool. Pick this if you work across
      several profiles, or aren't sure.
-   - **Yes** — paste a Profile Key. **Every** call then defaults to that profile, and you can still
+   - **Yes:** paste a Profile Key. **Every** call then defaults to that profile, and you can still
      override it on any single call by passing a `profileKey` argument (the per-call value wins).
      To return to the primary profile, remove `AYRSHARE_PROFILE_KEY` and restart."
 
@@ -91,7 +91,7 @@ classic cause of a `403 / code 102` after setup.
      bundled `.mcp.json`, and Claude Code lists it namespaced as
      `plugin:ayrshare:ayrshare` (URL `https://api.ayrshare.com/mcp`). **Never remove this one.**
    - A **stale duplicate** is a *separately added* server listed as plain `ayrshare`
-     (no `plugin:` prefix) at `https://api.ayrshare.com/mcp` — i.e. an `ayrshare`
+     (no `plugin:` prefix) at `https://api.ayrshare.com/mcp`, i.e. an `ayrshare`
      entry that exists *in addition to* the plugin's, often flagged as "defined in
      multiple scopes" by `claude mcp list`. Only this one should be offered for removal,
      with `claude mcp remove ayrshare` (add `--scope user` or `--scope local` to match where it lives).
@@ -107,8 +107,8 @@ classic cause of a `403 / code 102` after setup.
 ## Notes
 - One mechanism, one variable: every scope sets `AYRSHARE_API_KEY`, which is exactly what the plugin's bundled server reads. No duplicate servers.
 - **Optional credential variables (same `env` block, all empty by default).** The plugin's `.mcp.json` also interpolates three optional variables you set the same way (`settings.json` `env`, or your OS env):
-  - `AYRSHARE_PROFILE_KEY` — act as a specific client profile by default (instead of passing `profileKey` per call).
-  - `X_TWITTER_OAUTH1_API_KEY` and `X_TWITTER_OAUTH1_API_SECRET` — your X/Twitter app's OAuth 1.0a consumer key and secret, required to post to X under the BYO-key mandate.
+  - `AYRSHARE_PROFILE_KEY`: act as a specific client profile by default (instead of passing `profileKey` per call).
+  - `X_TWITTER_OAUTH1_API_KEY` and `X_TWITTER_OAUTH1_API_SECRET`: your X/Twitter app's OAuth 1.0a consumer key and secret, required to post to X under the BYO-key mandate.
 
   Each uses `${VAR:-}`, so when you leave it unset the header is sent empty and the server treats it as not provided (no effect, no error). Set it to turn the feature on. Restart Claude Code after changing any of them.
 - To rotate the key, run `/ayrshare:setup` again and pick the same scope; it overwrites the variable in place.
