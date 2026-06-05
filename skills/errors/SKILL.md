@@ -1,7 +1,7 @@
 ---
 name: errors
 description: |
-  Error explanation for the Ayrshare MCP server — translate an Ayrshare error code into a plain-English cause, a classification, and a fix. Use whenever a code or numeric error needs decoding: "what does Ayrshare error 156 mean", "why did that post fail with code 272", "explain this error", "what's error code 110 on Instagram", "how do I fix this Ayrshare error". Trigger when calling `mcp__ayrshare__explain_error`, and even without the word "Ayrshare" — if the user surfaces a social-posting error code and wants to know what it means or how to fix it, this is the skill. CRITICAL: whenever ANY OTHER Ayrshare MCP tool returns a structured `Error <code>: ...`, look the code up here and explain/fix it rather than echoing the raw error back. For the shared auth model and the global retry-safety rule, see `../getting-started/SKILL.md`.
+  Error explanation for the Ayrshare MCP server: translate an Ayrshare error code into a plain-English cause, a classification, and a fix. Use whenever a code or numeric error needs decoding: "what does Ayrshare error 156 mean", "why did that post fail with code 272", "explain this error", "what is error code 110 on Instagram", "how do I fix this Ayrshare error". Trigger when calling `mcp__ayrshare__explain_error`, and even without the word "Ayrshare": if the user surfaces a social-posting error code and wants to know what it means or how to fix it, this is the skill. CRITICAL: whenever ANY OTHER Ayrshare MCP tool returns a structured error code (for example `Error 156: ...`), look the code up here and explain or fix it rather than echoing the raw error back. For the shared auth model and the global retry-safety rule, see `../getting-started/SKILL.md`.
 ---
 
 # Ayrshare MCP — Errors
