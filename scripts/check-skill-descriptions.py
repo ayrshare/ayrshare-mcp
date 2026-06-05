@@ -21,7 +21,13 @@ MAX_LEN = 1024
 
 def extract_description(text):
     """Return the description string, or None if the field is absent. An empty or
-    blank description returns '' so the caller can flag it (the field is required)."""
+    blank description returns '' so the caller can flag it (the field is required).
+
+    Line endings are normalized so Windows (CRLF) checkouts parse identically. For a
+    block scalar the internal newlines and blank lines are preserved (only the block
+    indent is removed) so the measured length reflects the real YAML value instead of
+    undercounting a multi-line description."""
+    text = text.replace("\r\n", "\n").replace("\r", "\n")
     fm_match = re.match(r"^---\n(.*?)\n---", text, re.S)
     if not fm_match:
         return None
@@ -34,15 +40,22 @@ def extract_description(text):
 
     # Block scalar form: `description: |` (or `>`) followed by indented lines.
     if marker[:1] in ("|", ">"):
-        collected = []
-        for line in frontmatter[dline.end():].splitlines():
+        raw = []
+        for line in frontmatter[dline.end():].split("\n"):
             if line.strip() == "":
-                continue
-            if line[:1] in (" ", "\t"):
-                collected.append(line.strip())
+                raw.append("")  # a blank line is part of the scalar
+            elif line[:1] in (" ", "\t"):
+                raw.append(line)
             else:
-                break  # a dedented line ends the block scalar
-        return " ".join(collected)
+                break  # a dedented, non-blank line ends the block scalar
+        while raw and raw[0] == "":
+            raw.pop(0)
+        while raw and raw[-1] == "":
+            raw.pop()
+        if not raw:
+            return ""
+        indent = min(len(l) - len(l.lstrip()) for l in raw if l.strip())
+        return "\n".join(l[indent:] if l.strip() else "" for l in raw)
 
     # Inline form: `description: some text` (optionally quoted).
     return marker.strip("\"'")

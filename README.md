@@ -179,7 +179,7 @@ Cowork and the claude.ai desktop app do **not** read `~/.claude/settings.json` `
 
 1. As an admin, edit (or create) the managed settings file:
    - **macOS:** `/Library/Application Support/ClaudeCode/managed-settings.json`
-   - **Windows:** `C:\ProgramData\ClaudeCode\managed-settings.json`
+   - **Windows:** `C:\Program Files\ClaudeCode\managed-settings.json` (the older `C:\ProgramData\ClaudeCode\managed-settings.json` is deprecated as of Claude Code v2.1.75)
    - **Linux:** `/etc/claude-code/managed-settings.json`
 2. Add a `managedMcpServers` entry for `ayrshare` using the same headers the plugin's `.mcp.json` uses, but with **literal values** (no `${VAR}`):
    ```json
