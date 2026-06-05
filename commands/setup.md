@@ -1,130 +1,63 @@
 ---
-description: Configure or rotate the Ayrshare API key after the plugin is installed
+description: Configure or rotate your Ayrshare API key (and optional Profile-Key / X BYOK) after installing the plugin
 ---
 
-Configure the Ayrshare API key for Claude Code. Run this after installing the plugin.
+Configure your Ayrshare credentials for Claude Code. Run this after installing the plugin.
 
-The plugin's bundled MCP server reads the key from the `AYRSHARE_API_KEY`
-environment variable (its `.mcp.json` sends `Authorization: Bearer ${AYRSHARE_API_KEY}`).
-This command's job is to set that one variable in the right `settings.json` so the
-plugin's own server picks it up. Do not create a separate MCP server with
-`claude mcp add`; that produces a second server the plugin does not use and is the
-classic cause of a `403 / code 102` after setup.
+The plugin's bundled MCP server reads its credentials from environment variables (its `.mcp.json` sends `Authorization: Bearer ${AYRSHARE_API_KEY}` plus optional `${AYRSHARE_PROFILE_KEY:-}` and `${X_TWITTER_OAUTH1_API_KEY:-}` / `${X_TWITTER_OAUTH1_API_SECRET:-}` headers). This command puts those variables where the plugin's own server reads them. Do not create a separate MCP server with `claude mcp add`; that produces a second server the plugin does not use and is the classic cause of a `403 / code 102` after setup.
+
+Only `AYRSHARE_API_KEY` is required. Profile-Key and X BYOK are optional.
 
 ## Steps
 
-1. **Get the key.** If the user did not include their API key as an argument, ask:
-   "Please paste your Ayrshare API key. You can get one at https://app.ayrshare.com under Settings → API Key."
+1. **Ask how the user wants to provide secrets.** Do this first, before asking for any key:
 
-2. **Choose scope.** Ask one question, defaulting to Global:
+   "Two ways to set this up:
+   - **Paste here:** quickest. You paste your key(s) and I write them to a `settings.json` for you. Heads-up: anything you paste enters this chat's context and is sent to the model provider.
+   - **I'll add them myself:** for when you would rather not put a secret in chat (e.g. org policy). I show you the exact file (or env var) and a fill-in-the-blanks snippet, and you add the real values yourself. I write and see nothing."
 
-   "Where should this key be available?
-   - **Global (default):** every project and session on this machine. Stored in `~/.claude/settings.json`.
-   - **This project:** only this repo (still persists across sessions). Stored in `./.claude/settings.local.json` (kept out of git).
-   - **I'll set it myself (CI / advanced):** print instructions, write nothing."
+   If the user already passed a key as an argument, treat that as "paste here."
 
-3. **Write the variable** based on the answer. In every write case you are adding
-   or updating `env.AYRSHARE_API_KEY` in a `settings.json` file. Read the file if it
-   exists, parse it as JSON, set `env.AYRSHARE_API_KEY` to the key, and write it back
-   preserving every other field. Create the file (and its directory) if missing.
-
-   **Global:** target `~/.claude/settings.json` (your home directory on every OS: `~/.claude/settings.json` on macOS/Linux, `%USERPROFILE%\.claude\settings.json` on Windows).
-
-   **This project:** target `./.claude/settings.local.json` (the current working directory's
-   `.claude/`). This is the default because the file holds a secret and `settings.local.json`
-   is meant to stay out of git. A default `.gitignore` does **not** ignore it (a `*.local`
-   pattern does not match `*.local.json`), so tell the user to add `.claude/settings.local.json`
-   to their `.gitignore` and confirm `git status` does not list it before committing. Only if
-   the user explicitly wants to commit/share one key with their team should you write the
-   committed `./.claude/settings.json` instead (discouraged for a secret).
-
-   The resulting file should look like (other keys preserved):
-   ```json
-   {
-     "env": {
-       "AYRSHARE_API_KEY": "THE_KEY"
+2. **If "I'll add them myself":** ask where they want the credentials, give the matching fill-in instructions, write nothing, and skip to step 5.
+   - **Global** (all projects and sessions) is `~/.claude/settings.json` (their home directory; `%USERPROFILE%\.claude\settings.json` on Windows). **This project** is `./.claude/settings.local.json` (kept out of git; have them gitignore it, since a `*.local` pattern does not match `settings.local.json`). For either, give them this `env` block to merge in, preserving any keys already present:
+     ```json
+     {
+       "env": {
+         "AYRSHARE_API_KEY": "<required: your key from app.ayrshare.com, Settings then API Key>",
+         "AYRSHARE_PROFILE_KEY": "<optional: a default client profile; delete this line for your primary profile>",
+         "X_TWITTER_OAUTH1_API_KEY": "<optional: your X app Consumer Key; delete if you don't post to X>",
+         "X_TWITTER_OAUTH1_API_SECRET": "<optional: your X app Consumer Secret; delete if you don't post to X>"
+       }
      }
-   }
-   ```
+     ```
+   - **OS environment variables** (CI / advanced): set the same variable names before launching Claude Code (macOS/Linux: `export VAR=...` in a shell profile or a CI secret; Windows: `setx VAR "..."` then relaunch, or System Environment Variables).
 
-   **I'll set it myself:** write nothing. Tell the user to define the `AYRSHARE_API_KEY`
-   environment variable with their platform's own mechanism, so it is present in the
-   environment **before** Claude Code launches:
-   - macOS / Linux: `export AYRSHARE_API_KEY=...` in a shell profile (`~/.zshrc`, `~/.bashrc`, ...), or a CI secret.
-   - Windows: `setx AYRSHARE_API_KEY "..."` (persistent; relaunch Claude Code afterward) or set it under System Environment Variables. (`$env:AYRSHARE_API_KEY="..."` in PowerShell works too, but only for a Claude Code launched from that same session.)
+   Tell them: only `AYRSHARE_API_KEY` is required; delete the optional lines they don't need; the X pair is both or neither; save, then restart. The `settings.json` route is the more portable one (Claude Code reads it identically on every OS and however it is launched, not only from the shell that set it).
 
-   The plugin's `.mcp.json` substitutes `${AYRSHARE_API_KEY}` at session start on every OS.
-   The `settings.json` `env` approach (the Global / This project options above) is the most
-   portable choice: Claude Code reads it identically on macOS, Linux, and Windows, and
-   reads it however Claude Code itself is launched, not only from the shell that set it.
-   Prefer it unless the user specifically wants OS-managed environment variables.
+3. **If "paste here": write the API key.** First ask the scope:
+   - **Global (default):** `~/.claude/settings.json` (home directory; `%USERPROFILE%\.claude\settings.json` on Windows).
+   - **This project:** `./.claude/settings.local.json`, kept out of git. Have them add `.claude/settings.local.json` to `.gitignore` and confirm `git status` does not list it (a `*.local` pattern does not match `*.local.json`). Use the committed `./.claude/settings.json` only to deliberately share one key with a team.
 
-4. **Optional: default to a client profile.** The API key alone acts on the account's
-   **primary** profile. Business accounts with client sub-profiles can optionally pin one as
-   the connection default. This step is optional; skip it (leave the primary profile) unless
-   the user asks. Ask:
+   Then ask them to paste the key (from https://app.ayrshare.com, Settings then API Key). Read the chosen file if it exists, parse it as JSON, set `env.AYRSHARE_API_KEY`, and write it back preserving every other field (create the file and its directory if missing). Result: `{ "env": { "AYRSHARE_API_KEY": "THE_KEY" } }`, with other keys intact.
 
-   "Pin a default client profile for this connection? (optional)
-   - **No (default):** calls act on your **primary** profile. You can still target any client on
-     a single call by passing a `profileKey` argument to the tool. Pick this if you work across
-     several profiles, or aren't sure.
-   - **Yes:** paste a Profile Key. **Every** call then defaults to that profile, and you can still
-     override it on any single call by passing a `profileKey` argument (the per-call value wins).
-     To return to the primary profile, remove `AYRSHARE_PROFILE_KEY` and restart."
+4. **If "paste here": offer the two optional credentials.** For each, the user may paste it, or (to keep it out of chat) add the variable to the same settings file themselves, exactly like step 2.
 
-   If **yes**, set `env.AYRSHARE_PROFILE_KEY` alongside `env.AYRSHARE_API_KEY` in the same file and
-   scope you used above. If **no**, write nothing for it: the bundled `Profile-Key: ${AYRSHARE_PROFILE_KEY:-}`
-   header goes out empty and the server uses the primary profile. Either way the per-call `profileKey`
-   argument is always available and always supersedes the connection default, so pinning a key never
-   locks the user out of other client profiles; the one thing a pinned key changes is that the default
-   is that profile rather than primary, so reaching primary again means removing the variable and restarting.
+   a. **Default client profile.** **No (default):** calls act on the **primary** profile; the user can still target any client per call via the `profileKey` tool argument. **Yes:** set `env.AYRSHARE_PROFILE_KEY` from a pasted Profile Key. The per-call argument always supersedes this connection default, so pinning never locks the user out of other profiles (remove the variable and restart to return to primary).
 
-5. **Optional: X/Twitter (BYOK) credentials.** Posting to X/Twitter requires your own X
-   Developer App's OAuth 1.0a key pair (the BYO-key mandate); without it, any X call fails
-   with error `419`. This is optional and X-only; skip it unless the user posts to X. Ask:
+   b. **X/Twitter (BYOK).** Posting to X needs the user's own X Developer App OAuth 1.0a key pair; without it an X call fails with `419`. **No (default):** skip. **Yes:** set BOTH `env.X_TWITTER_OAUTH1_API_KEY` and `env.X_TWITTER_OAUTH1_API_SECRET` from the pasted X **API Key** (Consumer Key) and X **API Secret** (Consumer Secret). Both or neither: with only one set an X call fails with `400`, with neither it fails with `419` (non-X networks are unaffected). This pair is **account-level** and rides on **every** X-targeting request alongside the API key, independent of any Profile-Key (a set Profile-Key just targets that profile's linked X account).
 
-   "Will you post to X/Twitter? It needs your own X app credentials. (optional)
-   - **No (default):** skip. You can add them later by re-running `/ayrshare:setup`.
-   - **Yes:** paste your X **API Key** (Consumer Key) and your X **API Secret** (Consumer Secret)."
+5. **Offer to clean up a stale duplicate server.** Older versions of this command created a separate `ayrshare` MCP server (via `claude mcp add`) with the key in a header. That extra server shadows or collides with the plugin and should be removed. Run `claude mcp list` and identify it carefully:
+   - The **plugin's own** server is the one to keep. The plugin provides it from the bundled `.mcp.json`, and Claude Code lists it namespaced as `plugin:ayrshare:ayrshare` (URL `https://api.ayrshare.com/mcp`). **Never remove this one.**
+   - A **stale duplicate** is a *separately added* server listed as plain `ayrshare` (no `plugin:` prefix) at `https://api.ayrshare.com/mcp`, i.e. an `ayrshare` entry that exists *in addition to* the plugin's, often flagged as "defined in multiple scopes" by `claude mcp list`. Only this one should be offered for removal, with `claude mcp remove ayrshare` (add `--scope user` or `--scope local` to match where it lives).
+   - **Never remove an `ayrshare` server whose URL is the docs endpoint** (`https://www.ayrshare.com/docs/mcp`). That is the separate Ayrshare documentation MCP, not a duplicate; leave it untouched.
+   - If the only `ayrshare`-related server is the plugin's own (`plugin:ayrshare:ayrshare`), there is nothing to clean up; do not prompt for removal.
 
-   If **yes**, set BOTH `env.X_TWITTER_OAUTH1_API_KEY` and `env.X_TWITTER_OAUTH1_API_SECRET`
-   alongside `env.AYRSHARE_API_KEY` in the same file and scope. Set **both or neither**: with only
-   one set an X call fails with `400`, with neither an X call fails with `419` (non-X networks are
-   unaffected either way). If **no**, write nothing: the bundled `${X_TWITTER_OAUTH1_API_KEY:-}` /
-   `${X_TWITTER_OAUTH1_API_SECRET:-}` headers go out empty and the server ignores them.
-
-   This pair is **account-level** and rides on **every** X-targeting request alongside the API key,
-   independent of whether a Profile-Key is set. (If a Profile-Key is set, the X call acts on that
-   profile's linked X account, but it still uses this same account-level app credential pair.)
-
-6. **Offer to clean up a stale duplicate server.** Older versions of this command
-   created a separate `ayrshare` MCP server (via `claude mcp add`) with the key in a
-   header. That extra server shadows or collides with the plugin and should be removed.
-   Run `claude mcp list` and identify it carefully:
-   - The **plugin's own** server is the one to keep. The plugin provides it from the
-     bundled `.mcp.json`, and Claude Code lists it namespaced as
-     `plugin:ayrshare:ayrshare` (URL `https://api.ayrshare.com/mcp`). **Never remove this one.**
-   - A **stale duplicate** is a *separately added* server listed as plain `ayrshare`
-     (no `plugin:` prefix) at `https://api.ayrshare.com/mcp`, i.e. an `ayrshare`
-     entry that exists *in addition to* the plugin's, often flagged as "defined in
-     multiple scopes" by `claude mcp list`. Only this one should be offered for removal,
-     with `claude mcp remove ayrshare` (add `--scope user` or `--scope local` to match where it lives).
-   - **Never remove an `ayrshare` server whose URL is the docs endpoint**
-     (`https://www.ayrshare.com/docs/mcp`). That is the separate Ayrshare documentation
-     MCP, not a duplicate; leave it untouched.
-   - If the only `ayrshare`-related server is the plugin's own (`plugin:ayrshare:ayrshare`),
-     there is nothing to clean up; do not prompt for removal.
-
-7. **Tell the user to restart, and how to use it afterward.**
-   - "Setup complete. **Restart Claude Code** to activate the connection. The MCP server is initialized at session start, so the key won't be active until you restart."
+6. **Tell the user to restart, and how to use it afterward.**
+   - "Setup complete. **Restart Claude Code** to activate the connection. The MCP server is initialized at session start, so your credentials won't be active until you restart."
    - Then set expectations on invocation: after restart, the tools are used by **asking in plain English** (e.g. "show my recent Instagram posts", "post this to LinkedIn"), not by typing a slash command. `/ayrshare:setup` is the **only** slash command; the other tools fire on intent (the trigger-skills route them), so `/ayrshare:get_post_history` and similar will read as "unknown command."
 
 ## Notes
-- One mechanism, one variable: every scope sets `AYRSHARE_API_KEY`, which is exactly what the plugin's bundled server reads. No duplicate servers.
-- **Optional credential variables (same `env` block, all empty by default).** The plugin's `.mcp.json` also interpolates three optional variables you set the same way (`settings.json` `env`, or your OS env):
-  - `AYRSHARE_PROFILE_KEY`: act as a specific client profile by default (instead of passing `profileKey` per call).
-  - `X_TWITTER_OAUTH1_API_KEY` and `X_TWITTER_OAUTH1_API_SECRET`: your X/Twitter app's OAuth 1.0a consumer key and secret, required to post to X under the BYO-key mandate.
-
-  Each uses `${VAR:-}`, so when you leave it unset the header is sent empty and the server treats it as not provided (no effect, no error). Set it to turn the feature on. Restart Claude Code after changing any of them.
-- To rotate the key, run `/ayrshare:setup` again and pick the same scope; it overwrites the variable in place.
+- One mechanism: every path sets the same env vars (`AYRSHARE_API_KEY` required; `AYRSHARE_PROFILE_KEY`, `X_TWITTER_OAUTH1_API_KEY`, `X_TWITTER_OAUTH1_API_SECRET` optional), which is exactly what the plugin's bundled `.mcp.json` reads. No duplicate servers.
+- The optional vars use `${VAR:-}` in the bundled config, so leaving one unset sends an empty header that the server treats as not provided (no effect, no error). Set it to turn the feature on.
+- To rotate any credential, run `/ayrshare:setup` again and pick the same destination (it overwrites in place), or edit the settings file directly. Restart after any change.
 - Do NOT verify by calling any MCP tool after setup. The connection loads at session start and will return 401/403 in the same session where the key was written. Restart first.
