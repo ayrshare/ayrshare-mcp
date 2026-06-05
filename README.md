@@ -238,7 +238,7 @@ Trigger-based skills activate automatically on intent (even when you don't name 
 | `media` | `validate_media` | Checking a media URL is reachable before posting (media is referenced by URL; there is no upload/library/resize tool). |
 | `generate` | `generate_post`, `recommend_hashtags` | Drafting AI post copy (never publishes) or suggesting hashtags for a keyword (TikTok-sourced; uses the targeted profile's linked TikTok account). |
 | `webhooks` | `register_webhook`, `unregister_webhook`, `list_webhooks` | Subscribing to push notifications (e.g. when a scheduled post publishes) instead of polling. |
-| `errors` | `explain_error` | Decoding an Ayrshare `Error <code>` into a plain-English cause + fix. |
+| `errors` | `explain_error` | Decoding an Ayrshare error code into a plain-English cause + fix. |
 | `draft-in-brand-voice` | (workflow: `get_platform_history`/`get_post_history` → `get_post_analytics` → `generate_post` → `validate_post`) | Writing on-brand content by matching a profile's established voice from its post history; drafts only. |
 | `plan-and-schedule-campaign` | (workflow: `validate_post` → `create_post` per post, with `scheduleDate`) | Planning and scheduling a multi-post, multi-platform campaign or content calendar, validating each post first. |
 

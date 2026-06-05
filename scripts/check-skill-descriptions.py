@@ -20,28 +20,32 @@ MAX_LEN = 1024
 
 
 def extract_description(text):
-    """Return the logical description string from a SKILL.md, or None."""
+    """Return the description string, or None if the field is absent. An empty or
+    blank description returns '' so the caller can flag it (the field is required)."""
     fm_match = re.match(r"^---\n(.*?)\n---", text, re.S)
     if not fm_match:
         return None
     frontmatter = fm_match.group(1)
 
-    # Block scalar form:  description: |   (or >)   followed by indented lines.
-    block = re.search(
-        r"^description:[ \t]*[|>][-+0-9]*[ \t]*\n((?:[ \t].*\n?)*)",
-        frontmatter,
-        re.M,
-    )
-    if block and block.group(1).strip():
-        lines = [ln.strip() for ln in block.group(1).splitlines()]
-        return " ".join(ln for ln in lines if ln)
+    dline = re.search(r"^description:[ \t]*(.*)$", frontmatter, re.M)
+    if not dline:
+        return None
+    marker = dline.group(1).strip()
 
-    # Inline form:  description: some text   (optionally quoted).
-    inline = re.search(r"^description:[ \t]*(.+)$", frontmatter, re.M)
-    if inline:
-        return inline.group(1).strip().strip("\"'")
+    # Block scalar form: `description: |` (or `>`) followed by indented lines.
+    if marker[:1] in ("|", ">"):
+        collected = []
+        for line in frontmatter[dline.end():].splitlines():
+            if line.strip() == "":
+                continue
+            if line[:1] in (" ", "\t"):
+                collected.append(line.strip())
+            else:
+                break  # a dedented line ends the block scalar
+        return " ".join(collected)
 
-    return None
+    # Inline form: `description: some text` (optionally quoted).
+    return marker.strip("\"'")
 
 
 def main():
@@ -57,7 +61,10 @@ def main():
         with open(path, encoding="utf-8") as fh:
             desc = extract_description(fh.read())
         if desc is None:
-            failures.append(f"{rel}: no frontmatter 'description' found")
+            failures.append(f"{rel}: no frontmatter 'description' field")
+            continue
+        if not desc.strip():
+            failures.append(f"{rel}: 'description' is empty")
             continue
         length = len(desc)
         if length > MAX_LEN:
