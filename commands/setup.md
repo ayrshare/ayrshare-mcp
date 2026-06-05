@@ -8,6 +8,8 @@ The plugin's bundled MCP server reads its credentials from environment variables
 
 Only `AYRSHARE_API_KEY` is required. Profile-Key and X BYOK are optional.
 
+**Surface note:** this command configures **Claude Code** (CLI and IDE) only. The claude.ai desktop app and **Cowork** read plugin credentials from admin-managed config, not from `settings.json`, so a key set here does **not** carry over to them. If the user also uses Cowork, point them to the "Setting your key in Cowork" section in the README.
+
 ## Steps
 
 1. **Ask how the user wants to provide secrets.** Do this first, before asking for any key:
@@ -19,7 +21,7 @@ Only `AYRSHARE_API_KEY` is required. Profile-Key and X BYOK are optional.
    If the user already passed a key as an argument, treat that as "paste here."
 
 2. **If "I'll add them myself":** ask where they want the credentials, give the matching fill-in instructions, write nothing, and skip to step 5.
-   - **Global** (all projects and sessions) is `~/.claude/settings.json` (their home directory; `%USERPROFILE%\.claude\settings.json` on Windows). **This project** is `./.claude/settings.local.json` (kept out of git; have them gitignore it, since a `*.local` pattern does not match `settings.local.json`). For either, give them this `env` block to merge in, preserving any keys already present:
+   - **Claude Code, all projects** is `~/.claude/settings.json` (their home directory; `%USERPROFILE%\.claude\settings.json` on Windows). This covers every Claude Code project and session on the machine, but not the claude.ai desktop app or Cowork. **This project** is `./.claude/settings.local.json` (kept out of git; have them gitignore it, since a `*.local` pattern does not match `settings.local.json`). For either, give them this `env` block to merge in, preserving any keys already present:
      ```json
      {
        "env": {
@@ -36,7 +38,7 @@ Only `AYRSHARE_API_KEY` is required. Profile-Key and X BYOK are optional.
    Tell them: only `AYRSHARE_API_KEY` is required; delete the optional lines they don't need; the X pair is both or neither; save, then restart. The `settings.json` route is the more portable one (Claude Code reads it identically on every OS and however it is launched, not only from the shell that set it).
 
 3. **If "paste here": write the API key.** First ask the scope:
-   - **Global (default):** `~/.claude/settings.json` (home directory; `%USERPROFILE%\.claude\settings.json` on Windows).
+   - **Claude Code, all projects (default):** `~/.claude/settings.json` (home directory; `%USERPROFILE%\.claude\settings.json` on Windows). Covers all Claude Code projects and sessions, not the desktop app or Cowork.
    - **This project:** `./.claude/settings.local.json`, kept out of git. Have them add `.claude/settings.local.json` to `.gitignore` and confirm `git status` does not list it (a `*.local` pattern does not match `settings.local.json`, which ends in `.json`). Use the committed `./.claude/settings.json` only to deliberately share one key with a team.
 
    Then ask them to paste the key (from https://app.ayrshare.com, Settings then API Key). Read the chosen file if it exists, parse it as JSON, set `env.AYRSHARE_API_KEY`, and write it back preserving every other field (create the file and its directory if missing). Result: `{ "env": { "AYRSHARE_API_KEY": "THE_KEY" } }`, with other keys intact.

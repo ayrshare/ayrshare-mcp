@@ -159,6 +159,59 @@ The plugin's `.mcp.json` uses `${AYRSHARE_API_KEY}` — Claude Code substitutes 
 
 ---
 
+## Credentials by surface
+
+Install the plugin once; then there is **one credential step per surface**. The plugin always reads the same four variables (`AYRSHARE_API_KEY` is required; `AYRSHARE_PROFILE_KEY`, `X_TWITTER_OAUTH1_API_KEY`, and `X_TWITTER_OAUTH1_API_SECRET` are optional), but *where* you put them depends on the surface, because credential resolution differs:
+
+| Surface | How credentials are supplied | Profile-Key | X BYOK |
+|---|---|---|---|
+| **Claude Code** (CLI / IDE) | `settings.json` `env` block via `/ayrshare:setup` (or set the vars yourself); a shell `export` before launch also works | `AYRSHARE_PROFILE_KEY` env, or per-call `profileKey` argument | `X_TWITTER_OAUTH1_API_KEY` + `X_TWITTER_OAUTH1_API_SECRET` env |
+| **Cowork / claude.ai desktop app** | admin-managed `managedMcpServers` config with **literal** header values (see "Setting your key in Cowork"); `settings.json` `env` is **not** read here | `Profile-Key` header (literal) in that config | the two `X-Twitter-OAuth1-*` headers (literal) in that config |
+| **CI / headless** | OS environment variables set before launch | `AYRSHARE_PROFILE_KEY` env | the two env vars |
+
+A key set for Claude Code does **not** carry over to Cowork, and vice versa: `${VAR}` interpolation is a Claude Code feature, and Cowork needs literal values supplied through managed settings. So the "Claude Code, all projects" option in `/ayrshare:setup` means all Claude Code projects, not all Claude surfaces.
+
+## Setting your key in Cowork
+
+> **Status: documented, not yet verified by us.** This is the admin-managed path Cowork's configuration implies; an end-to-end verification on our side is in progress. If calls still fail after this, the credentials are not reaching the server (see the symptom table) and we will revise this section.
+
+Cowork and the claude.ai desktop app do **not** read `~/.claude/settings.json` `env`, and they do **not** expand `${VAR}`. An org admin supplies the plugin's credentials as **literal** header values in managed settings:
+
+1. As an admin, edit (or create) the managed settings file:
+   - **macOS:** `/Library/Application Support/ClaudeCode/managed-settings.json`
+   - **Windows:** `C:\ProgramData\ClaudeCode\managed-settings.json`
+   - **Linux:** `/etc/claude-code/managed-settings.json`
+2. Add a `managedMcpServers` entry for `ayrshare` using the same headers the plugin's `.mcp.json` uses, but with **literal values** (no `${VAR}`):
+   ```json
+   {
+     "managedMcpServers": {
+       "ayrshare": {
+         "type": "http",
+         "url": "https://api.ayrshare.com/mcp",
+         "headers": {
+           "Authorization": "Bearer YOUR_AYRSHARE_API_KEY",
+           "Profile-Key": "YOUR_PROFILE_KEY",
+           "X-Twitter-OAuth1-Api-Key": "YOUR_X_CONSUMER_KEY",
+           "X-Twitter-OAuth1-Api-Secret": "YOUR_X_CONSUMER_SECRET"
+         }
+       }
+     }
+   }
+   ```
+   Only `Authorization` is required. **Omit** the `Profile-Key` and X lines you do not use (do not leave placeholders or empty strings). X BYOK uses the same two headers here as on every other surface.
+3. **Restart the app** and start a **new session**; managed settings load at startup.
+
+Symptom table:
+
+| What you see | Likely cause |
+|---|---|
+| Tools listed, but every call returns `403 / code 102` | `Authorization` missing or wrong; credentials are not reaching the server |
+| X/Twitter calls return `419` | No X BYOK headers; add both `X-Twitter-OAuth1-*` |
+| X/Twitter calls return `400` | Only one of the two X BYOK headers is set |
+| Calls act on the wrong or primary profile | `Profile-Key` not set, or set to the wrong value |
+
+---
+
 ## Commands
 
 | Command | Description |
@@ -217,6 +270,12 @@ These are the only X BYO headers Ayrshare uses: one key pair per Ayrshare accoun
 ## Supported Platforms
 
 Facebook, Instagram, LinkedIn, X (Twitter), TikTok, YouTube, Pinterest, Reddit, Telegram, Threads, Bluesky, Snapchat, and Google Business Profile — depending on your Ayrshare plan and connected profiles.
+
+---
+
+## Roadmap
+
+- **Zero-config per-user auth (MCP OAuth 2.1).** We plan to add MCP-spec OAuth 2.1 (PKCE, dynamic client registration, authorization-server metadata) to `api.ayrshare.com/mcp`. Once shipped, an org-installed plugin authenticates per user on the first tool call ("Connect to Ayrshare", a dashboard login, a per-user token) on **every** surface, with no manual key step. Claude Code already supports this flow via `/mcp` authenticate, so setup collapses to "install, then click Connect" everywhere. Until then, the per-surface credential steps above (including the Cowork managed-settings route) are the supported path, and env-var / header credentials remain available for CI and power users.
 
 ---
 
