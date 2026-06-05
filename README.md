@@ -206,7 +206,7 @@ To make a whole connection default to one client, add a `Profile-Key` header alo
 }
 ```
 
-Then set `AYRSHARE_PROFILE_KEY` and restart. With no header set, calls act on the account's primary profile. To act as a client for a single call instead, pass `profileKey` as a tool argument on a profile-scoped call (it takes precedence over the header, no restart needed). The `generate_jwt_social_linking_url` tool uses the same target-profile value (required for that tool, via either input). You do not pass a private key or domain — the server derives them from your authenticated account — but the account must still have a **provisioned social-linking domain (Business/Enterprise)**; without one the call returns a "no social-linking domain provisioned" error.
+Then set `AYRSHARE_PROFILE_KEY` and restart. With no header set, calls act on the account's primary profile. To act as a client for a single call instead, pass `profileKey` as a tool argument on a profile-scoped call (it takes precedence over the header, no restart needed). The `generate_jwt_social_linking_url` tool uses the same target-profile value (required for that tool, via either input). You do not pass a private key or domain (the server derives them from your authenticated account), but the account must still have a **provisioned social-linking domain (Business/Enterprise)**; without one the call returns a "No social-linking domain is provisioned for this account" error.
 
 ### Bring-your-own X/Twitter app (BYOK)
 
