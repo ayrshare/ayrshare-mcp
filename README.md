@@ -120,7 +120,7 @@ claude plugin marketplace add ayrshare/ayrshare-social-media-api-claude-plugin
 # 2. Install scoped to the project (committed to git)
 claude plugin install ayrshare@ayrshare --scope project
 
-# 3. Configure your API key (sets your key in ./.claude/settings.local.json, gitignored)
+# 3. Configure your API key (sets your key in ./.claude/settings.local.json; gitignore that path)
 # Run inside Claude Code:
 /ayrshare:setup   # choose "This project" when asked
 ```
