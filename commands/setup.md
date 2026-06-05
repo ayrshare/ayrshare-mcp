@@ -37,7 +37,7 @@ Only `AYRSHARE_API_KEY` is required. Profile-Key and X BYOK are optional.
 
 3. **If "paste here": write the API key.** First ask the scope:
    - **Global (default):** `~/.claude/settings.json` (home directory; `%USERPROFILE%\.claude\settings.json` on Windows).
-   - **This project:** `./.claude/settings.local.json`, kept out of git. Have them add `.claude/settings.local.json` to `.gitignore` and confirm `git status` does not list it (a `*.local` pattern does not match `*.local.json`). Use the committed `./.claude/settings.json` only to deliberately share one key with a team.
+   - **This project:** `./.claude/settings.local.json`, kept out of git. Have them add `.claude/settings.local.json` to `.gitignore` and confirm `git status` does not list it (a `*.local` pattern does not match `settings.local.json`, which ends in `.json`). Use the committed `./.claude/settings.json` only to deliberately share one key with a team.
 
    Then ask them to paste the key (from https://app.ayrshare.com, Settings then API Key). Read the chosen file if it exists, parse it as JSON, set `env.AYRSHARE_API_KEY`, and write it back preserving every other field (create the file and its directory if missing). Result: `{ "env": { "AYRSHARE_API_KEY": "THE_KEY" } }`, with other keys intact.
 
