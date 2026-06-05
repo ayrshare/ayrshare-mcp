@@ -2,6 +2,15 @@
 
 The unified social media API for AI agents. Publish, schedule, and analyze across 13+ networks directly from Claude Code, with post history for brand voice and validation against each platform's rules before every post. Powered by the [Ayrshare](https://www.ayrshare.com) API.
 
+## Install
+
+```bash
+claude plugin marketplace add ayrshare/ayrshare-social-media-api-claude-plugin
+claude plugin install ayrshare@ayrshare
+```
+
+Then run `/ayrshare:setup` to add your API key and **restart Claude Code**. Scopes and other install paths are under [Installation](#installation) below.
+
 ## Overview
 
 The plugin lets an agent run the full social workflow without leaving Claude Code. Before publishing, the agent validates each post against the target network's rules and asks you to confirm, so avoidable rejections are caught before anything goes live. A single request publishes to Facebook, Instagram, LinkedIn, X, TikTok, YouTube, Pinterest, Reddit, Telegram, Threads, Bluesky, and others. Post history is available for matching a brand's voice, and analytics can be read back to inform the next post. Platform integrations are maintained by Ayrshare, so upstream API changes are handled outside your code. The API currently handles 25M+ calls per day.
@@ -32,7 +41,7 @@ By default the plugin validates a post and requests confirmation before publishi
 ## Prerequisites
 
 - [Claude Code](https://claude.ai/code) installed
-- An Ayrshare account with an API key — get one at [app.ayrshare.com](https://app.ayrshare.com) under **Settings → API Key** or get a [28 day free trial here](https://billing.ayrshare.com/b/9B6bJ15Oidr9fz615u1Nu0h?utm_source=(github))
+- An Ayrshare account with an API key — get one at [app.ayrshare.com](https://app.ayrshare.com) under **Settings → API Key** or get a [28 day free trial here](https://billing.ayrshare.com/b/9B6bJ15Oidr9fz615u1Nu0h?utm_source=github)
 
 ---
 
@@ -172,7 +181,7 @@ Trigger-based skills activate automatically on intent (even when you don't name 
 | `messages` | `get_messages`, `send_message`, `get_auto_response`, `set_auto_response` | Reading/sending direct messages (Facebook, Instagram, X) or configuring the DM auto-responder. |
 | `profiles` | `list_profiles`, `create_profile`, `generate_jwt_social_linking_url` | Creating or listing client profiles (account-level), or minting a client's social-account linking URL for the target profile (set by the `profileKey` argument or `Profile-Key` header; Business/Enterprise plan). |
 | `media` | `validate_media` | Checking a media URL is reachable before posting (media is referenced by URL; there is no upload/library/resize tool). |
-| `generate` | `generate_post`, `recommend_hashtags` | Drafting AI post copy (never publishes) or suggesting hashtags for a keyword. |
+| `generate` | `generate_post`, `recommend_hashtags` | Drafting AI post copy (never publishes) or suggesting hashtags for a keyword (TikTok-sourced; uses the targeted profile's linked TikTok account). |
 | `webhooks` | `register_webhook`, `unregister_webhook`, `list_webhooks` | Subscribing to push notifications (e.g. when a scheduled post publishes) instead of polling. |
 | `errors` | `explain_error` | Decoding an Ayrshare `Error <code>` into a plain-English cause + fix. |
 | `draft-in-brand-voice` | (workflow: `get_platform_history`/`get_post_history` → `get_post_analytics` → `generate_post` → `validate_post`) | Writing on-brand content by matching a profile's established voice from its post history; drafts only. |
@@ -197,7 +206,7 @@ To make a whole connection default to one client, add a `Profile-Key` header alo
 }
 ```
 
-Then set `AYRSHARE_PROFILE_KEY` and restart. With no header set, calls act on the account's primary profile. To act as a client for a single call instead, pass `profileKey` as a tool argument on a profile-scoped call (it takes precedence over the header, no restart needed). The `generate_jwt_social_linking_url` tool uses the same target-profile value (required for that tool, via either input) and needs no private key or domain; the server derives those from your authenticated account.
+Then set `AYRSHARE_PROFILE_KEY` and restart. With no header set, calls act on the account's primary profile. To act as a client for a single call instead, pass `profileKey` as a tool argument on a profile-scoped call (it takes precedence over the header, no restart needed). The `generate_jwt_social_linking_url` tool uses the same target-profile value (required for that tool, via either input). You do not pass a private key or domain (the server derives them from your authenticated account), but the account must still have a **provisioned social-linking domain (Business/Enterprise)**; without one the call returns a "No social-linking domain is provisioned for this account" error.
 
 ### Bring-your-own X/Twitter app (BYOK)
 

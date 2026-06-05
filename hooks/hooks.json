@@ -2,11 +2,11 @@
   "hooks": {
     "PreToolUse": [
       {
-        "matcher": "mcp__ayrshare__create_post|mcp__ayrshare__update_post|mcp__ayrshare__retry_post|mcp__ayrshare__add_comment|mcp__ayrshare__reply_comment|mcp__ayrshare__send_message|mcp__ayrshare__set_auto_response",
+        "matcher": "mcp__ayrshare__create_post|mcp__ayrshare__update_post|mcp__ayrshare__retry_post|mcp__ayrshare__add_comment|mcp__ayrshare__reply_comment|mcp__ayrshare__send_message|mcp__ayrshare__set_auto_response|mcp__ayrshare__create_profile",
         "hooks": [
           {
             "type": "command",
-            "command": "printf '%s' '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"ask\",\"permissionDecisionReason\":\"This Ayrshare action publishes or sends content to live social accounts (including enabling the DM auto-responder, which auto-replies to real users). Confirm the content, target platform(s)/profile, and timing with the user before approving.\"}}'"
+            "command": "printf '%s' '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"ask\",\"permissionDecisionReason\":\"This Ayrshare action has a live side effect: it publishes or sends content to real social accounts (including enabling the DM auto-responder), or it creates a client profile (which consumes profile quota and cannot be deleted via MCP). Confirm the details with the user before approving.\"}}'"
           }
         ]
       }
