@@ -32,9 +32,16 @@ After installing, configure your API key inside Claude Code:
 /ayrshare:setup
 ```
 
-`/ayrshare:setup` asks for your key and where to store it — choose the option that matches your install scope:
-- **Global** → key stored in `~/.claude/`.
-- **This project** (`--scope local` or `--scope project`) → key written to `.mcp.json` in the project root. Add `.mcp.json` to `.gitignore` so the key is never committed.
+`/ayrshare:setup` asks for your key and one scope, defaulting to Global. It sets the
+`AYRSHARE_API_KEY` environment variable in a `settings.json` (the same variable the
+plugin's bundled `.mcp.json` reads), so the plugin's own server picks it up:
+- **Global** (default) → `env.AYRSHARE_API_KEY` in `~/.claude/settings.json`. Every project, every session.
+- **This project** → `env.AYRSHARE_API_KEY` in `./.claude/settings.json` (use `.claude/settings.local.json` if you do not want it committed).
+- **I'll set it myself (CI / advanced)** → prints instructions, writes nothing (see Option 3).
+
+The command does not run `claude mcp add`; a separate server is unnecessary and is the
+common cause of a `403 / code 102` after setup. If an old duplicate `ayrshare` server
+exists, the command offers to remove it (and never touches the docs MCP).
 
 Then **restart Claude Code**. The MCP connection is initialized at session start, so the key won't be active until you restart.
 
@@ -65,6 +72,8 @@ claude plugin install ayrshare@ayrshare
 ```
 
 The plugin's `.mcp.json` uses `${AYRSHARE_API_KEY}` — Claude Code substitutes it at startup. No `/ayrshare:setup` needed.
+
+This is the same variable `/ayrshare:setup` sets; the command just writes it into a `settings.json` `env` block for you instead of a shell profile. `settings.json` `env` is read by Claude Code regardless of how it is launched (terminal or desktop app), whereas a shell `export` only reaches sessions started from that shell.
 
 ## Optional configuration
 

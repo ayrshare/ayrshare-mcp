@@ -84,12 +84,12 @@ claude plugin marketplace add ayrshare/ayrshare-social-media-api-claude-plugin
 # 2. Install the plugin globally (user is the default scope)
 claude plugin install ayrshare@ayrshare
 
-# 3. Configure your API key (stored in ~/.claude/)
+# 3. Configure your API key (sets AYRSHARE_API_KEY in ~/.claude/settings.json)
 # Run inside Claude Code:
-/ayrshare:setup   # choose "Global" when asked
+/ayrshare:setup   # accept the default "Global" when asked
 ```
 
-Commands, agents, and skills are available in every project. The key is stored in `~/.claude/` — no project files are modified.
+Commands, agents, and skills are available in every project. The key is stored as `AYRSHARE_API_KEY` in `~/.claude/settings.json`, which is exactly what the plugin's MCP server reads. No project files are modified.
 
 ---
 
@@ -102,12 +102,12 @@ claude plugin marketplace add ayrshare/ayrshare-social-media-api-claude-plugin
 # 2. Install scoped to the current project (not committed to git)
 claude plugin install ayrshare@ayrshare --scope local
 
-# 3. Configure your API key (stored in .mcp.json in the project directory)
+# 3. Configure your API key (sets AYRSHARE_API_KEY in ./.claude/settings.json)
 # Run inside Claude Code:
 /ayrshare:setup   # choose "This project" when asked
 ```
 
-Commands, agents, and skills only appear in this project. The key is written to `.mcp.json` in the project root. Add `.mcp.json` to `.gitignore` to keep the key out of version control.
+Commands, agents, and skills only appear in this project. The key is written as `AYRSHARE_API_KEY` to `./.claude/settings.json`. If you do not want it committed, use `./.claude/settings.local.json` (same `env` shape) and keep it gitignored.
 
 ---
 
@@ -120,12 +120,12 @@ claude plugin marketplace add ayrshare/ayrshare-social-media-api-claude-plugin
 # 2. Install scoped to the project (committed to git)
 claude plugin install ayrshare@ayrshare --scope project
 
-# 3. Configure your API key (stored in .mcp.json in the project directory)
+# 3. Configure your API key (sets AYRSHARE_API_KEY in ./.claude/settings.json)
 # Run inside Claude Code:
 /ayrshare:setup   # choose "This project" when asked
 ```
 
-The plugin is committed to the repo so the whole team gets it automatically. Each developer runs `/ayrshare:setup` individually to configure their own API key. Add `.mcp.json` to `.gitignore` so keys are never committed.
+The plugin is committed to the repo so the whole team gets it automatically. Each developer runs `/ayrshare:setup` individually to configure their own API key. Each developer's key should go in `./.claude/settings.local.json` (gitignored) so keys are never committed.
 
 ---
 
@@ -193,7 +193,7 @@ The last two are multi-step **workflow** skills: they orchestrate the tools abov
 
 ## Optional Configuration
 
-The API key is configured as a **connection header** on the `ayrshare` server in `.mcp.json` (or via `claude mcp add --header`). Profile scoping has two equivalent inputs: a `Profile-Key` connection header (the default for every call) **or** an optional `profileKey` tool argument on a profile-scoped tool call (the argument wins when both are set; a few utility/AI tools such as `generate_post` and `recommend_hashtags` are excluded, see `getting-started`). The per-call argument lets an agent act as a client it learns at runtime without editing `.mcp.json` or restarting.
+The API key is supplied through the `AYRSHARE_API_KEY` environment variable, which the `ayrshare` server's `.mcp.json` interpolates into its `Authorization` header (`Bearer ${AYRSHARE_API_KEY}`). `/ayrshare:setup` sets that variable for you in a `settings.json` `env` block. Profile scoping has two equivalent inputs: a `Profile-Key` connection header (the default for every call) **or** an optional `profileKey` tool argument on a profile-scoped tool call (the argument wins when both are set; a few utility/AI tools such as `generate_post` and `recommend_hashtags` are excluded, see `getting-started`). The per-call argument lets an agent act as a client it learns at runtime without editing `.mcp.json` or restarting.
 
 ### Act as a specific client profile (`Profile-Key` header or `profileKey` argument)
 
