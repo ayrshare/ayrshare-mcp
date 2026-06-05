@@ -11,6 +11,8 @@ claude plugin install ayrshare@ayrshare
 
 Then run `/ayrshare:setup` to add your API key and **restart Claude Code**. Scopes and other install paths are under [Installation](#installation) below.
 
+After restarting, use the plugin by **asking in plain English** (e.g. "show my recent Instagram posts", "post this to LinkedIn tomorrow at 9am"); the tools fire on intent, and the trigger-skills route them. `/ayrshare:setup` is the only slash command, so there is no `/ayrshare:post` or `/ayrshare:get_post_history` to type.
+
 ## Overview
 
 The plugin lets an agent run the full social workflow without leaving Claude Code. Before publishing, the agent validates each post against the target network's rules and asks you to confirm, so avoidable rejections are caught before anything goes live. A single request publishes to Facebook, Instagram, LinkedIn, X, TikTok, YouTube, Pinterest, Reddit, Telegram, Threads, Bluesky, and others. Post history is available for matching a brand's voice, and analytics can be read back to inform the next post. Platform integrations are maintained by Ayrshare, so upstream API changes are handled outside your code. The API currently handles 25M+ calls per day.
