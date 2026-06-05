@@ -107,7 +107,7 @@ claude plugin install ayrshare@ayrshare --scope local
 /ayrshare:setup   # choose "This project" when asked
 ```
 
-Commands, agents, and skills only appear in this project. The key is written as `AYRSHARE_API_KEY` to `./.claude/settings.json`. If you do not want it committed, use `./.claude/settings.local.json` (same `env` shape) and keep it gitignored.
+Commands, agents, and skills only appear in this project. The key is written as `AYRSHARE_API_KEY` to `./.claude/settings.json`. If you do not want it committed, use `./.claude/settings.local.json` (same `env` shape) and add that path to `.gitignore` yourself: a default `*.local` pattern does **not** match `settings.local.json`, so confirm `git status` does not list the file before committing.
 
 ---
 
@@ -125,7 +125,7 @@ claude plugin install ayrshare@ayrshare --scope project
 /ayrshare:setup   # choose "This project" when asked
 ```
 
-The plugin is committed to the repo so the whole team gets it automatically. Each developer runs `/ayrshare:setup` individually to configure their own API key. Each developer's key should go in `./.claude/settings.local.json` (gitignored) so keys are never committed.
+The plugin is committed to the repo so the whole team gets it automatically. Each developer runs `/ayrshare:setup` individually to configure their own API key. Each developer's key should go in `./.claude/settings.local.json`, and that path should be added to `.gitignore` (a default `*.local` pattern does **not** match `settings.local.json`) so keys are never committed.
 
 ---
 

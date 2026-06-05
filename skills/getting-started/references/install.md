@@ -36,12 +36,15 @@ After installing, configure your API key inside Claude Code:
 `AYRSHARE_API_KEY` environment variable in a `settings.json` (the same variable the
 plugin's bundled `.mcp.json` reads), so the plugin's own server picks it up:
 - **Global** (default) → `env.AYRSHARE_API_KEY` in `~/.claude/settings.json`. Every project, every session.
-- **This project** → `env.AYRSHARE_API_KEY` in `./.claude/settings.json` (use `.claude/settings.local.json` if you do not want it committed).
+- **This project** → `env.AYRSHARE_API_KEY` in `./.claude/settings.json`. To keep the key out of git, use `.claude/settings.local.json` and add that path to your `.gitignore` (a default `*.local` pattern does **not** match `settings.local.json`).
 - **I'll set it myself (CI / advanced)** → prints instructions, writes nothing (see Option 3).
 
 The command does not run `claude mcp add`; a separate server is unnecessary and is the
-common cause of a `403 / code 102` after setup. If an old duplicate `ayrshare` server
-exists, the command offers to remove it (and never touches the docs MCP).
+common cause of a `403 / code 102` after setup. The plugin already provides its own
+server (listed as `plugin:ayrshare:ayrshare`); a "duplicate" is an *extra*, separately
+added `ayrshare` server at the same api URL (typically from a past `claude mcp add`,
+shown as `ayrshare` defined in multiple scopes). The command offers to remove only that
+extra server, never the plugin's own and never the docs MCP.
 
 Then **restart Claude Code**. The MCP connection is initialized at session start, so the key won't be active until you restart.
 

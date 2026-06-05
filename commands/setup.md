@@ -32,8 +32,11 @@ classic cause of a `403 / code 102` after setup.
 
    **This project:** target `./.claude/settings.json` (the current working directory).
    Remind the user that `.claude/settings.json` is normally committed; if they do not
-   want the key in git, use `.claude/settings.local.json` instead (same `env` shape)
-   and ensure it is gitignored.
+   want the key in git, use `.claude/settings.local.json` instead (same `env` shape).
+   A default `.gitignore` does **not** ignore `settings.local.json` (a `*.local`
+   pattern does not match `*.local.json`), so explicitly tell the user to add
+   `.claude/settings.local.json` to their `.gitignore` and confirm `git status` does
+   not list it before committing.
 
    The resulting file should look like (other keys preserved):
    ```json
@@ -51,14 +54,22 @@ classic cause of a `403 / code 102` after setup.
    and note the plugin's `.mcp.json` substitutes `${AYRSHARE_API_KEY}` at session start.
 
 4. **Offer to clean up a stale duplicate server.** Older versions of this command
-   created a separate `ayrshare` MCP server with the key in a header. If one exists it
-   shadows or collides with the plugin and should be removed. Run `claude mcp list` and
-   look for a server named `ayrshare` whose URL is `https://api.ayrshare.com/mcp`.
-   - If found, tell the user it is a leftover duplicate and offer to remove it with
-     `claude mcp remove ayrshare` (add `--scope user` or `--scope local` to match where it lives).
+   created a separate `ayrshare` MCP server (via `claude mcp add`) with the key in a
+   header. That extra server shadows or collides with the plugin and should be removed.
+   Run `claude mcp list` and identify it carefully:
+   - The **plugin's own** server is the one to keep. The plugin provides it from the
+     bundled `.mcp.json`, and Claude Code lists it namespaced as
+     `plugin:ayrshare:ayrshare` (URL `https://api.ayrshare.com/mcp`). **Never remove this one.**
+   - A **stale duplicate** is a *separately added* server listed as plain `ayrshare`
+     (no `plugin:` prefix) at `https://api.ayrshare.com/mcp` — i.e. an `ayrshare`
+     entry that exists *in addition to* the plugin's, often flagged as "defined in
+     multiple scopes" by `claude mcp list`. Only this one should be offered for removal,
+     with `claude mcp remove ayrshare` (add `--scope user` or `--scope local` to match where it lives).
    - **Never remove an `ayrshare` server whose URL is the docs endpoint**
      (`https://www.ayrshare.com/docs/mcp`). That is the separate Ayrshare documentation
      MCP, not a duplicate; leave it untouched.
+   - If the only `ayrshare`-related server is the plugin's own (`plugin:ayrshare:ayrshare`),
+     there is nothing to clean up; do not prompt for removal.
 
 5. **Tell the user to restart.**
    - "Setup complete. **Restart Claude Code** to activate the connection. The MCP server is initialized at session start, so the key won't be active until you restart."
