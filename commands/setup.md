@@ -23,13 +23,14 @@ Only `AYRSHARE_API_KEY` is required. Profile-Key and X BYOK are optional.
      ```json
      {
        "env": {
-         "AYRSHARE_API_KEY": "<required: your key from app.ayrshare.com, Settings then API Key>",
          "AYRSHARE_PROFILE_KEY": "<optional: a default client profile; delete this line for your primary profile>",
          "X_TWITTER_OAUTH1_API_KEY": "<optional: your X app Consumer Key; delete if you don't post to X>",
-         "X_TWITTER_OAUTH1_API_SECRET": "<optional: your X app Consumer Secret; delete if you don't post to X>"
+         "X_TWITTER_OAUTH1_API_SECRET": "<optional: your X app Consumer Secret; delete if you don't post to X>",
+         "AYRSHARE_API_KEY": "<required: your key from app.ayrshare.com, Settings then API Key>"
        }
      }
      ```
+     The required `AYRSHARE_API_KEY` is intentionally **last** so that deleting any optional line above it leaves valid JSON (no dangling trailing comma). If the user keeps an optional line, every entry except the last needs its trailing comma.
    - **OS environment variables** (CI / advanced): set the same variable names before launching Claude Code (macOS/Linux: `export VAR=...` in a shell profile or a CI secret; Windows: `setx VAR "..."` then relaunch, or System Environment Variables).
 
    Tell them: only `AYRSHARE_API_KEY` is required; delete the optional lines they don't need; the X pair is both or neither; save, then restart. The `settings.json` route is the more portable one (Claude Code reads it identically on every OS and however it is launched, not only from the shell that set it).
