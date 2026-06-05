@@ -59,7 +59,31 @@ classic cause of a `403 / code 102` after setup.
    also works where there is no launching shell (e.g. the Claude desktop app). Prefer it
    unless the user specifically wants OS-managed environment variables.
 
-4. **Offer to clean up a stale duplicate server.** Older versions of this command
+4. **Optional — default to a client profile.** The API key alone acts on the account's
+   **primary** profile. Business accounts with client sub-profiles can optionally pin one as
+   the connection default. This step is optional; skip it (leave the primary profile) unless
+   the user asks. Ask:
+
+   "Pin a default client profile for this connection? (optional)
+   - **No (default)** — calls act on your **primary** profile. You can still target any client on
+     a single call by passing a `profileKey` argument to the tool. Pick this if you work across
+     several profiles, or aren't sure.
+   - **Yes** — paste a Profile Key. **Every** call then defaults to that profile, and you can still
+     override it on any single call by passing a `profileKey` argument (the per-call value wins).
+     To return to the primary profile, remove `AYRSHARE_PROFILE_KEY` and restart."
+
+   If **yes**, set `env.AYRSHARE_PROFILE_KEY` alongside `env.AYRSHARE_API_KEY` in the same file and
+   scope you used above. If **no**, write nothing for it: the bundled `Profile-Key: ${AYRSHARE_PROFILE_KEY:-}`
+   header goes out empty and the server uses the primary profile. Either way the per-call `profileKey`
+   argument is always available and always supersedes the connection default, so pinning a key never
+   locks the user out of other client profiles; the one thing a pinned key changes is that the default
+   is that profile rather than primary, so reaching primary again means removing the variable and restarting.
+
+   (X/Twitter, advanced: posting to X additionally requires your X app's OAuth 1.0a key pair as
+   `X_TWITTER_OAUTH1_API_KEY` and `X_TWITTER_OAUTH1_API_SECRET` in the same `env` block. Optional and
+   X-only; skip if you do not post to X. Details in the install reference.)
+
+5. **Offer to clean up a stale duplicate server.** Older versions of this command
    created a separate `ayrshare` MCP server (via `claude mcp add`) with the key in a
    header. That extra server shadows or collides with the plugin and should be removed.
    Run `claude mcp list` and identify it carefully:
@@ -77,7 +101,7 @@ classic cause of a `403 / code 102` after setup.
    - If the only `ayrshare`-related server is the plugin's own (`plugin:ayrshare:ayrshare`),
      there is nothing to clean up; do not prompt for removal.
 
-5. **Tell the user to restart.**
+6. **Tell the user to restart.**
    - "Setup complete. **Restart Claude Code** to activate the connection. The MCP server is initialized at session start, so the key won't be active until you restart."
 
 ## Notes
