@@ -4,7 +4,10 @@
 			"type": "http",
 			"url": "https://api.ayrshare.com/mcp",
 			"headers": {
-				"Authorization": "Bearer ${AYRSHARE_API_KEY}"
+				"Authorization": "Bearer ${AYRSHARE_API_KEY}",
+				"Profile-Key": "${AYRSHARE_PROFILE_KEY:-}",
+				"X-Twitter-OAuth1-Api-Key": "${X_TWITTER_OAUTH1_API_KEY:-}",
+				"X-Twitter-OAuth1-Api-Secret": "${X_TWITTER_OAUTH1_API_SECRET:-}"
 			}
 		}
 	}

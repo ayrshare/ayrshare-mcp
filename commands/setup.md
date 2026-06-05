@@ -28,7 +28,7 @@ classic cause of a `403 / code 102` after setup.
    exists, parse it as JSON, set `env.AYRSHARE_API_KEY` to the key, and write it back
    preserving every other field. Create the file (and its directory) if missing.
 
-   **Global:** target `~/.claude/settings.json`.
+   **Global:** target `~/.claude/settings.json` — your home directory on every OS (`~/.claude/settings.json` on macOS/Linux, `%USERPROFILE%\.claude\settings.json` on Windows).
 
    **This project:** target `./.claude/settings.json` (the current working directory).
    Remind the user that `.claude/settings.json` is normally committed; if they do not
@@ -47,11 +47,17 @@ classic cause of a `403 / code 102` after setup.
    }
    ```
 
-   **I'll set it myself:** write nothing. Print:
-   ```bash
-   export AYRSHARE_API_KEY=your_key_here   # add to ~/.zshenv, CI secret, etc.
-   ```
-   and note the plugin's `.mcp.json` substitutes `${AYRSHARE_API_KEY}` at session start.
+   **I'll set it myself:** write nothing. Tell the user to define the `AYRSHARE_API_KEY`
+   environment variable with their platform's own mechanism, so it is present in the
+   environment **before** Claude Code launches:
+   - macOS / Linux: `export AYRSHARE_API_KEY=...` in a shell profile (`~/.zshrc`, `~/.bashrc`, ...), or a CI secret.
+   - Windows: `setx AYRSHARE_API_KEY "..."` (or `$env:AYRSHARE_API_KEY="..."` in PowerShell), or set it under System Environment Variables.
+
+   The plugin's `.mcp.json` substitutes `${AYRSHARE_API_KEY}` at session start on every OS.
+   The `settings.json` `env` approach (the Global / This project options above) is the most
+   portable choice: Claude Code reads it identically on macOS, Linux, and Windows, and it
+   also works where there is no launching shell (e.g. the Claude desktop app). Prefer it
+   unless the user specifically wants OS-managed environment variables.
 
 4. **Offer to clean up a stale duplicate server.** Older versions of this command
    created a separate `ayrshare` MCP server (via `claude mcp add`) with the key in a
@@ -76,5 +82,10 @@ classic cause of a `403 / code 102` after setup.
 
 ## Notes
 - One mechanism, one variable: every scope sets `AYRSHARE_API_KEY`, which is exactly what the plugin's bundled server reads. No duplicate servers.
+- **Optional credential variables (same `env` block, all empty by default).** The plugin's `.mcp.json` also interpolates three optional variables you set the same way (`settings.json` `env`, or your OS env):
+  - `AYRSHARE_PROFILE_KEY` — act as a specific client profile by default (instead of passing `profileKey` per call).
+  - `X_TWITTER_OAUTH1_API_KEY` and `X_TWITTER_OAUTH1_API_SECRET` — your X/Twitter app's OAuth 1.0a consumer key and secret, required to post to X under the BYO-key mandate.
+
+  Each uses `${VAR:-}`, so when you leave it unset the header is sent empty and the server treats it as not provided (no effect, no error). Set it to turn the feature on. Restart Claude Code after changing any of them.
 - To rotate the key, run `/ayrshare:setup` again and pick the same scope; it overwrites the variable in place.
 - Do NOT verify by calling any MCP tool after setup. The connection loads at session start and will return 401/403 in the same session where the key was written. Restart first.

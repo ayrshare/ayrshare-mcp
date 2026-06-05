@@ -195,27 +195,20 @@ The last two are multi-step **workflow** skills: they orchestrate the tools abov
 
 The API key is supplied through the `AYRSHARE_API_KEY` environment variable, which the `ayrshare` server's `.mcp.json` interpolates into its `Authorization` header (`Bearer ${AYRSHARE_API_KEY}`). `/ayrshare:setup` sets that variable for you in a `settings.json` `env` block. Profile scoping has two equivalent inputs: a `Profile-Key` connection header (the default for every call) **or** an optional `profileKey` tool argument on a profile-scoped tool call (the argument wins when both are set; a few utility/AI tools such as `generate_post` and `recommend_hashtags` are excluded, see `getting-started`). The per-call argument lets an agent act as a client it learns at runtime without editing `.mcp.json` or restarting.
 
-### Act as a specific client profile (`Profile-Key` header or `profileKey` argument)
+The bundled `.mcp.json` already declares the optional `Profile-Key` and X BYOK headers with empty defaults (`${VAR:-}`), so you enable each by setting the matching environment variable (same `settings.json` `env` block as `AYRSHARE_API_KEY`, on any OS) and restarting. Leave a variable unset and its header goes out empty, which the server treats as not provided. No `.mcp.json` editing, and nothing to redo after `claude plugin update`.
 
-To make a whole connection default to one client, add a `Profile-Key` header alongside `Authorization`:
+### Act as a specific client profile (`AYRSHARE_PROFILE_KEY` or `profileKey` argument)
 
-```jsonc
-"headers": {
-  "Authorization": "Bearer ${AYRSHARE_API_KEY}",
-  "Profile-Key": "${AYRSHARE_PROFILE_KEY}"   // optional; omit to act on the primary profile
-}
-```
-
-Then set `AYRSHARE_PROFILE_KEY` and restart. With no header set, calls act on the account's primary profile. To act as a client for a single call instead, pass `profileKey` as a tool argument on a profile-scoped call (it takes precedence over the header, no restart needed). The `generate_jwt_social_linking_url` tool uses the same target-profile value (required for that tool, via either input). You do not pass a private key or domain (the server derives them from your authenticated account), but the account must still have a **provisioned social-linking domain (Business/Enterprise)**; without one the call returns a "No social-linking domain is provisioned for this account" error.
+Set `AYRSHARE_PROFILE_KEY` (in your `settings.json` `env`) and restart to default the whole connection to one client; the bundled `Profile-Key: ${AYRSHARE_PROFILE_KEY:-}` header carries it. With it unset, calls act on the account's primary profile. To act as a client for a single call instead, pass `profileKey` as a tool argument on a profile-scoped call (it takes precedence over the header, no restart needed). The `generate_jwt_social_linking_url` tool uses the same target-profile value (required for that tool, via either input). You do not pass a private key or domain (the server derives them from your authenticated account), but the account must still have a **provisioned social-linking domain (Business/Enterprise)**; without one the call returns a "No social-linking domain is provisioned for this account" error.
 
 ### Bring-your-own X/Twitter app (BYOK)
 
-Posting to X/Twitter requires your own X Developer App (the [X BYO-key mandate](https://www.ayrshare.com/docs/apis/overview#x/twitter-byo-credentials), effective March 31, 2026). After linking X with your app's credentials, add your OAuth 1.0a key pair as **two** connection headers on the `ayrshare` server (values are never logged):
+Posting to X/Twitter requires your own X Developer App (the [X BYO-key mandate](https://www.ayrshare.com/docs/apis/overview#x/twitter-byo-credentials), effective March 31, 2026). After linking X with your app's credentials, set **both** environment variables and restart (values are never logged):
 
-- `X-Twitter-OAuth1-Api-Key` — your X API Key (Consumer Key)
-- `X-Twitter-OAuth1-Api-Secret` — your X API Secret (Consumer Secret)
+- `X_TWITTER_OAUTH1_API_KEY` — your X API Key (Consumer Key); sent as the `X-Twitter-OAuth1-Api-Key` header.
+- `X_TWITTER_OAUTH1_API_SECRET` — your X API Secret (Consumer Secret); sent as the `X-Twitter-OAuth1-Api-Secret` header.
 
-These are the only X BYO headers Ayrshare uses: one key pair per Ayrshare account, sent on every X-targeting request (the same pair for all sub-profiles). Ayrshare does **not** use OAuth 2.0 client credentials here. Without these headers, an X/Twitter request returns error `419` (`x_credentials_required`).
+These are the only X BYO headers Ayrshare uses: one key pair per Ayrshare account, sent on every X-targeting request (the same pair for all sub-profiles). Ayrshare does **not** use OAuth 2.0 client credentials here. Set both or neither; with neither set, an X/Twitter request returns error `419` (`x_credentials_required`).
 
 ---
 

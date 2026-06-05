@@ -80,10 +80,17 @@ This is the same variable `/ayrshare:setup` sets; the command just writes it int
 
 ## Optional configuration
 
-| Setting | Description |
+The plugin's bundled `.mcp.json` already declares these optional headers with empty
+defaults (`${VAR:-}`), so you enable each feature just by setting the matching environment
+variable (same `settings.json` `env` block as `AYRSHARE_API_KEY`, or your OS env) and
+restarting. Leave a variable unset and its header is sent empty, which the server treats
+as "not provided" (no effect, no error) — so there is no manual `.mcp.json` editing and
+nothing to undo on `claude plugin update`.
+
+| Setting (env var) | Description |
 |---|---|
-| `AYRSHARE_PROFILE_KEY` (env var) | Value for an optional `Profile-Key` connection header, set this to make a whole connection default to a specific client profile (only takes effect if you add a `Profile-Key` header to the MCP server config; the default config sends only the API key). For one-off or runtime profile selection, pass `profileKey` as a tool argument on a profile-scoped call instead; it takes precedence over the header and needs no restart. See the auth model in SKILL.md. |
-| X/Twitter BYO headers | Posting to X/Twitter requires your own X Developer App (the X BYO-key mandate, effective March 31, 2026). Add your OAuth 1.0a key pair as **two** headers to the MCP server config: `X-Twitter-OAuth1-Api-Key` (your X API Key / Consumer Key) and `X-Twitter-OAuth1-Api-Secret` (your X API Secret / Consumer Secret). These two are the only X BYO headers Ayrshare uses — one key pair per account, on every X-targeting request; no OAuth 2.0 client credentials or per-user access tokens. Values are never logged. Without them an X request returns error `419`. |
+| `AYRSHARE_PROFILE_KEY` | Sets the `Profile-Key` header so the whole connection defaults to a specific client profile. For one-off or runtime profile selection, pass `profileKey` as a tool argument on a profile-scoped call instead; it takes precedence over the header and needs no restart. See the auth model in SKILL.md. |
+| `X_TWITTER_OAUTH1_API_KEY` + `X_TWITTER_OAUTH1_API_SECRET` | Your X Developer App's OAuth 1.0a key pair (API Key / Consumer Key and API Secret / Consumer Secret), required to post to X/Twitter under the BYO-key mandate (effective March 31, 2026). These map to the `X-Twitter-OAuth1-Api-Key` / `X-Twitter-OAuth1-Api-Secret` headers — the only X BYO headers Ayrshare uses (one key pair per account, on every X-targeting request; no OAuth 2.0 client credentials or per-user access tokens). Values are never logged. Set **both** or neither; with neither, an X request returns error `419`. |
 
 ## Notes
 
