@@ -8,7 +8,7 @@ The plugin's bundled MCP server reads its credentials from environment variables
 
 Only `AYRSHARE_API_KEY` is required. Profile-Key and X BYOK are optional.
 
-**Surface note:** this command configures **Claude Code** (CLI and IDE) only. The claude.ai desktop app and **Cowork** read plugin credentials from admin-managed config, not from `settings.json`, so a key set here does **not** carry over to them. If the user also uses Cowork, point them to the "Setting your key in Cowork" section in the README.
+**Surface note:** this command configures **Claude Code** (CLI, IDE, and the desktop **Code** tab) only. **Cowork and the claude.ai desktop app are not supported yet**: they do not read `settings.json` `env` or expand `${VAR}`, so a key set here does **not** reach them, and there is no other working path until OAuth ships. If the user asks about Cowork, point them to the "Cowork and the desktop app (not supported yet)" section in the README.
 
 ## Steps
 
