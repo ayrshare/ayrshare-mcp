@@ -1,23 +1,34 @@
 #!/bin/sh
-# Block commits that contain secrets, before they ever leave the machine.
-# This repo is public: a pushed secret is exposed instantly and cannot be un-leaked,
-# so local detection is the only layer that actually prevents exposure.
+# Pre-commit guard for this PUBLIC repo. Two independent checks; each warns and
+# continues if its tool is missing locally, and CI enforces both regardless.
 
-if ! command -v trufflehog >/dev/null 2>&1; then
-  echo "⚠  trufflehog not installed. Install: https://github.com/trufflesecurity/trufflehog#installation"
-  echo "   (macOS: brew install trufflehog). Skipping local secret scan; CI will still scan."
-  exit 0
+root="$(git rev-parse --show-toplevel)"
+status=0
+
+# 1. Secret scan. A pushed secret is exposed instantly and cannot be un-leaked,
+#    so local detection is the only layer that actually prevents exposure.
+if command -v trufflehog >/dev/null 2>&1; then
+  # --trust-local-git-config: without it TruffleHog can read 0 bytes from a hook
+  #   context and scan nothing (trufflehog issue #4575). --results includes
+  #   "unverified" so a staged private key is blocked too.
+  trufflehog git "file://$root" \
+    --since-commit HEAD --results=verified,unknown,unverified \
+    --fail --no-update --trust-local-git-config || {
+      echo "X  Secret detected. Commit blocked."
+      echo "   Remove the secret AND rotate the key (assume it is already compromised)."
+      status=1
+    }
+else
+  echo "!  trufflehog not installed (macOS: brew install trufflehog). Skipping local secret scan; CI will still scan."
 fi
 
-# --trust-local-git-config is required: without it TruffleHog can read 0 bytes
-#   from a hook context and scan nothing (see trufflehog issue #4575).
-# --results includes "unverified" so the hook also blocks findings it cannot
-#   verify as live, e.g. a staged private key (which is exactly what we must
-#   never let reach a public repo).
-trufflehog git "file://$(git rev-parse --show-toplevel)" \
-  --since-commit HEAD --results=verified,unknown,unverified \
-  --fail --no-update --trust-local-git-config || {
-    echo "✖  Secret detected. Commit blocked."
-    echo "   Remove the secret AND rotate the key (assume it is already compromised)."
-    exit 1
-  }
+# 2. SKILL.md description constraints that the claude.ai Cowork / community-
+#    marketplace plugin validator enforces but `claude plugin validate` does not
+#    (each frontmatter description <= 1024 chars and free of '<' or '>').
+if command -v python3 >/dev/null 2>&1; then
+  python3 "$root/scripts/check-skill-descriptions.py" || status=1
+else
+  echo "!  python3 not found. Skipping SKILL.md description check; CI will still run it."
+fi
+
+exit $status

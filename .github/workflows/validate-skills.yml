@@ -1,0 +1,32 @@
+name: Validate Skills
+
+# Enforce the SKILL.md description constraints that the claude.ai Cowork and
+# community-marketplace plugin validators apply but `claude plugin validate` does
+# not (each frontmatter description <= 1024 chars and free of '<' or '>'). Keeps
+# a future skill edit from silently breaking the org / marketplace upload.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: validate-skills-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  skill-descriptions:
+    name: SKILL.md description limits
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        # Pinned to a commit SHA (matches trufflehog.yml); bump intentionally.
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          persist-credentials: false
+      - name: Check SKILL.md descriptions (<= 1024 chars, no angle brackets)
+        run: python3 scripts/check-skill-descriptions.py

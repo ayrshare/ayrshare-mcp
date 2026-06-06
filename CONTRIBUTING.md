@@ -44,3 +44,21 @@ docs), add a `trufflehog:ignore` comment on that line rather than weakening the 
 
 If a secret ever does land on a branch: **rotate the key first** (it is already
 exposed), then scrub the history.
+
+## Authoring skills
+
+Each skill's `SKILL.md` frontmatter `description` is validated more strictly by the
+claude.ai Cowork org uploader and the community marketplace than by `claude plugin
+validate` (which checks neither rule). To keep the plugin installable on every
+surface:
+
+- **Length:** keep each description **at most 1024 characters**, and aim well under
+  it (target roughly 900 or fewer) so a small later edit does not breach the cap.
+- **No angle brackets:** a description must not contain `<` or `>`; the validators
+  read them as XML tags and reject the upload. Write `Error 156`, not `Error <code>`;
+  write "under 24h", not "< 24h".
+
+Enforcement: `scripts/check-skill-descriptions.py` checks both rules. It runs in the
+`pre-commit` hook (once you set `core.hooksPath .githooks` above) and in the
+**Validate Skills** CI workflow on every pull request and push to `main`. Run it
+anytime with `python3 scripts/check-skill-descriptions.py`.
