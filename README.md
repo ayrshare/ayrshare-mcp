@@ -166,18 +166,18 @@ Install the plugin once. The plugin reads the same four variables (`AYRSHARE_API
 | Surface | How credentials are supplied | Profile-Key | X BYOK |
 |---|---|---|---|
 | **Claude Code** (CLI / IDE / desktop "Code" tab) | `settings.json` `env` block via `/ayrshare:setup` (or set the vars yourself); a shell `export` before launch also works | `AYRSHARE_PROFILE_KEY` env, or per-call `profileKey` argument | `X_TWITTER_OAUTH1_API_KEY` + `X_TWITTER_OAUTH1_API_SECRET` env |
-| **Cowork / claude.ai desktop app** | **Not supported yet.** The skills install, but the API tools cannot authenticate: Cowork does not read `settings.json` `env` or expand `${VAR}`, the connector UI is OAuth-only (every call `403`), and a Claude Code `managed-mcp.json` does not apply to Cowork. Needs OAuth (see [Roadmap](#roadmap)). | not available yet | not available yet |
+| **Cowork / claude.ai desktop app** | **Not supported yet.** The skills install, but the API tools cannot authenticate: Cowork does not read `settings.json` `env` or expand `${VAR}`, the connector UI is OAuth-only (every call `403`), and a Claude Code managed-MCP config does not apply to Cowork. Needs OAuth (see [Roadmap](#roadmap)). | not available yet | not available yet |
 | **CI / headless** | OS environment variables set before launch | `AYRSHARE_PROFILE_KEY` env | the two env vars |
 
 A key set for Claude Code does **not** carry over to Cowork: `${VAR}` interpolation is a Claude Code feature, and Cowork has no supported way to supply credentials to the plugin's MCP server yet (see below). So the "Claude Code, all projects" option in `/ayrshare:setup` means all Claude Code projects, not all Claude surfaces.
 
 ## Cowork and the desktop app (not supported yet)
 
-The plugin's skills install in Cowork and the claude.ai desktop app, but its API tools **cannot authenticate** there yet, so they do not load. This is a platform limitation, not a setting you can change today:
+The plugin's skills install in Cowork and the claude.ai desktop app, but its API tools **cannot authenticate** there yet, so you cannot actually use them. Depending on the route the tools either fail to load or appear but return an auth error on every call. This is a platform limitation, not a setting you can change today:
 
 - Cowork does not read `~/.claude/settings.json` `env` and does not expand `${VAR}`, so the bundled `.mcp.json` `Authorization` header stays empty and `/ayrshare:setup` never reaches it.
 - Adding Ayrshare as a **claude.ai / org connector** loads the tools but offers no field for an `Authorization` header, so every call returns `403` (`code 102`).
-- A Claude Code **`managed-mcp.json`** does **not** apply to Cowork; it is a Claude Code feature. Deploying one will not help Cowork, and it takes exclusive, machine-wide control of MCP that suppresses this plugin's own server and your other MCP servers **in Claude Code**. Do not use it for Cowork.
+- A Claude Code **`managed-mcp.json`** (an admin/enterprise managed-MCP config file; see the [managed MCP docs](https://code.claude.com/docs/en/managed-mcp.md)) does **not** apply to Cowork; it is a Claude Code feature. Deploying one will not help Cowork, and it takes exclusive, machine-wide control of MCP that suppresses this plugin's own server and your other MCP servers **in Claude Code**. Do not use it for Cowork.
 
 The fix is per-user OAuth on the MCP endpoint (see [Roadmap](#roadmap)). Until it ships, use the plugin in **Claude Code** (CLI, IDE, or the desktop **Code** tab), where `/ayrshare:setup` configures it in seconds.
 
