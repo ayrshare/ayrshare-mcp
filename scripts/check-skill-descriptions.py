@@ -49,10 +49,14 @@ def extract_description(text):
                 raw.append(line)
             else:
                 break  # a dedented, non-blank line ends the block scalar
-        while raw and raw[0] == "":
+        # The block tail always starts with the newline that terminated the
+        # `description: |` line, so split() yields one artifact "" at the front.
+        # Drop exactly that one; any further leading blank lines are part of the
+        # scalar value (YAML preserves them) and must count toward the length.
+        if raw and raw[0] == "":
             raw.pop(0)
-        if not raw:
-            return ""
+        if not any(l.strip() for l in raw):
+            return ""  # empty / all-blank block scalar
         indent = min(len(l) - len(l.lstrip()) for l in raw if l.strip())
         lines = [l[indent:] if l.strip() else "" for l in raw]
         trailing = 0
