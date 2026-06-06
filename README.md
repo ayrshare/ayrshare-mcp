@@ -166,25 +166,29 @@ Install the plugin once; then there is **one credential step per surface**. The 
 | Surface | How credentials are supplied | Profile-Key | X BYOK |
 |---|---|---|---|
 | **Claude Code** (CLI / IDE) | `settings.json` `env` block via `/ayrshare:setup` (or set the vars yourself); a shell `export` before launch also works | `AYRSHARE_PROFILE_KEY` env, or per-call `profileKey` argument | `X_TWITTER_OAUTH1_API_KEY` + `X_TWITTER_OAUTH1_API_SECRET` env |
-| **Cowork / claude.ai desktop app** | admin-managed `managedMcpServers` config with **literal** header values (see "Setting your key in Cowork"); `settings.json` `env` is **not** read here | `Profile-Key` header (literal) in that config | the two `X-Twitter-OAuth1-*` headers (literal) in that config |
+| **Cowork / claude.ai desktop app** | No first-class path yet. A verified but costly workaround uses an admin-deployed `managed-mcp.json` with **literal** header values (see "Setting your key in Cowork"); the claude.ai connector UI cannot attach a key, and `settings.json` `env` is **not** read here | `Profile-Key` header (literal) in that file | the two `X-Twitter-OAuth1-*` headers (literal) in that file |
 | **CI / headless** | OS environment variables set before launch | `AYRSHARE_PROFILE_KEY` env | the two env vars |
 
-A key set for Claude Code does **not** carry over to Cowork, and vice versa: `${VAR}` interpolation is a Claude Code feature, and Cowork needs literal values supplied through managed settings. So the "Claude Code, all projects" option in `/ayrshare:setup` means all Claude Code projects, not all Claude surfaces.
+A key set for Claude Code does **not** carry over to Cowork, and vice versa: `${VAR}` interpolation is a Claude Code feature, and Cowork needs literal values supplied through an admin-deployed `managed-mcp.json`. So the "Claude Code, all projects" option in `/ayrshare:setup` means all Claude Code projects, not all Claude surfaces.
 
 ## Setting your key in Cowork
 
-> **Status: documented, not yet verified by us.** This is the admin-managed path Cowork's configuration implies; an end-to-end verification on our side is in progress. If calls still fail after this, the credentials are not reaching the server (see the symptom table) and we will revise this section.
+> **There is no first-class way to authenticate this plugin in Cowork / the claude.ai desktop app yet.** Cowork does not read `~/.claude/settings.json` `env` and does not expand `${VAR}`, so the `/ayrshare:setup` flow never reaches it. The OAuth 2.1 work on the [Roadmap](#roadmap) is the real fix. Until then, the one mechanism we have verified end to end is an admin-deployed `managed-mcp.json`. It works, but it seizes exclusive, machine-wide control of MCP, so weigh the costs below before using it.
 
-Cowork and the claude.ai desktop app do **not** read `~/.claude/settings.json` `env`, and they do **not** expand `${VAR}`. An org admin supplies the plugin's credentials as **literal** header values in managed settings:
+> ⚠️ **Do not add Ayrshare as a claude.ai / org connector.** The connector UI loads all of the plugin's tools, but it has no field for an `Authorization` header, so every call returns `403` (`code 102`) with no way for an end user to supply a key. This route stays unusable until OAuth ships. Use the `managed-mcp.json` workaround below, or use Claude Code.
 
-1. As an admin, edit (or create) the managed settings file:
-   - **macOS:** `/Library/Application Support/ClaudeCode/managed-settings.json`
-   - **Windows:** `C:\Program Files\ClaudeCode\managed-settings.json` (the older `C:\ProgramData\ClaudeCode\managed-settings.json` is deprecated as of Claude Code v2.1.75)
-   - **Linux:** `/etc/claude-code/managed-settings.json`
-2. Add a `managedMcpServers` entry for `ayrshare` using the same headers the plugin's `.mcp.json` uses, but with **literal values** (no `${VAR}`):
+### The verified workaround: `managed-mcp.json`
+
+An org admin deploys a `managed-mcp.json` file holding the plugin's server with **literal** header values (Cowork cannot expand `${VAR}`). It is a standard `mcpServers` block, the same shape as a project `.mcp.json`. See the [managed MCP docs](https://code.claude.com/docs/en/managed-mcp.md).
+
+1. As an admin, create the managed MCP file:
+   - **macOS:** `/Library/Application Support/ClaudeCode/managed-mcp.json`
+   - **Windows:** `C:\Program Files\ClaudeCode\managed-mcp.json`
+   - **Linux / WSL:** `/etc/claude-code/managed-mcp.json`
+2. Add an `mcpServers` entry keyed **exactly** `ayrshare`. Every skill and agent in this plugin calls tools named `mcp__ayrshare__*`, so any other key leaves all of them stale. Use literal values, and **omit** any optional header you are not using rather than leaving a placeholder or empty string:
    ```json
    {
-     "managedMcpServers": {
+     "mcpServers": {
        "ayrshare": {
          "type": "http",
          "url": "https://api.ayrshare.com/mcp",
@@ -198,8 +202,20 @@ Cowork and the claude.ai desktop app do **not** read `~/.claude/settings.json` `
      }
    }
    ```
-   Only `Authorization` is required. **Omit** the `Profile-Key` and X lines you do not use (do not leave placeholders or empty strings). X BYOK uses the same two headers here as on every other surface.
-3. **Restart the app** and start a **new session**; managed settings load at startup.
+   Only `Authorization` is required. X BYOK uses the same two headers here as on every other surface.
+3. **Restart the app** and start a **new session**; managed MCP servers load at startup.
+
+**Verify it loaded:** run `claude mcp list`. It should show **only** the `ayrshare` managed server, and `claude mcp add ...` should now fail with an enterprise-policy error. Then, in a new Cowork session, run a read such as "list my profiles".
+
+### The costs (read before deploying)
+
+`managed-mcp.json` does not add a server alongside the others. It **replaces** the entire MCP set machine-wide. While it is in place:
+
+- **It suppresses the plugin's own bundled MCP server** (the one `/ayrshare:setup` configures) and **every user-added MCP server**, on the whole machine, **including in Claude Code**, not just Cowork. Only servers listed in `managed-mcp.json` load anywhere.
+- **It suppresses claude.ai connectors** too, unless an admin also sets `"allowAllClaudeAiMcps": true` in `managed-settings.json` (the *settings* file, not the MCP file; needs Claude Code v2.1.149 or newer). That flag re-enables claude.ai connectors **only**; it does not bring back the plugin's own server or any user-added server.
+- **It needs admin rights** to a protected system path, and it stores the API key as a **world-readable literal** in that file (no `${VAR}` indirection). Treat it like any deployed secret.
+
+If you only need Ayrshare in Claude Code, skip all of this and use `/ayrshare:setup`. The `managed-mcp.json` route is for orgs that specifically need the plugin inside Cowork today and accept taking over MCP machine-wide until OAuth lands.
 
 Symptom table:
 
@@ -275,7 +291,7 @@ Facebook, Instagram, LinkedIn, X (Twitter), TikTok, YouTube, Pinterest, Reddit, 
 
 ## Roadmap
 
-- **Zero-config per-user auth (MCP OAuth 2.1).** We plan to add MCP-spec OAuth 2.1 (PKCE, dynamic client registration, authorization-server metadata) to `api.ayrshare.com/mcp`. Once shipped, an org-installed plugin authenticates per user on the first tool call ("Connect to Ayrshare", a dashboard login, a per-user token) on **every** surface, with no manual key step. Claude Code already supports this flow via `/mcp` authenticate, so setup collapses to "install, then click Connect" everywhere. Until then, the per-surface credential steps above (including the Cowork managed-settings route) are the supported path, and env-var / header credentials remain available for CI and power users.
+- **Zero-config per-user auth (MCP OAuth 2.1): our top auth priority.** This is the only path that makes Cowork and the claude.ai desktop app first-class surfaces, so it is the next major auth investment for this plugin. We plan to add MCP-spec OAuth 2.1 (PKCE, dynamic client registration, authorization-server and protected-resource metadata) to `api.ayrshare.com/mcp`. Once shipped, an org-installed plugin authenticates per user on the first tool call ("Connect to Ayrshare", a dashboard login, a per-user token) on **every** surface, with no manual key step and no files. Claude Code already supports this flow via `/mcp` authenticate, so setup collapses to "install, then click Connect" everywhere. Until it lands, the per-surface credential steps above are the supported path on Claude Code, and the `managed-mcp.json` workaround is the only verified way to reach Cowork.
 
 ---
 
